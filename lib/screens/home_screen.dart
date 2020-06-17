@@ -2,6 +2,7 @@ import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/screens/home_tabs/schedule_tab.dart';
+import 'package:citycollection/screens/scan_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,99 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: BlocBuilder(
-            bloc: _homeTabBloc,
-            builder: (context, HomeTabState state) {
-              if (state is HomeTabHomeState) {
-                return RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: "Home",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 20.0))
-                  ]),
-                );
-              } else if (state is HomeTabRedeemState) {
-                return RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: "Redeem",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 20.0)),
-                    TextSpan(
-                        text: "Prizes",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                            fontSize: 20.0))
-                  ]),
-                );
-              } else if (state is HomeTabScheduleState) {
-                return RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: "Schedule",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 20.0)),
-                    TextSpan(
-                        text: "Pickup",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                            fontSize: 20.0))
-                  ]),
-                );
-              } else if (state is HomeTabNearbyState) {
-                return RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: "Validation",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 20.0)),
-                    TextSpan(
-                        text: "Management",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                            fontSize: 20.0))
-                  ]),
-                );
-              } else if (state is HomeTabMeState) {
-                return RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: "Me",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 20.0)),
-                  ]),
-                );
-              } else if (state is HomeTabInitial) {
-                return RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                        text: "Home",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 20.0)),
-                  ]),
-                );
-              }
-            }),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-      ),
       body: BlocBuilder<HomeTabBloc, HomeTabState>(
         bloc: _homeTabBloc,
         builder: (context, HomeTabState state) {
@@ -136,8 +44,18 @@ class _HomeScreenState extends State<HomeScreen> {
             return MeTab();
           } else if (state is HomeTabInitial) {
             return HomeTab();
+          } else {
+            return HomeTab();
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => ScanScreen()));
+        },
+        backgroundColor: Colors.black,
+        child: Icon(Icons.camera, color: Colors.white),
       ),
       bottomNavigationBar: TitledBottomNavigationBar(
           currentIndex: 0,
@@ -163,7 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
           activeColor: CityColors.primary_green,
           inactiveColor: Colors.black54,
           items: [
-            TitledNavigationBarItem(title: 'Home', icon: Icons.home),
+            TitledNavigationBarItem(
+              title: 'Home',
+              icon: Icons.home,
+            ),
             TitledNavigationBarItem(title: 'Redeem', icon: Icons.card_giftcard),
             TitledNavigationBarItem(title: 'Schedule', icon: Icons.timer),
             TitledNavigationBarItem(title: 'Nearby', icon: Icons.map),

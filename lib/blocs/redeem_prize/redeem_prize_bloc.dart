@@ -5,7 +5,6 @@ import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
-import 'package:citycollection/models/prize_redemption_status.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
@@ -33,13 +32,14 @@ class RedeemPrizeBloc extends Bloc<RedeemPrizeEvent, RedeemPrizeState> {
       yield PrizeRedeemedWaitingState();
       PrizeRedemptionStatus redemptionStatus =
           await GetIt.instance<DataRepository>().redeemPrize(prize, user);
-      if (redemptionStatus == PrizeRedemptionStatus.WAITING) {
+      if (redemptionStatus == PrizeRedemptionStatus.waiting) {
+        print("Oinqone");
         yield PrizeRedeemedSuccessState(prize);
-      } else if (redemptionStatus == PrizeRedemptionStatus.NOT_ENOUGH_POINTS) {
+      } else if (redemptionStatus == PrizeRedemptionStatus.notEnoughPoints) {
         yield PrizeRedeemedFailedState("Not enough points on your account.");
       }
     } on DataFetchException catch (e) {
-      print(TAG + " Failed to redeem prize ${prize.id}");
+      print(TAG + " Failed to redeem prize ${prize.id}" + " " + e.toString());
       yield PrizeRedeemedFailedState(e.toString());
     }
   }

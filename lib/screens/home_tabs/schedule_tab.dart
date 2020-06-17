@@ -31,30 +31,23 @@ class _ScheduleTabState extends State<ScheduleTab> {
         child: CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
-          backgroundColor: Colors.white,
-          snap: true,
-          floating: true,
-          title: Container(
-              child: RichText(
-            textAlign: TextAlign.start,
-            text: TextSpan(children: [
-              TextSpan(
-                  text: "Pick", style: Theme.of(context).textTheme.display1),
-              TextSpan(text: "A", style: Theme.of(context).textTheme.display2),
-              TextSpan(
-                  text: "PickUp", style: Theme.of(context).textTheme.display1),
-              TextSpan(
-                  text: "Slot", style: Theme.of(context).textTheme.display2),
-            ]),
-          )),
-        ),
+            backgroundColor: Colors.white,
+            snap: true,
+            floating: true,
+            title: Container(
+              child: Text("Pick a pickup slot",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4
+                      .copyWith(fontWeight: FontWeight.bold)),
+            )),
         _createHeader("Sunday"),
         SliverPadding(
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Sunday"),
+              _createDayCard("4:30pm", "Sunday"),
             ]),
           ),
         ),
@@ -63,8 +56,8 @@ class _ScheduleTabState extends State<ScheduleTab> {
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Monday"),
+              _createDayCard("4:30pm", "Monday"),
             ]),
           ),
         ),
@@ -73,8 +66,8 @@ class _ScheduleTabState extends State<ScheduleTab> {
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Tuesday"),
+              _createDayCard("4:30pm", "Tuesday"),
             ]),
           ),
         ),
@@ -83,8 +76,8 @@ class _ScheduleTabState extends State<ScheduleTab> {
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Wednesday"),
+              _createDayCard("4:30pm", "Wednesday"),
             ]),
           ),
         ),
@@ -93,8 +86,8 @@ class _ScheduleTabState extends State<ScheduleTab> {
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Thursday"),
+              _createDayCard("4:30pm", "Thursday"),
             ]),
           ),
         ),
@@ -103,8 +96,8 @@ class _ScheduleTabState extends State<ScheduleTab> {
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Friday"),
+              _createDayCard("4:30pm", "Friday"),
             ]),
           ),
         ),
@@ -113,8 +106,8 @@ class _ScheduleTabState extends State<ScheduleTab> {
           padding: const EdgeInsets.all(10.0),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _createDayCard("10:30am"),
-              _createDayCard("4:30pm"),
+              _createDayCard("10:30am", "Saturday"),
+              _createDayCard("4:30pm", "Saturday"),
             ]),
           ),
         ),
@@ -132,16 +125,16 @@ class _ScheduleTabState extends State<ScheduleTab> {
               color: Colors.black12,
               offset: Offset(0.0, 0.0)),
         ]),
-        padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+        padding: const EdgeInsets.only(left: 20.0, top: 10.0),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.display3,
+          style: Theme.of(context).textTheme.headline5,
         ),
       ),
     );
   }
 
-  Widget _createDayCard(String time) {
+  Widget _createDayCard(String time, String day) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -149,6 +142,7 @@ class _ScheduleTabState extends State<ScheduleTab> {
             MaterialPageRoute(
                 builder: (context) => PickGarbageTypeScreen(
                       pickup_slot: time,
+                      pickup_date: day,
                     )));
       },
       child: Card(
@@ -186,19 +180,3 @@ class _ScheduleTabState extends State<ScheduleTab> {
     );
   }
 }
-
-// Container(
-//               padding: const EdgeInsets.all(20.0),
-//               child: GridView(
-//                 shrinkWrap: true,
-//                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                   crossAxisCount: 3,
-//                   crossAxisSpacing: 5.0,
-//                   mainAxisSpacing: 5.0,
-//                 ),
-//                 children: <Widget>[
-//                   _createRedemptionCard(Icons.tab, () {
-//                     print("we");
-//                   })
-//                 ],
-//               ))

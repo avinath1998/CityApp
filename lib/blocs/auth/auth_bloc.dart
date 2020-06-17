@@ -42,8 +42,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print(TAG + " Prior Checking Signing in.");
       yield (SigningInWaitingState());
       currentUser = await _authService.checkIfAlreadySignedIn();
-      yield SignedInState(currentUser);
-      print(TAG + " Sign in Successful");
+      if (currentUser == null) {
+        yield (SignedOutState());
+      } else {
+        yield SignedInState(currentUser);
+        print(TAG + " Sign in Successful");
+      }
     } on NoUserFoundException catch (ex) {
       print(TAG + " Could not sign in, user not found. $ex");
       yield SignedOutState();
@@ -58,7 +62,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print(TAG + " Signing in.");
       yield (SigningInWaitingState());
       currentUser = await _authService.signIn(email, password);
-      yield SignedInState(currentUser);
+      if (currentUser == null) {
+        yield (SigningInWaitingState());
+      } else {
+        yield SignedInState(currentUser);
+      }
       print(TAG + " Sign in Successful");
     } on NoUserFoundException catch (ex) {
       print(TAG + " Could not sign in, user not found. $ex");

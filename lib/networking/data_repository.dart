@@ -1,7 +1,6 @@
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
-import 'package:citycollection/models/prize_redemption_status.dart';
 import 'package:citycollection/networking/db.dart';
 
 class DataRepository {
@@ -30,12 +29,9 @@ class DataRepository {
   Future<List<Prize>> fetchPrizes() async {
     try {
       List<Prize> prizes = await db.fetchPrizes();
-      print(prizes.length);
       prizes.forEach((prize) {
-        print(prize.id);
         if (!cachedPrizes.contains(prize)) {
           cachedPrizes.add(prize);
-          print("ADDED");
         }
       });
       return prizes;

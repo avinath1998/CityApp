@@ -2,7 +2,7 @@ import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
-import 'package:citycollection/models/prize_redemption_status.dart';
+import 'package:citycollection/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class DB {
@@ -13,39 +13,35 @@ abstract class DB {
 
 class FirebaseDB extends DB {
   final String TAG = "FIREBASEDB: ";
+
   @override
   Future<CurrentUser> fetchCurrentUser(String id) async {
-    print(TAG + " Fetching Current User");
     DocumentSnapshot doc =
         await Firestore.instance.collection("users").document(id).get();
     if (doc.exists) {
-      print(TAG + "Current User Exists");
-
-      CurrentUser user = CurrentUser.fromMap(doc.data, doc.documentID);
-      print(user.name);
+      Map<String, dynamic> userData = doc.data;
+      userData.putIfAbsent("id", () => doc.documentID);
+      userData.putIfAbsent("userType", () => UserType.CurrentUser);
+      CurrentUser user = CurrentUser.fromJson(userData);
       return user;
     } else {
-      print(TAG + "Current User Does Not Exist in DB");
-
       throw NoUserFoundException("User not found in DB");
     }
   }
 
   @override
   Future<List<Prize>> fetchPrizes() async {
-    print(TAG + " Fetching Prizes");
     QuerySnapshot snapshot = await Firestore.instance
         .collection("prizes")
         .orderBy("cost")
         .getDocuments();
-    print(TAG + " Fetched Prizes");
-
     List<Prize> prizes = List();
     snapshot.documents.forEach((dc) {
-      Prize prize = Prize.fromMap(dc.data, dc.documentID);
+      Map<String, dynamic> map = dc.data;
+      map["id"] = dc.documentID;
+      Prize prize = Prize.fromJson(map);
       prizes.add(prize);
     });
-    print(TAG + " Completed Fetching Prizes");
     return prizes;
   }
 
@@ -69,11 +65,11 @@ class FirebaseDB extends DB {
           .add(
         {"redemptionPath": ref, "status": "WAITING"},
       );
-      return PrizeRedemptionStatus.WAITING;
+      return PrizeRedemptionStatus.waiting;
     } else {
       print(
           TAG + " Not enough points to make redemption for prize: " + prize.id);
-      return PrizeRedemptionStatus.NOT_ENOUGH_POINTS;
+      return PrizeRedemptionStatus.notEnoughPoints;
     }
   }
 }

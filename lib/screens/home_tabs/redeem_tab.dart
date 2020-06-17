@@ -9,6 +9,7 @@ import 'package:citycollection/networking/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -40,34 +41,36 @@ class _RedeemTabState extends State<RedeemTab> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      child: BlocProvider(
-          create: (context) => _redeemBloc,
-          child: BlocBuilder<RedeemBloc, RedeemState>(
-            builder: (context, state) {
-              if (state is RedeemPrizesFetchedState) {
-                return _buildList(state.prizes);
-              } else if (state is RedeemPrizesWaitingState) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: CityColors.primary_green,
-                  ),
-                );
-              } else if (state is RedeemLoadingFailedState) {
-                return Center(
-                  child: Text("Oops, an error has occured, try again later."),
-                );
-              } else if (state is RedeemInitial) {
-                if (state.prizes.length == 0) {
-                  return Center(
-                      child: CircularProgressIndicator(
-                    backgroundColor: CityColors.primary_green,
-                  ));
-                } else
+      child: Container(
+        color: Colors.white,
+        child: BlocProvider(
+            create: (context) => _redeemBloc,
+            child: BlocBuilder<RedeemBloc, RedeemState>(
+              builder: (context, state) {
+                if (state is RedeemPrizesFetchedState) {
                   return _buildList(state.prizes);
-              }
-            },
-          )),
+                } else if (state is RedeemPrizesWaitingState) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: CityColors.primary_green,
+                    ),
+                  );
+                } else if (state is RedeemLoadingFailedState) {
+                  return Center(
+                    child: Text("Oops, an error has occured, try again later."),
+                  );
+                } else if (state is RedeemInitial) {
+                  if (state.prizes.length == 0) {
+                    return Center(
+                        child: CircularProgressIndicator(
+                      backgroundColor: CityColors.primary_green,
+                    ));
+                  } else
+                    return _buildList(state.prizes);
+                }
+              },
+            )),
+      ),
     );
   }
 
@@ -76,24 +79,25 @@ class _RedeemTabState extends State<RedeemTab> {
       controller: _scrollController,
       slivers: <Widget>[
         SliverAppBar(
-            backgroundColor: Colors.white,
-            snap: true,
-            floating: true,
-            title: RichText(
-              text: TextSpan(children: [
-                TextSpan(
-                    text: "Your", style: Theme.of(context).textTheme.display2),
-                TextSpan(
-                    text: "City", style: Theme.of(context).textTheme.display1),
-                TextSpan(
-                    text: "Points: ",
-                    style: Theme.of(context).textTheme.display2),
-                TextSpan(
-                    text:
-                        "${BlocProvider.of<AuthBloc>(context).currentUser.points}",
-                    style: Theme.of(context).textTheme.display1)
-              ]),
-            )),
+          backgroundColor: Colors.white,
+          snap: false,
+          pinned: true,
+          floating: false,
+          title: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "CityPoints: " +
+                    "${BlocProvider.of<AuthBloc>(context).currentUser.points}",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    .copyWith(fontWeight: FontWeight.bold),
+              )
+            ],
+          ),
+        ),
         SliverStickyHeader(
           header: Container(
             decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -106,7 +110,7 @@ class _RedeemTabState extends State<RedeemTab> {
             padding: const EdgeInsets.only(left: 10.0, top: 10.0),
             child: Text(
               "Cash",
-              style: Theme.of(context).textTheme.display3,
+              style: Theme.of(context).textTheme.headline5,
             ),
           ),
           sliver: SliverList(
@@ -135,7 +139,7 @@ class _RedeemTabState extends State<RedeemTab> {
             padding: const EdgeInsets.only(left: 10.0, top: 10.0),
             child: Text(
               "Prizes",
-              style: Theme.of(context).textTheme.display3,
+              style: Theme.of(context).textTheme.headline5,
             ),
           ),
           sliver: SliverList(
@@ -258,6 +262,7 @@ class _RedeemTabState extends State<RedeemTab> {
     Prize prize,
     CurrentUser user,
   ) {
+    final RedeemPrizeBloc _bloc = RedeemPrizeBloc();
     showDialog(
         context: context,
         builder: (context) {
@@ -303,7 +308,7 @@ class _RedeemTabState extends State<RedeemTab> {
                     ),
                   ),
                   BlocBuilder(
-                      bloc: _prizeRedeemBloc,
+                      bloc: _bloc,
                       builder: (context, state) {
                         if (state is RedeemPrizeInitial) {
                           return MaterialButton(
@@ -312,8 +317,7 @@ class _RedeemTabState extends State<RedeemTab> {
                                     BorderRadius.all(Radius.circular(20.0))),
                             color: CityColors.primary_green,
                             onPressed: () {
-                              _prizeRedeemBloc
-                                  .add(RedeemCityPrizeEvent(prize, user));
+                              _bloc.add(RedeemCityPrizeEvent(prize, user));
                             },
                             child: Text("Confirm Redemption",
                                 style:
@@ -353,7 +357,7 @@ class _RedeemTabState extends State<RedeemTab> {
                             ],
                           );
                         }
-                      })
+                      }),
                 ])),
           );
         });

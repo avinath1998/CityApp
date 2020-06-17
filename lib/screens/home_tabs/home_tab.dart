@@ -10,36 +10,64 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
+  List<String> testList = ["123", "23", "23", "431", "213"];
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        color: Colors.white,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: RichText(
+    return SafeArea(
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  RichText(
                     text: TextSpan(children: [
                       TextSpan(
-                          text: "Welcome",
-                          style: Theme.of(context).textTheme.display1),
+                          text: "Hi ",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              .copyWith(fontWeight: FontWeight.bold)),
                       TextSpan(
                           text: BlocProvider.of<AuthBloc>(context)
                                   .currentUser
-                                  .name +
+                                  .name
+                                  .split(" ")[0] +
                               ",",
-                          style: Theme.of(context).textTheme.display2),
-                      TextSpan(
-                          text: "\nWhat do you want to do today?\n",
-                          style: Theme.of(context).textTheme.subhead),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4
+                              .copyWith(fontWeight: FontWeight.bold)),
                     ]),
-                  ))
-            ],
+                  ),
+                  Text(
+                    "have you recycled today?",
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                ],
+              ),
+            ),
           ),
-        ));
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              return Container(
+                margin: const EdgeInsets.all(5),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                  child: Container(
+                    height: 200,
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(child: Text("Test")),
+                  ),
+                ),
+              );
+            }, childCount: testList.length),
+          )
+        ],
+      ),
+    );
   }
 }

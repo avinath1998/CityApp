@@ -16,13 +16,10 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-  GetIt getIt = GetIt.instance;
   final AuthBloc _authBloc = AuthBloc(FirebaseAuthService());
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getIt.registerSingleton(DataRepository(FirebaseDB()));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _authBloc.add(CheckIfSignedInEvent());
     });
@@ -44,6 +41,8 @@ class _RootPageState extends State<RootPage> {
               return LoginScreen(isWaiting: true);
             } else if (state is AuthInitial) {
               return LoginScreen();
+            } else {
+              return LoginScreen(isWaiting: true);
             }
           },
         ));
