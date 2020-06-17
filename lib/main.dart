@@ -5,12 +5,17 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logging/logging.dart';
 
 import 'networking/data_repository.dart';
 
 void main() {
   GetIt.instance
       .registerSingleton<DataRepository>(DataRepository(FirebaseDB()));
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.loggerName} ${record.message}');
+  });
   runApp(
     DevicePreview(
       enabled: true,

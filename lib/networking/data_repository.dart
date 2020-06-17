@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
@@ -16,6 +18,14 @@ class DataRepository {
       throw DataFetchException(e.toString());
     }
   }
+
+  // StreamController<List<Bins>> openBinStream(String id){
+  //   try{
+
+  //   } catch(e){
+
+  //   }
+  // }
 
   Future<PrizeRedemptionStatus> redeemPrize(
       Prize prize, CurrentUser user) async {

@@ -1,5 +1,12 @@
-import 'package:citycollection/configurations/city_colors.dart';
+import 'dart:async';
+import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
+import 'package:citycollection/networking/data_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get_it/get_it.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logging/logging.dart';
 
 class NearbyTab extends StatefulWidget {
   @override
@@ -7,24 +14,96 @@ class NearbyTab extends StatefulWidget {
 }
 
 class _NearbyTabState extends State<NearbyTab> {
+  NearbyBinsBloc _nearbyBinsBloc;
+  GoogleMapController _mapController;
+  Completer<GoogleMapController> _controller = Completer();
+  static final CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
+  static final CameraPosition _kLake = CameraPosition(
+      bearing: 192.8334901395799,
+      target: LatLng(37.43296265331129, -122.08832357078792),
+      tilt: 59.440717697143555,
+      zoom: 19.151926040649414);
+
+  bool _isBinsStreamOpen = false;
+  List<Marker> _binMarkers = <Marker>[];
+
+  final Logger logger = Logger("NearbyTabState");
+
+  @override
+  void initState() {
+    super.initState();
+    _nearbyBinsBloc =
+        NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _nearbyBinsBloc.add(InitializeCurrentLocationEvent());
+      _nearbyBinsBloc.add(OpenBinStreamEvent());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: <Widget>[
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.all(30.0),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: Text("Under development",
-                      style: Theme.of(context).textTheme.subhead),
-                ),
-              ],
-            ),
-          ),
-        )
-      ],
+    return BlocListener<NearbyBinsBloc, NearbyBinsState>(
+      bloc: _nearbyBinsBloc,
+      listener: (BuildContext context, state) {
+        logger.info(state);
+        if (state is CurrentLocationLoadingState) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: Center(child: CircularProgressIndicator()),
+                );
+              });
+          Navigator.of(context).pop();
+        } else if (state is CurrentLocationLoadedState) {
+          _mapController.moveCamera(CameraUpdate.newLatLng(
+              LatLng(state.position.latitude, state.position.longitude)));
+          // setState(() {
+          //   _binMarkers.add(Marker(
+          //       markerId: MarkerId('SomeId'),
+          //       position:
+          //           LatLng(state.position.latitude, state.position.longitude),
+          //       infoWindow: InfoWindow(title: 'The title of the marker')));
+          // });
+        } else if (state is CurrentLocationFailedState) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content:
+                      Center(child: Text("Failed to load current location.")),
+                );
+              });
+          Navigator.of(context).pop();
+        } else if (state is OpenPositionStreamState) {
+          setState(() {
+            _binMarkers.add(Marker(
+                markerId: MarkerId('SomeId'),
+                position:
+                    LatLng(state.position.latitude, state.position.longitude),
+                infoWindow: InfoWindow(title: 'The title of the marker')));
+          });
+        } else if (state is ClosePositionStreamState) {
+        } else {
+          print("Initialized location...");
+        }
+      },
+      child: Container(
+        child: GoogleMap(
+          mapType: MapType.hybrid,
+          myLocationButtonEnabled: true,
+          myLocationEnabled: true,
+          markers: Set<Marker>.of(_binMarkers),
+          initialCameraPosition: _kGooglePlex,
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+            _mapController = controller;
+          },
+        ),
+      ),
     );
   }
 }

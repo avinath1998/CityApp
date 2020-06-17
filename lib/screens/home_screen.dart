@@ -5,6 +5,7 @@ import 'package:citycollection/screens/home_tabs/schedule_tab.dart';
 import 'package:citycollection/screens/scan_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   HomeTabBloc _homeTabBloc;
+  int _currentSelectedBottomNav = 0;
   @override
   void initState() {
     _homeTabBloc = HomeTabBloc();
@@ -58,22 +60,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Icon(Icons.camera, color: Colors.white),
       ),
       bottomNavigationBar: TitledBottomNavigationBar(
-          currentIndex: 0,
+          currentIndex: _currentSelectedBottomNav,
           onTap: (index) {
+            setState(() {
+              _currentSelectedBottomNav = index;
+            });
             switch (index) {
               case 0:
                 _homeTabBloc.add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
                 break;
               case 1:
-                _homeTabBloc.add(SwitchTabEvent(HomeTabs.RedeemTab));
-                break;
-              case 2:
-                _homeTabBloc.add(SwitchTabEvent(HomeTabs.ScheduleTab));
-                break;
-              case 3:
                 _homeTabBloc.add(SwitchTabEvent(HomeTabs.NearbyTab));
                 break;
-              case 4:
+              case 2:
+                _homeTabBloc.add(SwitchTabEvent(HomeTabs.RedeemTab));
+                break;
+              case 3:
                 _homeTabBloc.add(SwitchTabEvent(HomeTabs.MeTab));
                 break;
             }
@@ -85,9 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
               title: 'Home',
               icon: Icons.home,
             ),
-            TitledNavigationBarItem(title: 'Redeem', icon: Icons.card_giftcard),
-            TitledNavigationBarItem(title: 'Schedule', icon: Icons.timer),
-            TitledNavigationBarItem(title: 'Nearby', icon: Icons.map),
+            TitledNavigationBarItem(title: 'Bins', icon: Icons.map),
+            TitledNavigationBarItem(
+                title: 'Champs', icon: FontAwesomeIcons.trophy),
             TitledNavigationBarItem(title: 'Me', icon: Icons.account_circle),
           ]),
     );
