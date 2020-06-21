@@ -34,6 +34,12 @@ class HomeTabBloc extends Bloc<HomeTabEvent, HomeTabState> {
         case HomeTabs.ScheduleTab:
           yield (HomeTabScheduleState());
           break;
+        case HomeTabs.TrophiesTab:
+          yield (HomeTabTrophiesState());
+          break;
+        case HomeTabs.AddBinTab:
+          yield (HomeTabAddBinState());
+          break;
       }
     }
   }

@@ -3,13 +3,21 @@ import 'dart:async';
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
+import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/db.dart';
+import 'package:logging/logging.dart';
 
 class DataRepository {
+  DataRepository(this.db);
+
   final DB db;
   final List<Prize> cachedPrizes = List();
+  final List<TaggedBin> _cachedBins = List();
+  StreamController<TaggedBin> _binStreamController;
+  StreamSubscription<TaggedBin> _binStreamSubscription;
+
+  final Logger logger = Logger("DataRepository");
   double redeemPageScrollPosition = 0;
-  DataRepository(this.db);
 
   Future<CurrentUser> fetchCurrentUser(String id) {
     try {
@@ -18,14 +26,6 @@ class DataRepository {
       throw DataFetchException(e.toString());
     }
   }
-
-  // StreamController<List<Bins>> openBinStream(String id){
-  //   try{
-
-  //   } catch(e){
-
-  //   }
-  // }
 
   Future<PrizeRedemptionStatus> redeemPrize(
       Prize prize, CurrentUser user) async {
@@ -48,5 +48,42 @@ class DataRepository {
     } catch (e) {
       throw DataFetchException(e.toString());
     }
+  }
+
+  List<TaggedBin> openBinStream(Function(List<TaggedBin> bins) onBinsChanged) {
+    try {
+      logger.info("Opening bin stream");
+      _binStreamController = db.openBinStream();
+      _binStreamSubscription =
+          _binStreamController.stream.listen((TaggedBin bin) {
+        if (_cachedBins.contains(bin)) {
+          logger.info("Bin: ${bin.id} already exists in cache");
+        } else {
+          bool contained = false;
+          _cachedBins.forEach((oldBin) {
+            if (oldBin.id == bin.id) {
+              _cachedBins.remove(oldBin);
+              _cachedBins.add(bin);
+              contained = true;
+            }
+          });
+          if (!contained) _cachedBins.add(bin);
+        }
+        logger.info("Bin Cache: ${_cachedBins.length}");
+        onBinsChanged(_cachedBins);
+      });
+      return _cachedBins;
+    } catch (e, stacktrace) {
+      logger.severe("Opening bin stream has failed: ${e.toString()}");
+      logger.severe(stacktrace);
+      throw DataFetchException(e.toString());
+    }
+  }
+
+  void closeBinStream() {
+    logger.info("Closing bin streamcontrollers and subscriptions");
+    db.closeBinStream();
+    _binStreamController?.close();
+    _binStreamSubscription?.cancel();
   }
 }

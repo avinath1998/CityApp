@@ -8,3 +8,9 @@ class InitializeCurrentLocationEvent extends NearbyBinsEvent {}
 class OpenBinStreamEvent extends NearbyBinsEvent {}
 
 class CloseBinStreamEvent extends NearbyBinsEvent {}
+
+class BinChangedEvent extends NearbyBinsEvent {
+  final List<TaggedBin> _taggedBins;
+
+  BinChangedEvent(this._taggedBins);
+}

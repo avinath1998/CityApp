@@ -14,3 +14,7 @@ class HomeTabMeState extends HomeTabState {}
 class HomeTabNearbyState extends HomeTabState {}
 
 class HomeTabScheduleState extends HomeTabState {}
+
+class HomeTabTrophiesState extends HomeTabState {}
+
+class HomeTabAddBinState extends HomeTabState {}

@@ -1,18 +1,27 @@
+import 'dart:async';
+
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
+import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logging/logging.dart';
 
 abstract class DB {
   Future<CurrentUser> fetchCurrentUser(String id);
   Future<List<Prize>> fetchPrizes();
   Future<PrizeRedemptionStatus> redeemPrize(Prize prize, CurrentUser user);
+  StreamController<TaggedBin> openBinStream();
+  void closeBinStream();
 }
 
 class FirebaseDB extends DB {
   final String TAG = "FIREBASEDB: ";
+  final Logger logger = Logger("FirebaseDB");
+  StreamSubscription _binStreamSub;
+  StreamController<TaggedBin> _binStreamController;
 
   @override
   Future<CurrentUser> fetchCurrentUser(String id) async {
@@ -71,6 +80,30 @@ class FirebaseDB extends DB {
           TAG + " Not enough points to make redemption for prize: " + prize.id);
       return PrizeRedemptionStatus.notEnoughPoints;
     }
+  }
+
+  @override
+  StreamController<TaggedBin> openBinStream() {
+    _binStreamController = StreamController();
+    logger.info("Opening bin stream");
+    _binStreamSub = Firestore.instance
+        .collection("taggedBins")
+        .snapshots()
+        .listen((QuerySnapshot snap) {
+      snap.documentChanges.forEach((docChange) {
+        Map<String, dynamic> map = docChange.document.data;
+        map["id"] = docChange.document.documentID;
+        TaggedBin bin = TaggedBin.fromJson(map);
+        _binStreamController.add(bin);
+      });
+    });
+    return _binStreamController;
+  }
+
+  @override
+  void closeBinStream() {
+    _binStreamSub?.cancel();
+    _binStreamController?.close();
   }
 }
 

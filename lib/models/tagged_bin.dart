@@ -19,5 +19,6 @@ abstract class TaggedBin with _$TaggedBin {
       int pointsEarned,
       int reportStrikes}) = _TaggedBin;
 
-  factory TaggedBin.fromJson(Map<String, dynamic> json) => _$TaggedBin(json);
+  factory TaggedBin.fromJson(Map<String, dynamic> json) =>
+      _$TaggedBinFromJson(json);
 }

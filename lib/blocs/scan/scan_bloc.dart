@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/cityscan_qrcode.dart';
 import 'package:citycollection/networking/data_repository.dart';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert';
@@ -15,6 +16,7 @@ part 'scan_state.dart';
 class ScanBloc extends Bloc<ScanEvent, ScanState> {
   final String _scanKey = "CityScanBin";
   final DataRepository _dataRepository;
+  final Logger logger = Logger("ScanBloc");
   QRViewController _controller;
   StreamSubscription sub;
   CityScanQrCode currentCityScanQrCode;
@@ -39,7 +41,9 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     try {
       CameraController _cameraController = await _initCameraScanner();
       yield (CorrectQrScanned(code, _cameraController));
-    } on CameraException catch (e) {
+    } on CameraException catch (e, stacktrace) {
+      logger.severe(e);
+      logger.severe(stacktrace);
       yield (CameraInitiailizedFailed());
     }
   }
@@ -61,7 +65,6 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   }
 
   Future<CameraController> _initCameraScanner() async {
-    throw CameraException("Word", "Word");
     print("Camera initial");
     List<CameraDescription> cameras = await availableCameras();
     CameraController _cameraController =

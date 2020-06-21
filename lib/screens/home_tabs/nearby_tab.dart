@@ -44,64 +44,70 @@ class _NearbyTabState extends State<NearbyTab> {
   }
 
   @override
+  void dispose() {
+    _nearbyBinsBloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<NearbyBinsBloc, NearbyBinsState>(
-      bloc: _nearbyBinsBloc,
-      listener: (BuildContext context, state) {
-        logger.info(state);
-        if (state is CurrentLocationLoadingState) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Center(child: CircularProgressIndicator()),
-                );
+    return Container(
+      child: BlocListener<NearbyBinsBloc, NearbyBinsState>(
+        bloc: _nearbyBinsBloc,
+        listener: (BuildContext context, state) {
+          logger.info(state);
+          if (state is CurrentLocationLoadingState) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Center(child: CircularProgressIndicator()),
+                  );
+                });
+            Navigator.of(context).pop();
+          } else if (state is CurrentLocationLoadedState) {
+            _mapController.moveCamera(CameraUpdate.newLatLng(
+                LatLng(state.position.latitude, state.position.longitude)));
+          } else if (state is CurrentLocationFailedState) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content:
+                        Center(child: Text("Failed to load current location.")),
+                  );
+                });
+            Navigator.of(context).pop();
+          } else if (state is BinsChangedState) {
+            setState(() {
+              _binMarkers.clear();
+              state.taggedBins.forEach((taggedBin) {
+                _binMarkers.add(Marker(
+                    markerId: MarkerId(taggedBin.id),
+                    position:
+                        LatLng(taggedBin.locationLan, taggedBin.locationLon),
+                    infoWindow: InfoWindow(title: taggedBin.id)));
               });
-          Navigator.of(context).pop();
-        } else if (state is CurrentLocationLoadedState) {
-          _mapController.moveCamera(CameraUpdate.newLatLng(
-              LatLng(state.position.latitude, state.position.longitude)));
-          // setState(() {
-          //   _binMarkers.add(Marker(
-          //       markerId: MarkerId('SomeId'),
-          //       position:
-          //           LatLng(state.position.latitude, state.position.longitude),
-          //       infoWindow: InfoWindow(title: 'The title of the marker')));
-          // });
-        } else if (state is CurrentLocationFailedState) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content:
-                      Center(child: Text("Failed to load current location.")),
-                );
-              });
-          Navigator.of(context).pop();
-        } else if (state is OpenPositionStreamState) {
-          setState(() {
-            _binMarkers.add(Marker(
-                markerId: MarkerId('SomeId'),
-                position:
-                    LatLng(state.position.latitude, state.position.longitude),
-                infoWindow: InfoWindow(title: 'The title of the marker')));
-          });
-        } else if (state is ClosePositionStreamState) {
-        } else {
-          print("Initialized location...");
-        }
-      },
-      child: Container(
-        child: GoogleMap(
-          mapType: MapType.hybrid,
-          myLocationButtonEnabled: true,
-          myLocationEnabled: true,
-          markers: Set<Marker>.of(_binMarkers),
-          initialCameraPosition: _kGooglePlex,
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-            _mapController = controller;
-          },
+              logger.info(state.taggedBins.length);
+              logger.info(_binMarkers.length);
+            });
+          } else if (state is BinChangeErrorState) {
+            Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text("Whoops, something went wrong. :(")));
+          }
+        },
+        child: Container(
+          child: GoogleMap(
+            mapType: MapType.normal,
+            myLocationButtonEnabled: true,
+            myLocationEnabled: true,
+            markers: Set<Marker>.of(_binMarkers),
+            initialCameraPosition: _kGooglePlex,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+              _mapController = controller;
+            },
+          ),
         ),
       ),
     );

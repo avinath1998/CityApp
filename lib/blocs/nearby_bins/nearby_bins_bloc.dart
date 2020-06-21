@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/LocationUpdateException.dart';
+import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,7 +30,10 @@ class NearbyBinsBloc extends Bloc<NearbyBinsEvent, NearbyBinsState> {
     if (event is InitializeCurrentLocationEvent) {
       yield* _loadCurrentLocation();
     } else if (event is OpenBinStreamEvent) {
-    } else if (event is CloseBinStreamEvent) {}
+      yield* _openBinsStream();
+    } else if (event is BinChangedEvent) {
+      yield BinsChangedState(event._taggedBins);
+    }
   }
 
   Stream<NearbyBinsState> _loadCurrentLocation() async* {
@@ -48,14 +53,25 @@ class NearbyBinsBloc extends Bloc<NearbyBinsEvent, NearbyBinsState> {
     }
   }
 
-  Stream<NearbyBinsState> _openBinStream() async* {
+  Stream<NearbyBinsState> _openBinsStream() async* {
     try {
       logger.info("Open stream bin...");
-      yield (OpenPositionStreamState());
-      logger.info("Closed stream bin...");
-    } catch (e) {
-      logger.severe("Closed position stream");
-      yield (ClosePositionStreamState());
+      List<TaggedBin> _initialTaggedBins =
+          _dataRepository.openBinStream((List<TaggedBin> _newBins) {
+        add(BinChangedEvent(_newBins));
+        logger.info("New bins updated");
+      });
+      yield BinsChangedState(_initialTaggedBins);
+    } on DataFetchException catch (e, stacktrace) {
+      logger.severe("Error opening bin stream: ${e.toString()}");
+      logger.severe(stacktrace);
+      yield (BinChangeErrorState(e));
     }
+  }
+
+  @override
+  Future<void> close() {
+    _dataRepository.closeBinStream();
+    return super.close();
   }
 }

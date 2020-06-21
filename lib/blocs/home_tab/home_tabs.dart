@@ -1,1 +1,9 @@
-enum HomeTabs { RedeemTab, MeTab, NearbyTab, PersonalHomeTab, ScheduleTab }
+enum HomeTabs {
+  RedeemTab,
+  MeTab,
+  NearbyTab,
+  PersonalHomeTab,
+  ScheduleTab,
+  TrophiesTab,
+  AddBinTab
+}

@@ -19,12 +19,14 @@ class CurrentLocationFailedState extends NearbyBinsState {
 
 class NearbyBinsStreamOpen extends NearbyBinsState {}
 
-class OpenPositionStreamState extends NearbyBinsState {
-  final StreamController _binStreamController;
-  OpenPositionStreamState(this._binStreamController);
+class BinsChangedState extends NearbyBinsState {
+  final List<TaggedBin> taggedBins;
+
+  BinsChangedState(this.taggedBins);
 }
 
-class ClosePositionStreamState extends NearbyBinsState {
-  final StreamController _binStreamController;
-  ClosePositionStreamState(this._binStreamController);
+class BinChangeErrorState extends NearbyBinsState {
+  final DataFetchException e;
+
+  BinChangeErrorState(this.e);
 }
