@@ -28,9 +28,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   HomeTabBloc _homeTabBloc;
   int _currentSelectedBottomNav = 0;
   AnimationController _cardSlideController;
+  AnimationController _backController;
+  AnimationController _mapClosestBinController;
+
   Animation<double> _radiusAnimation;
   ScrollController _scrollController;
-  AnimationController _backController;
 
   @override
   void initState() {
@@ -39,11 +41,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     _backController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 600));
+    _mapClosestBinController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 600));
     _radiusAnimation = Tween<double>(begin: 0.0, end: 30.0)
         .chain(CurveTween(curve: Curves.ease))
         .animate(_backController);
     _radiusAnimation.addListener(() {
       setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _mapClosestBinController.forward();
     });
     _scrollController = ScrollController();
 
@@ -88,13 +95,69 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       },
                     ),
                   ),
+                  SlideTransition(
+                    position: Tween<Offset>(
+                            begin: Offset(0.0, 1.0), end: Offset(0.0, -0.02))
+                        .animate(CurvedAnimation(
+                            curve: Curves.ease,
+                            parent: _mapClosestBinController)),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        margin: const EdgeInsets.all(10.0),
+                        child: Card(
+                          color: CityColors.primary_teal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20.0))),
+                          child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text("Your Closest Bin is",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                      )),
+                                  Text("Avinath's Bin",
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.black)),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20.0))),
+                                      color: CityColors.primary_yellow,
+                                      child: Text("Go"),
+                                      onPressed: () {},
+                                    ),
+                                  )
+                                ],
+                              )),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               listener: (context, state) async {
-                if (state is HomeTabTrophiesState) {
+                if (state is HomeTabNearbyState) {
+                  _cardSlideController.reverse();
+                  _mapClosestBinController.forward();
+                } else if (state is HomeTabAddBinState) {
+                  _mapClosestBinController.reverse();
+                  _cardSlideController.reverse();
+                  //_cardSlideController.forward();
+                } else if (state is HomeTabTrophiesState) {
+                  _mapClosestBinController.reverse();
                   _cardSlideController.forward();
                 } else if (state is HomeTabMeState) {
                   _cardSlideController.reverse();
+                  _mapClosestBinController.reverse();
                   _backController.forward();
                   await showMaterialModalBottomSheet(
                       context: context,
@@ -125,8 +188,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   });
                   switch (index) {
                     case 0:
-                      _homeTabBloc
-                          .add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
+                      _homeTabBloc.add(SwitchTabEvent(HomeTabs.NearbyTab));
                       break;
                     case 1:
                       _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
@@ -139,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       break;
                   }
                 },
-                activeColor: CityColors.primary_green,
+                activeColor: CityColors.primary_teal,
                 inactiveColor: Colors.black54,
                 items: [
                   TitledNavigationBarItem(title: 'Map', icon: Icons.map),

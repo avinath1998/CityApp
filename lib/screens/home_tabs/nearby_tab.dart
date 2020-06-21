@@ -98,6 +98,7 @@ class _NearbyTabState extends State<NearbyTab> {
         },
         child: Container(
           child: GoogleMap(
+            zoomControlsEnabled: false,
             mapType: MapType.normal,
             myLocationButtonEnabled: true,
             myLocationEnabled: true,

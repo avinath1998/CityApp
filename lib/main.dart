@@ -30,8 +30,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'CityApp',
       theme: ThemeData(
-          primarySwatch: Colors.blue,
-          accentColor: Color(0xFF1E304F),
+          primarySwatch: CityColors.primary_teal,
+          accentColor: CityColors.primary_teal,
           backgroundColor: Colors.white,
           appBarTheme: AppBarTheme(
             color: Colors.white,
