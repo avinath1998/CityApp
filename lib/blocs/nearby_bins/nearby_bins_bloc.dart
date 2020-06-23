@@ -33,7 +33,14 @@ class NearbyBinsBloc extends Bloc<NearbyBinsEvent, NearbyBinsState> {
       yield* _openBinsStream();
     } else if (event is BinChangedEvent) {
       yield BinsChangedState(event._taggedBins);
+    } else if (event is SelectBinEvent) {
+      logger.info(event._selectedTaggedBin);
+      yield* _loadSelectedBin(event._selectedTaggedBin);
     }
+  }
+
+  Stream<NearbyBinsState> _loadSelectedBin(TaggedBin selectedBinEvent) async* {
+    yield SelectedBinState(selectedBinEvent);
   }
 
   Stream<NearbyBinsState> _loadCurrentLocation() async* {

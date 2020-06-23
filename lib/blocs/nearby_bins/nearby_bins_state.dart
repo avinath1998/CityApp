@@ -27,6 +27,10 @@ class BinsChangedState extends NearbyBinsState {
 
 class BinChangeErrorState extends NearbyBinsState {
   final DataFetchException e;
-
   BinChangeErrorState(this.e);
+}
+
+class SelectedBinState extends NearbyBinsState {
+  final TaggedBin bin;
+  SelectedBinState(this.bin);
 }

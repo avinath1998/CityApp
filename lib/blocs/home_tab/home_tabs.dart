@@ -5,5 +5,6 @@ enum HomeTabs {
   PersonalHomeTab,
   ScheduleTab,
   TrophiesTab,
-  AddBinTab
+  AddBinTab,
+  ScanScreenTab
 }

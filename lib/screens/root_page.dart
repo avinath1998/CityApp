@@ -16,35 +16,35 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-  final AuthBloc _authBloc = AuthBloc(FirebaseAuthService());
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _authBloc.add(CheckIfSignedInEvent());
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    BlocProvider.of<AuthBloc>(context).add(CheckIfSignedInEvent());
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-        create: (BuildContext context) => _authBloc,
-        child: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, AuthState state) {
-            if (state is SignedInState) {
-              return HomeScreen();
-            } else if (state is SignedOutState) {
-              return LoginScreen();
-            } else if (state is SignInFailedState) {
-              return LoginScreen(errorMsg: state.errorMsg);
-            } else if (state is SigningInWaitingState) {
-              return LoginScreen(isWaiting: true);
-            } else if (state is AuthInitial) {
-              return LoginScreen();
-            } else {
-              return LoginScreen(isWaiting: true);
-            }
-          },
-        ));
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, AuthState state) {
+        if (state is SignedInState) {
+          return HomeScreen();
+        } else if (state is SignedOutState) {
+          return LoginScreen();
+        } else if (state is SignInFailedState) {
+          return LoginScreen(errorMsg: state.errorMsg);
+        } else if (state is SigningInWaitingState) {
+          return LoginScreen(isWaiting: true);
+        } else if (state is AuthInitial) {
+          return LoginScreen();
+        } else {
+          return LoginScreen(isWaiting: true);
+        }
+      },
+    );
   }
 }

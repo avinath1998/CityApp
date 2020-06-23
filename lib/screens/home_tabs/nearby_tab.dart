@@ -14,7 +14,6 @@ class NearbyTab extends StatefulWidget {
 }
 
 class _NearbyTabState extends State<NearbyTab> {
-  NearbyBinsBloc _nearbyBinsBloc;
   GoogleMapController _mapController;
   Completer<GoogleMapController> _controller = Completer();
   static final CameraPosition _kGooglePlex = CameraPosition(
@@ -26,26 +25,17 @@ class _NearbyTabState extends State<NearbyTab> {
       target: LatLng(37.43296265331129, -122.08832357078792),
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
-
   bool _isBinsStreamOpen = false;
   List<Marker> _binMarkers = <Marker>[];
-
   final Logger logger = Logger("NearbyTabState");
 
   @override
   void initState() {
     super.initState();
-    _nearbyBinsBloc =
-        NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _nearbyBinsBloc.add(InitializeCurrentLocationEvent());
-      _nearbyBinsBloc.add(OpenBinStreamEvent());
-    });
   }
 
   @override
   void dispose() {
-    _nearbyBinsBloc.close();
     super.dispose();
   }
 
@@ -53,9 +43,7 @@ class _NearbyTabState extends State<NearbyTab> {
   Widget build(BuildContext context) {
     return Container(
       child: BlocListener<NearbyBinsBloc, NearbyBinsState>(
-        bloc: _nearbyBinsBloc,
         listener: (BuildContext context, state) {
-          logger.info(state);
           if (state is CurrentLocationLoadingState) {
             showDialog(
                 context: context,
@@ -86,7 +74,11 @@ class _NearbyTabState extends State<NearbyTab> {
                     markerId: MarkerId(taggedBin.id),
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
-                    infoWindow: InfoWindow(title: taggedBin.id)));
+                    infoWindow: InfoWindow(title: taggedBin.id),
+                    onTap: () {
+                      BlocProvider.of<NearbyBinsBloc>(context)
+                          .add(SelectBinEvent(taggedBin));
+                    }));
               });
               logger.info(state.taggedBins.length);
               logger.info(_binMarkers.length);

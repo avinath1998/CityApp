@@ -11,6 +11,10 @@ class CloseBinStreamEvent extends NearbyBinsEvent {}
 
 class BinChangedEvent extends NearbyBinsEvent {
   final List<TaggedBin> _taggedBins;
-
   BinChangedEvent(this._taggedBins);
+}
+
+class SelectBinEvent extends NearbyBinsEvent {
+  final TaggedBin _selectedTaggedBin;
+  SelectBinEvent(this._selectedTaggedBin);
 }

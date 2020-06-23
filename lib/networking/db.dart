@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
@@ -7,6 +8,8 @@ import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/src/widgets/image.dart';
 import 'package:logging/logging.dart';
 
 abstract class DB {
@@ -15,6 +18,7 @@ abstract class DB {
   Future<PrizeRedemptionStatus> redeemPrize(Prize prize, CurrentUser user);
   StreamController<TaggedBin> openBinStream();
   void closeBinStream();
+  uploadWasteImageData(CurrentUser user, Uint8List image);
 }
 
 class FirebaseDB extends DB {
@@ -104,6 +108,21 @@ class FirebaseDB extends DB {
   void closeBinStream() {
     _binStreamSub?.cancel();
     _binStreamController?.close();
+  }
+
+  @override
+  uploadWasteImageData(CurrentUser user, Uint8List image) async {
+    final StorageReference storageReference =
+        FirebaseStorage().ref().child("cityscan").child(user.id);
+    final StorageUploadTask uploadTask = storageReference.putData(image);
+
+    final StreamSubscription<StorageTaskEvent> streamSubscription =
+        uploadTask.events.listen((event) {
+      logger.info('EVENT ${event.type}');
+    });
+    await uploadTask.onComplete;
+    streamSubscription.cancel();
+    logger.info("Successfully saved file");
   }
 }
 

@@ -1,4 +1,6 @@
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
+import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
+import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:flutter/material.dart';
@@ -38,19 +40,23 @@ class _HomeTabState extends State<HomeTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Icon(
-                            Icons.arrow_upward,
-                            color: Colors.white,
-                          ),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: CityColors.primary_green,
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: InkWell(
+                          onTap: () {
+                            BlocProvider.of<HomeTabBloc>(context)
+                                .add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Icon(
+                              Icons.arrow_upward,
+                              color: Colors.white,
+                            ),
+                            decoration: BoxDecoration(
+                              color: CityColors.primary_teal,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
                       ),

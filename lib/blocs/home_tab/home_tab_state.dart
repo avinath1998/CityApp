@@ -18,3 +18,5 @@ class HomeTabScheduleState extends HomeTabState {}
 class HomeTabTrophiesState extends HomeTabState {}
 
 class HomeTabAddBinState extends HomeTabState {}
+
+class ScanScreenState extends HomeTabState {}

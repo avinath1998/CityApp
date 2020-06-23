@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/db.dart';
+import 'package:flutter/src/widgets/image.dart';
 import 'package:logging/logging.dart';
 
 class DataRepository {
@@ -85,5 +87,9 @@ class DataRepository {
     db.closeBinStream();
     _binStreamController?.close();
     _binStreamSubscription?.cancel();
+  }
+
+  Future<void> uploadWasteImage(CurrentUser user, Uint8List image) async {
+    await db.uploadWasteImageData(user, image);
   }
 }
