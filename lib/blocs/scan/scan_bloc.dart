@@ -108,6 +108,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     String dirPath = '${appDocDir.path}/Pictures/flutter_test';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${DateTime.now().toIso8601String()}.jpg';
+    logger.info(filePath);
     return filePath;
   }
 

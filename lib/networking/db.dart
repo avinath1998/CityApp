@@ -18,7 +18,8 @@ abstract class DB {
   Future<PrizeRedemptionStatus> redeemPrize(Prize prize, CurrentUser user);
   StreamController<TaggedBin> openBinStream();
   void closeBinStream();
-  uploadWasteImageData(CurrentUser user, Uint8List image);
+  Future<String> uploadWasteImageData(CurrentUser user, Uint8List image);
+  void saveDisposalData(CurrentUser user, String ref);
 }
 
 class FirebaseDB extends DB {
@@ -111,11 +112,13 @@ class FirebaseDB extends DB {
   }
 
   @override
-  uploadWasteImageData(CurrentUser user, Uint8List image) async {
-    final StorageReference storageReference =
-        FirebaseStorage().ref().child("cityscan").child(user.id);
+  Future<String> uploadWasteImageData(CurrentUser user, Uint8List image) async {
+    final StorageReference storageReference = FirebaseStorage()
+        .ref()
+        .child("cityscan")
+        .child(user.id)
+        .child(DateTime.now().toIso8601String() + ".jpg");
     final StorageUploadTask uploadTask = storageReference.putData(image);
-
     final StreamSubscription<StorageTaskEvent> streamSubscription =
         uploadTask.events.listen((event) {
       logger.info('EVENT ${event.type}');
@@ -123,6 +126,21 @@ class FirebaseDB extends DB {
     await uploadTask.onComplete;
     streamSubscription.cancel();
     logger.info("Successfully saved file");
+    String downloadUrl = await storageReference.getDownloadURL();
+    return downloadUrl;
+  }
+
+  @override
+  void saveDisposalData(final CurrentUser user, final String photoSrc) async {
+    logger.info("Saving Disposal data....");
+    DocumentReference ref =
+        await Firestore.instance.collection("scanDisposals").add({
+      "photoSrc": photoSrc,
+      "time": DateTime.now().millisecondsSinceEpoch,
+      "userId": user.id
+    });
+
+    logger.info("Saved Disposal Data");
   }
 }
 
