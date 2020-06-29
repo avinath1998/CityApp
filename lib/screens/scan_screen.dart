@@ -5,10 +5,12 @@ import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/scan/scan_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/models/cityscan_qrcode.dart';
+import 'package:citycollection/models/scan_winnings.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:citycollection/screens/scan_tabs/camera_tab.dart';
 import 'package:citycollection/screens/scan_tabs/qr_scanner_tab.dart';
 import 'package:citycollection/screens/scan_tabs/throw_tab.dart';
+import 'package:citycollection/screens/scan_tabs/winner_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -39,12 +41,13 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   bool _isWasteImageUploading = false;
   bool _isUploadingImageSuccessful = false;
   String _currentImageSrc;
+  ScanWinnings _currentScanWinnings;
 
   @override
   void initState() {
     super.initState();
     _scanBloc = ScanBloc(GetIt.instance<DataRepository>());
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -56,23 +59,8 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: RichText(
-            text: TextSpan(children: [
-              TextSpan(
-                  text: "CityScan",
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 20.0))
-            ]),
-          ),
-        ),
         body: BlocProvider(
           create: (context) => _scanBloc,
           child: BlocListener<ScanBloc, ScanState>(
@@ -112,13 +100,19 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                 } else if (state is ValidImageTakenState) {
                 } else if (state is InvalidImageTakenState) {
                 } else if (state is ErrorScanValidationState) {
+                  Navigator.of(context).pop();
                 } else if (state is WasteImageSuccessState) {
                   setState(() {
                     _isUploadingImageSuccessful = true;
                   });
-                  Future.delayed(Duration(seconds: 2), () async {
+                  Future.delayed(Duration(seconds: 2), () {
                     _tabController.animateTo(2,
                         duration: Duration(milliseconds: 300));
+                    _cameraController.dispose();
+                    Future.delayed(Duration(seconds: 10), () async {
+                      BlocProvider.of<ScanBloc>(context).add(CheckWinningsEvent(
+                          BlocProvider.of<AuthBloc>(context).currentUser));
+                    });
                   });
                 } else if (state is WasteImageUploadingState) {
                   setState(() {
@@ -126,25 +120,66 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                     _currentImageSrc = state.filepath;
                   });
                 } else if (state is FailedToTakeWasteImage) {
-                } else if (state is WasteImageFailedUploadState) {}
+                  Navigator.of(context).pop();
+                } else if (state is WasteImageFailedUploadState) {
+                  Navigator.of(context).pop();
+                } else if (state is WinningScanStateState) {
+                  setState(() {
+                    _currentScanWinnings = state.scanWinnings;
+                  });
+                  Future.delayed(Duration(seconds: 5), () async {
+                    _tabController.animateTo(3,
+                        duration: Duration(milliseconds: 300));
+                  });
+                } else if (state is NoScanWinningsState) {
+                  Future.delayed(Duration(seconds: 5), () async {
+                    _tabController.animateTo(3,
+                        duration: Duration(milliseconds: 300));
+                  });
+                }
               },
-              child: TabBarView(
-                physics: NeverScrollableScrollPhysics(),
-                controller: _tabController,
+              child: Stack(
                 children: <Widget>[
-                  QrScannerTab(
-                      hasQrCodeBeenFound: _hasQrCodeBeenFound,
-                      qrKey: _qrKey,
-                      scanBloc: _scanBloc,
-                      context: context),
-                  CameraTab(
-                      context: context,
-                      isCameraInitialized: _isCameraInitialized,
-                      cameraController: _cameraController,
-                      currentImageSrc: _currentImageSrc,
-                      isWasteImageUploading: _isWasteImageUploading,
-                      isUploadingImageSuccessful: _isUploadingImageSuccessful),
-                  ThrowingTab()
+                  TabBarView(
+                    controller: _tabController,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: <Widget>[
+                      QrScannerTab(
+                          hasQrCodeBeenFound: _hasQrCodeBeenFound,
+                          qrKey: _qrKey,
+                          scanBloc: _scanBloc,
+                          context: context),
+                      CameraTab(
+                          context: context,
+                          isCameraInitialized: _isCameraInitialized,
+                          cameraController: _cameraController,
+                          currentImageSrc: _currentImageSrc,
+                          isWasteImageUploading: _isWasteImageUploading,
+                          isUploadingImageSuccessful:
+                              _isUploadingImageSuccessful),
+                      ThrowingTab(),
+                      WinnerTab(
+                        scanWinnings: _currentScanWinnings,
+                      ),
+                    ],
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: CityColors.primary_teal,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               )),
         ),

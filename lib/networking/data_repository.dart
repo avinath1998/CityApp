@@ -5,6 +5,7 @@ import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/DataUploadException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
+import 'package:citycollection/models/scan_winnings.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/db.dart';
 import 'package:flutter/src/widgets/image.dart';
@@ -99,5 +100,9 @@ class DataRepository {
       logger.severe(stacktrace);
       throw DataUploadException(e, stacktrace);
     }
+  }
+
+  Future<ScanWinnings> fetchScanWinnings(CurrentUser user) async {
+    return db.fetchScanWinnings(user);
   }
 }

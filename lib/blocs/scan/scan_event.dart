@@ -15,8 +15,18 @@ class QRCodeReceived extends ScanEvent {
   QRCodeReceived(this._cityScanQrCode);
 }
 
+class FailedQRCodeVerificationEvent extends ScanEvent {
+  final Exception e;
+  FailedQRCodeVerificationEvent(this.e);
+}
+
 class WasteItemImageTakenEvent extends ScanEvent {
   final CameraController cameraController;
   final CurrentUser user;
   WasteItemImageTakenEvent(this.cameraController, this.user);
+}
+
+class CheckWinningsEvent extends ScanEvent {
+  final CurrentUser currentUser;
+  CheckWinningsEvent(this.currentUser);
 }

@@ -7,6 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/models/cityscan_qrcode.dart';
 import 'package:citycollection/models/current_user.dart';
+import 'package:citycollection/models/scan_winnings.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -41,6 +42,10 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
       yield* _qrCodeReceived(event._cityScanQrCode);
     } else if (event is WasteItemImageTakenEvent) {
       yield* _takeWastePicture(event.cameraController, event.user);
+    } else if (event is FailedQRCodeVerificationEvent) {
+      yield ErrorScanValidationState(event.e);
+    } else if (event is CheckWinningsEvent) {
+      yield* _checkWinninges(event.currentUser);
     }
   }
 
@@ -58,15 +63,28 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   Stream<ScanState> _initQRScanner(QRViewController controller) async* {
     print("Initializing QR Code");
     sub = controller.scannedDataStream.listen((scanData) async {
-      final Map<String, dynamic> data = json.decode(scanData);
-      if (data.containsKey("type")) {
-        if (data["type"] == _scanKey) {
-          CityScanQrCode code = CityScanQrCode.fromJson(json.decode(scanData));
-          currentCityScanQrCode = code;
-          add(QRCodeReceived(code));
-          sub.cancel();
-          controller.dispose();
+      try {
+        final Map<String, dynamic> data = json.decode(scanData);
+        if (data.containsKey("type")) {
+          if (data["type"] == _scanKey) {
+            CityScanQrCode code =
+                CityScanQrCode.fromJson(json.decode(scanData));
+            currentCityScanQrCode = code;
+            add(QRCodeReceived(code));
+            sub.cancel();
+            controller.dispose();
+            return;
+          }
         }
+        sub.cancel();
+        controller.dispose();
+        add(FailedQRCodeVerificationEvent(Exception("Invalid QR Code")));
+      } catch (e, stacktrace) {
+        logger.severe(e);
+        logger.severe(stacktrace);
+        sub.cancel();
+        controller.dispose();
+        add(FailedQRCodeVerificationEvent(e));
       }
     });
   }
@@ -110,6 +128,23 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     final String filePath = '$dirPath/${DateTime.now().toIso8601String()}.jpg';
     logger.info(filePath);
     return filePath;
+  }
+
+  Stream<ScanState> _checkWinninges(CurrentUser user) async* {
+    logger.info("Checking Winnings");
+    try {
+      ScanWinnings winnings = await _dataRepository.fetchScanWinnings(user);
+      if (winnings == null) {
+        logger.info("No winnings fetched.");
+        yield (NoScanWinningsState());
+      } else {
+        logger.info("Winner winner chicken dinner!!");
+        logger.info("Winnings ID: ${winnings.id}, amount ${winnings.winnings}");
+        yield (WinningScanStateState(winnings));
+      }
+    } on DataFetchException catch (e) {
+      yield (FailedToFetchScanWinnings(e));
+    }
   }
 
   @override

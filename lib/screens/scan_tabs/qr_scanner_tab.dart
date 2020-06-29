@@ -96,7 +96,7 @@ class _QrScannerTabState extends State<QrScannerTab> {
                                   child: Loading(
                                       indicator: LineScaleIndicator(),
                                       size: 30,
-                                      color: Colors.white),
+                                      color: CityColors.primary_teal),
                                 ),
                                 Align(
                                   alignment: Alignment.center,
@@ -115,7 +115,7 @@ class _QrScannerTabState extends State<QrScannerTab> {
                   child: Loading(
                       indicator: BallGridPulseIndicator(),
                       size: 60,
-                      color: Colors.white),
+                      color: CityColors.primary_teal),
                 )
               ],
             )

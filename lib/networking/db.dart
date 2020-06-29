@@ -5,6 +5,7 @@ import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
+import 'package:citycollection/models/scan_winnings.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,6 +21,7 @@ abstract class DB {
   void closeBinStream();
   Future<String> uploadWasteImageData(CurrentUser user, Uint8List image);
   void saveDisposalData(CurrentUser user, String ref);
+  Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
 }
 
 class FirebaseDB extends DB {
@@ -141,6 +143,42 @@ class FirebaseDB extends DB {
     });
 
     logger.info("Saved Disposal Data");
+  }
+
+  @override
+  Future<ScanWinnings> fetchScanWinnings(CurrentUser user) async {
+    logger.info("Fetching Scan Winnings");
+    ScanWinnings scanWinnings;
+    Map<String, dynamic> map =
+        await Firestore.instance.runTransaction((Transaction tx) async {
+      QuerySnapshot snapshot = await Firestore.instance
+          .collection("scanWinnings")
+          .where("isActive", isEqualTo: true)
+          .orderBy("additionDate")
+          .getDocuments();
+
+      if (snapshot.documents.length > 0) {
+        DocumentReference docRef = Firestore.instance
+            .collection("scanWinnings")
+            .document(snapshot.documents[0].documentID);
+
+        DocumentSnapshot docSnap = await tx.get(docRef);
+        if (docSnap["isActive"]) {
+          await tx.update(
+              Firestore.instance
+                  .collection("scanWinnings")
+                  .document(snapshot.documents[0].documentID),
+              <String, dynamic>{'isActive': false, "claimedByUserId": user.id});
+          Map<String, dynamic> snapMap = docSnap.data;
+          snapMap["id"] = snapshot.documents[0].documentID;
+          scanWinnings = ScanWinnings.fromJson(snapMap)
+              .copyWith(claimedByUserId: user.id, isActive: false);
+        }
+      }
+    });
+    logger.info(map);
+    logger.info(scanWinnings);
+    return scanWinnings;
   }
 }
 
