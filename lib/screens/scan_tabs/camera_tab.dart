@@ -245,41 +245,41 @@ class _CameraTabState extends State<CameraTab> with TickerProviderStateMixin {
                             )),
                 ),
               ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  margin: const EdgeInsets.all(10.0),
-                  child: Card(
-                    color: Colors.black12,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(30.0))),
-                    child: Container(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            "You've scanned a " +
-                                BlocProvider.of<ScanBloc>(context)
-                                    .currentCityScanQrCode
-                                    .wasteType +
-                                " bin.",
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle2
-                                .copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                            textAlign: TextAlign.start,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
+              // Align(
+              //   alignment: Alignment.topCenter,
+              //   child: Container(
+              //     margin: const EdgeInsets.only(top: 30.0),
+              //     child: Card(
+              //       color: Colors.black12,
+              //       shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.all(Radius.circular(30.0))),
+              //       child: Container(
+              //         padding: const EdgeInsets.all(20.0),
+              //         child: Column(
+              //           mainAxisSize: MainAxisSize.min,
+              //           mainAxisAlignment: MainAxisAlignment.center,
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: <Widget>[
+              //             Text(
+              //               "You've scanned a " +
+              //                   BlocProvider.of<ScanBloc>(context)
+              //                       .currentCityScanQrCode
+              //                       .wasteType +
+              //                   " bin.",
+              //               style: Theme.of(context)
+              //                   .textTheme
+              //                   .subtitle2
+              //                   .copyWith(
+              //                       fontWeight: FontWeight.w500,
+              //                       color: Colors.white),
+              //               textAlign: TextAlign.start,
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // )
             ])
           : Center(child: CircularProgressIndicator()),
     );

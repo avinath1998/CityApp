@@ -1,9 +1,10 @@
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/networking/db.dart';
+import 'package:citycollection/screens/home_screen.dart';
 import 'package:citycollection/screens/root_page.dart';
 import 'package:citycollection/services/auth_service.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,12 +20,8 @@ void main() {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.loggerName} ${record.message}');
   });
-  runApp(
-    DevicePreview(
-      enabled: false,
-      builder: (context) => MyApp(),
-    ),
-  );
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

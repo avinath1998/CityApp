@@ -42,6 +42,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   bool _isUploadingImageSuccessful = false;
   String _currentImageSrc;
   ScanWinnings _currentScanWinnings;
+  bool _isScanWinningsWaiting = true;
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   void dispose() {
     _scanBloc.close();
     _tabController.dispose();
+    //BlocProvider.of<AuthBloc>(context).signOut();
     super.dispose();
   }
 
@@ -66,6 +68,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
           child: BlocListener<ScanBloc, ScanState>(
               bloc: _scanBloc,
               listener: (context, state) {
+                //qrcode tab
                 if (state is CorrectQrScanned) {
                   setState(() {
                     _isCameraInitialized = true;
@@ -89,7 +92,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                             ),
                             actions: <Widget>[
                               FlatButton(
-                                child: Text("Go Home"),
+                                child: Text("Close"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
@@ -97,10 +100,16 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                               )
                             ],
                           ));
+                  //camera tab
                 } else if (state is ValidImageTakenState) {
                 } else if (state is InvalidImageTakenState) {
                 } else if (state is ErrorScanValidationState) {
                   Navigator.of(context).pop();
+                } else if (state is WasteImageUploadingState) {
+                  setState(() {
+                    _isWasteImageUploading = true;
+                    _currentImageSrc = state.filepath;
+                  });
                 } else if (state is WasteImageSuccessState) {
                   setState(() {
                     _isUploadingImageSuccessful = true;
@@ -109,32 +118,28 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                     _tabController.animateTo(2,
                         duration: Duration(milliseconds: 300));
                     _cameraController.dispose();
-                    Future.delayed(Duration(seconds: 10), () async {
-                      BlocProvider.of<ScanBloc>(context).add(CheckWinningsEvent(
-                          BlocProvider.of<AuthBloc>(context).currentUser));
-                    });
-                  });
-                } else if (state is WasteImageUploadingState) {
-                  setState(() {
-                    _isWasteImageUploading = true;
-                    _currentImageSrc = state.filepath;
                   });
                 } else if (state is FailedToTakeWasteImage) {
                   Navigator.of(context).pop();
                 } else if (state is WasteImageFailedUploadState) {
                   Navigator.of(context).pop();
+                  //throwing tab
+                } else if (state is DoneThrowingItemState) {
+                  _tabController.animateTo(3,
+                      duration: Duration(milliseconds: 300));
+                  //winnning tab
                 } else if (state is WinningScanStateState) {
-                  setState(() {
-                    _currentScanWinnings = state.scanWinnings;
-                  });
-                  Future.delayed(Duration(seconds: 5), () async {
-                    _tabController.animateTo(3,
-                        duration: Duration(milliseconds: 300));
+                  Future.delayed(Duration(seconds: 5), () {
+                    setState(() {
+                      _currentScanWinnings = state.scanWinnings;
+                      _isScanWinningsWaiting = false;
+                    });
                   });
                 } else if (state is NoScanWinningsState) {
-                  Future.delayed(Duration(seconds: 5), () async {
-                    _tabController.animateTo(3,
-                        duration: Duration(milliseconds: 300));
+                  Future.delayed(Duration(seconds: 5), () {
+                    setState(() {
+                      _isScanWinningsWaiting = false;
+                    });
                   });
                 }
               },
@@ -160,6 +165,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                       ThrowingTab(),
                       WinnerTab(
                         scanWinnings: _currentScanWinnings,
+                        isWaiting: _isScanWinningsWaiting,
                       ),
                     ],
                   ),

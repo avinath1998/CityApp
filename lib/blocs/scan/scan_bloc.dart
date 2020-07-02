@@ -46,6 +46,8 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
       yield ErrorScanValidationState(event.e);
     } else if (event is CheckWinningsEvent) {
       yield* _checkWinninges(event.currentUser);
+    } else if (event is DoneThrowingItemEvent) {
+      yield DoneThrowingItemState();
     }
   }
 
@@ -92,8 +94,9 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   Future<CameraController> _initCameraScanner() async {
     print("Camera initial");
     List<CameraDescription> cameras = await availableCameras();
-    CameraController _cameraController =
-        CameraController(cameras[0], ResolutionPreset.medium);
+    CameraController _cameraController = CameraController(
+        cameras[0], ResolutionPreset.medium,
+        enableAudio: false);
     await _cameraController.initialize();
     print("Camera initialized");
     return _cameraController;

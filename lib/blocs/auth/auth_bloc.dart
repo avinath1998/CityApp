@@ -61,7 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       print(TAG + " Signing in.");
       yield (SigningInWaitingState());
-      currentUser = await _authService.signIn(email, password);
+      currentUser = await _authService.anonSignIn();
       if (currentUser == null) {
         yield (SigningInWaitingState());
       } else {
@@ -77,5 +77,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Stream<AuthState> signOut() {}
+  Stream<AuthState> signOut() async* {
+    await _authService.signOut();
+  }
 }

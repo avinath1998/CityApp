@@ -48,3 +48,5 @@ class FailedToFetchScanWinnings extends ScanState {
 
   FailedToFetchScanWinnings(this.dataFetchException);
 }
+
+class DoneThrowingItemState extends ScanState {}

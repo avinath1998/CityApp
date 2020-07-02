@@ -30,3 +30,5 @@ class CheckWinningsEvent extends ScanEvent {
   final CurrentUser currentUser;
   CheckWinningsEvent(this.currentUser);
 }
+
+class DoneThrowingItemEvent extends ScanEvent {}

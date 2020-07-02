@@ -4,10 +4,12 @@ import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/models/live_bin_setting.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:citycollection/screens/home_tabs/schedule_tab.dart';
 import 'package:citycollection/screens/scan_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -19,6 +21,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 import '../routes/modal_popup_route.dart';
 import 'home_tabs/home_tab.dart';
@@ -42,13 +45,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> _radiusAnimation;
   ScrollController _scrollController;
   TaggedBin _currentSelectedBin;
-
   @override
   void initState() {
     super.initState();
     _homeTabBloc = HomeTabBloc();
-    _nearbyBinsBloc =
-        NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
+    // _nearbyBinsBloc =
+    //     NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
     _cardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _backController = AnimationController(
@@ -63,8 +65,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _nearbyBinsBloc.add(InitializeCurrentLocationEvent());
-      _nearbyBinsBloc.add(OpenBinStreamEvent());
+      //_nearbyBinsBloc.add(InitializeCurrentLocationEvent());
+      //_nearbyBinsBloc.add(OpenBinStreamEvent());
     });
   }
 
@@ -89,141 +91,412 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         )
       ],
       child: SafeArea(
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 1.0, end: 0.95).animate(
-              CurvedAnimation(curve: Curves.ease, parent: _backController)),
-          child: ClipRRect(
-            borderRadius:
-                BorderRadius.all(Radius.circular(_radiusAnimation.value)),
-            child: Scaffold(
-              body: MultiBlocListener(
-                listeners: [
-                  BlocListener(
-                    bloc: _homeTabBloc,
-                    listener: (context, state) async {
-                      if (state is HomeTabNearbyState) {
-                        _cardSlideController.reverse();
-                        //_mapClosestBinController.forward();
-                      } else if (state is HomeTabAddBinState) {
-                        _mapClosestBinController.reverse();
-                        _cardSlideController.reverse();
-                        //_cardSlideController.forward();
-                      } else if (state is HomeTabTrophiesState) {
-                        _mapClosestBinController.reverse();
-                        _cardSlideController.forward();
-                      } else if (state is HomeTabMeState) {
-                        _cardSlideController.reverse();
-                        _mapClosestBinController.reverse();
-                        _backController.forward();
-                        await showMaterialModalBottomSheet(
-                            context: context,
-                            expand: false,
-                            isDismissible: true,
-                            enableDrag: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (context, scrollController) {
-                              return MeTab(
-                                scrollController: scrollController,
-                              );
-                            });
-                        _backController.reverse();
-                        setState(() {
-                          _currentSelectedBottomNav = 0;
-                        });
-                        _homeTabBloc
-                            .add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
-                      } else if (state is ScanScreenState) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ScanScreen()));
+        child: Scaffold(
+          body: StreamBuilder<QuerySnapshot>(
+            stream: Firestore.instance
+                .collection("liveBinSetting")
+                .where("isActive", isEqualTo: true)
+                .snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                    CityColors.primary_teal,
+                    CityColors.primary_teal[700]
+                  ])),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (snapshot.connectionState == ConnectionState.active) {
+                return Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                    CityColors.primary_teal,
+                    CityColors.primary_teal[700]
+                  ])),
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) {
+                      return ScaleTransition(child: child, scale: animation);
+                    },
+                    switchInCurve: Curves.easeOut,
+                    layoutBuilder: (context, widgets) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data.documents.length > 0) {
+                          return _buildLiveHappening(snapshot);
+                        } else {
+                          return _buildNoLive();
+                        }
                       } else {
-                        _cardSlideController.reverse();
+                        return _buildNoLive();
                       }
                     },
                   ),
-                  BlocListener(
-                    bloc: _nearbyBinsBloc,
-                    listener: (context, state) async {
-                      if (state is SelectedBinState) {
-                        if (_mapClosestBinController.isCompleted) {
-                          await _mapClosestBinController.reverse();
-                        }
-                        setState(() {
-                          _currentSelectedBin = state.bin;
-                        });
-                        logger.info("Nearby: ${state}");
-                        await _mapClosestBinController.forward();
-                      }
-                    },
-                  )
-                ],
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: <Widget>[
-                    NearbyTab(),
-                    SlideTransition(
-                      position: Tween<Offset>(
-                              begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
-                          .animate(CurvedAnimation(
-                              curve: Curves.ease,
-                              parent: _cardSlideController)),
-                      child: DraggableScrollableSheet(
-                        minChildSize: 0.17,
-                        initialChildSize: 0.20,
-                        builder: (context, scrollController) {
-                          return HomeTab(
-                            scrollController: scrollController,
-                          );
-                        },
-                      ),
-                    ),
-                    Container(
-                        child: _buildBinCard(),
-                        alignment: Alignment.bottomCenter)
-                  ],
-                ),
-              ),
-              bottomNavigationBar: TitledBottomNavigationBar(
-                  currentIndex: _currentSelectedBottomNav,
-                  onTap: (index) {
-                    setState(() {
-                      _currentSelectedBottomNav = index;
-                    });
-                    switch (index) {
-                      case 0:
-                        _homeTabBloc.add(SwitchTabEvent(HomeTabs.NearbyTab));
-                        break;
-                      case 1:
-                        _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
-                        break;
-                      case 2:
-                        _homeTabBloc.add(SwitchTabEvent(HomeTabs.TrophiesTab));
-                        break;
-                      case 3:
-                        _homeTabBloc.add(SwitchTabEvent(HomeTabs.MeTab));
-                        break;
-                    }
-                  },
-                  activeColor: CityColors.primary_teal,
-                  inactiveColor: Colors.black54,
-                  items: [
-                    TitledNavigationBarItem(title: 'Map', icon: Icons.map),
-                    TitledNavigationBarItem(title: 'Add Bin', icon: Icons.add),
-                    TitledNavigationBarItem(
-                        title: 'Leaderboard', icon: FontAwesomeIcons.trophy),
-                    TitledNavigationBarItem(
-                        title: 'Me', icon: Icons.account_circle),
-                  ]),
-              floatingActionButton: FloatingActionButton(
-                child: Icon(
-                  Icons.add,
+                );
+              } else {
+                return Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                    CityColors.primary_teal,
+                    CityColors.primary_teal[700]
+                  ])),
+                  key: Key("KeyContainerWhoops"),
+                  child: Text("Whoops, something went wrong, try again later."),
+                );
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoLive() {
+    return Container(
+      key: Key("LiveNoContainer"),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+                width: 250.0,
+                child: Material(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                      child:
+                          Image.asset("assets/images/ekva_primary_light.jpg")),
+                )),
+            SizedBox(
+              height: 20.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text("Hi,",
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.bold)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                "We are currently not\nactive, stay tuned for\nupdates!",
+                textAlign: TextAlign.start,
+                style: TextStyle(
                   color: Colors.white,
+                  fontSize: 20.0,
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => ScanScreen()));
-                },
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLiveHappening(snapshot) {
+    Map<String, dynamic> map = snapshot.data.documents[0].data;
+    map["id"] = snapshot.data.documents[0].documentID;
+    LiveBinSetting setting = LiveBinSetting.fromJson(map);
+    print(
+      MediaQuery.of(context).size.width,
+    );
+    print("MEDIAQUERY");
+    return Container(
+      key: Key("LiveContainer"),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                      width:
+                          MediaQuery.of(context).size.width > 400 ? 150.0 : 100,
+                      child: Material(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30.0))),
+                        child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30.0)),
+                            child: Image.asset(
+                                "assets/images/ekva_primary_light.jpg")),
+                      )),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Flexible(
+                      child: Text(
+                        "Hi,",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 40.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Flexible(
+                      child: Text(
+                        "Our waste bins are live, come find us to win some awesome rewards at",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 15.0,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Flexible(
+                      child: Text(
+                        setting.locationName,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 15.0,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Flexible(
+                      child: Text(
+                        "Remember, our waste bins only accept plastic items!",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 15.0,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: RaisedButton(
+                    onPressed: () async {
+                      if (await Permission.camera.request().isGranted) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ScanScreen()));
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(30.0))),
+                                  title: Text("Whoops!"),
+                                  content: Text(
+                                    "Please allow camera permissions to scan a bin.",
+                                  ),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text("Ok"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                ));
+                      }
+                    },
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Scan a bin",
+                        style: TextStyle(color: Colors.teal),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalHome() {
+    return ScaleTransition(
+      scale: Tween<double>(begin: 1.0, end: 0.95).animate(
+          CurvedAnimation(curve: Curves.ease, parent: _backController)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(_radiusAnimation.value)),
+        child: Scaffold(
+          body: MultiBlocListener(
+            listeners: [
+              BlocListener(
+                bloc: _homeTabBloc,
+                listener: (context, state) async {
+                  if (state is HomeTabNearbyState) {
+                    _cardSlideController.reverse();
+                    //_mapClosestBinController.forward();
+                  } else if (state is HomeTabAddBinState) {
+                    _mapClosestBinController.reverse();
+                    _cardSlideController.reverse();
+                    //_cardSlideController.forward();
+                  } else if (state is HomeTabTrophiesState) {
+                    _mapClosestBinController.reverse();
+                    _cardSlideController.forward();
+                  } else if (state is HomeTabMeState) {
+                    _cardSlideController.reverse();
+                    _mapClosestBinController.reverse();
+                    _backController.forward();
+                    await showMaterialModalBottomSheet(
+                        context: context,
+                        expand: false,
+                        isDismissible: true,
+                        enableDrag: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context, scrollController) {
+                          return MeTab(
+                            scrollController: scrollController,
+                          );
+                        });
+                    _backController.reverse();
+                    setState(() {
+                      _currentSelectedBottomNav = 0;
+                    });
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
+                  } else if (state is ScanScreenState) {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => ScanScreen()));
+                  } else {
+                    _cardSlideController.reverse();
+                  }
+                },
+              ),
+              BlocListener(
+                bloc: _nearbyBinsBloc,
+                listener: (context, state) async {
+                  if (state is SelectedBinState) {
+                    if (_mapClosestBinController.isCompleted) {
+                      await _mapClosestBinController.reverse();
+                    }
+                    setState(() {
+                      _currentSelectedBin = state.bin;
+                    });
+                    logger.info("Nearby: ${state}");
+                    await _mapClosestBinController.forward();
+                  }
+                },
+              )
+            ],
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: <Widget>[
+                NearbyTab(),
+                SlideTransition(
+                  position: Tween<Offset>(
+                          begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
+                      .animate(CurvedAnimation(
+                          curve: Curves.ease, parent: _cardSlideController)),
+                  child: DraggableScrollableSheet(
+                    minChildSize: 0.17,
+                    initialChildSize: 0.20,
+                    builder: (context, scrollController) {
+                      return HomeTab(
+                        scrollController: scrollController,
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                    child: _buildBinCard(), alignment: Alignment.bottomCenter)
+              ],
+            ),
+          ),
+          bottomNavigationBar: TitledBottomNavigationBar(
+              currentIndex: _currentSelectedBottomNav,
+              onTap: (index) {
+                setState(() {
+                  _currentSelectedBottomNav = index;
+                });
+                switch (index) {
+                  case 0:
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.NearbyTab));
+                    break;
+                  case 1:
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
+                    break;
+                  case 2:
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.TrophiesTab));
+                    break;
+                  case 3:
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.MeTab));
+                    break;
+                }
+              },
+              activeColor: CityColors.primary_teal,
+              inactiveColor: Colors.black54,
+              items: [
+                TitledNavigationBarItem(title: 'Map', icon: Icons.map),
+                TitledNavigationBarItem(title: 'Add Bin', icon: Icons.add),
+                TitledNavigationBarItem(
+                    title: 'Leaderboard', icon: FontAwesomeIcons.trophy),
+                TitledNavigationBarItem(
+                    title: 'Me', icon: Icons.account_circle),
+              ]),
+          floatingActionButton: FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => ScanScreen()));
+            },
           ),
         ),
       ),

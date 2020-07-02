@@ -4,17 +4,19 @@ import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logging/logging.dart';
 
 abstract class AuthService {
   Future<CurrentUser> signIn(String email, String password);
   Future<CurrentUser> checkIfAlreadySignedIn();
   Future<void> signOut();
+  Future<CurrentUser> anonSignIn();
 }
 
 class FirebaseAuthService implements AuthService {
   String TAG = "FIREBASEAUTHSERVICE: ";
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
+  final Logger logger = Logger("FirebaseAuthService");
   @override
   Future<CurrentUser> signIn(String email, String password) async {
     print(TAG + " Signing in");
@@ -48,9 +50,8 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<void> signOut() {
-    // TODO: implement signOut
-    return null;
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
   }
 
   @override
@@ -76,5 +77,24 @@ class FirebaseAuthService implements AuthService {
         throw DataFetchException(e.errorMsg);
       }
     }
+  }
+
+  @override
+  Future<CurrentUser> anonSignIn() async {
+    logger.info("Anonymously Signing in");
+    AuthResult result = await FirebaseAuth.instance.signInAnonymously();
+    logger.info("User's phone number: ${result.user.phoneNumber}");
+    CurrentUser currentUser;
+    if (result != null) {
+      if (result.user != null) {
+        currentUser = CurrentUser(id: result.user.uid);
+        logger.info("Anonymously Signed in: ${currentUser.id}");
+      } else {
+        logger.severe("user could not be found in auth result");
+      }
+    } else {
+      logger.severe("Auth result returned nothing");
+    }
+    return currentUser;
   }
 }
