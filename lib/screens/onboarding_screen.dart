@@ -46,7 +46,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   alignment: Alignment.center,
                   child: SizedBox(
                       width:
-                          MediaQuery.of(context).size.width > 350 ? 150.0 : 100,
+                          MediaQuery.of(context).size.width > 400 ? 150.0 : 100,
                       child: Material(
                         elevation: 3,
                         shape: RoundedRectangleBorder(
