@@ -14,11 +14,11 @@ import 'package:loading/indicator/line_scale_indicator.dart';
 import 'package:loading/loading.dart';
 
 class ThrowingTab extends StatefulWidget {
-  final isWinner;
+  final Function onContinueTapped;
 
   const ThrowingTab({
     Key key,
-    this.isWinner,
+    this.onContinueTapped,
   }) : super(key: key);
 
   @override
@@ -27,8 +27,9 @@ class ThrowingTab extends StatefulWidget {
 
 class _ThrowingTabState extends State<ThrowingTab>
     with SingleTickerProviderStateMixin {
-  int _currentCountDown = 7;
+  int _currentCountDown = 3;
   Timer _timer;
+
   @override
   void initState() {
     super.initState();
@@ -79,7 +80,7 @@ class _ThrowingTabState extends State<ThrowingTab>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      "Throw your item into the bin.",
+                      "Throw your garbage into the bin.",
                       style: Theme.of(context).textTheme.headline6.copyWith(
                           color: Colors.black, fontWeight: FontWeight.bold),
                     ),
@@ -98,8 +99,7 @@ class _ThrowingTabState extends State<ThrowingTab>
                       onPressed: _currentCountDown > 0
                           ? null
                           : () {
-                              BlocProvider.of<ScanBloc>(context)
-                                  .add(DoneThrowingItemEvent());
+                              widget.onContinueTapped();
                             },
                       color: CityColors.primary_teal,
                       shape: RoundedRectangleBorder(

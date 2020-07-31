@@ -5,19 +5,12 @@ abstract class ScanEvent {}
 
 class ScannedEvent extends ScanEvent {}
 
-class QRViewCreatedEvent extends ScanEvent {
-  final QRViewController _controller;
-  QRViewCreatedEvent(this._controller);
-}
+class InitializeCameraEvent extends ScanEvent {}
 
-class QRCodeReceived extends ScanEvent {
-  final CityScanQrCode _cityScanQrCode;
-  QRCodeReceived(this._cityScanQrCode);
-}
-
-class FailedQRCodeVerificationEvent extends ScanEvent {
-  final Exception e;
-  FailedQRCodeVerificationEvent(this.e);
+class BinImageTakenEvent extends ScanEvent {
+  final CameraController cameraController;
+  final CurrentUser user;
+  BinImageTakenEvent(this.cameraController, this.user);
 }
 
 class WasteItemImageTakenEvent extends ScanEvent {
@@ -32,3 +25,8 @@ class CheckWinningsEvent extends ScanEvent {
 }
 
 class DoneThrowingItemEvent extends ScanEvent {}
+
+class UploadDisposalDataEvent extends ScanEvent {
+  final CurrentUser currentUser;
+  UploadDisposalDataEvent(this.currentUser);
+}

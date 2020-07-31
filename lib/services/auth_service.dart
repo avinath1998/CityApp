@@ -8,6 +8,7 @@ import 'package:logging/logging.dart';
 
 abstract class AuthService {
   Future<CurrentUser> signIn(String email, String password);
+
   Future<CurrentUser> checkIfAlreadySignedIn();
   Future<void> signOut();
   Future<CurrentUser> anonSignIn();

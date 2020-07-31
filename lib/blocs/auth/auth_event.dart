@@ -10,6 +10,18 @@ class SignInEvent extends AuthEvent {
   SignInEvent(this.email, this.password);
 }
 
+class SignInPhoneNumber extends AuthEvent {
+  final String phoneNumber;
+
+  SignInPhoneNumber(this.phoneNumber);
+}
+
+class AuthCodeEnteredEvent extends AuthEvent {
+  final String passcode;
+
+  AuthCodeEnteredEvent(this.passcode);
+}
+
 class SignOutEvent extends AuthEvent {}
 
 class CheckIfSignedInEvent extends AuthEvent {}

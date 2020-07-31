@@ -19,3 +19,13 @@ class SignInFailedState extends AuthState {
 
   SignInFailedState(this.errorMsg);
 }
+
+class VerificationCodeSentState extends AuthState {}
+
+class VerificationCodeValidState extends AuthState {
+  final AuthResult _user;
+
+  VerificationCodeValidState(this._user);
+}
+
+class VerificationCodeFailedState extends AuthState {}

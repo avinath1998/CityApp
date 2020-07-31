@@ -5,24 +5,30 @@ abstract class ScanState {}
 
 class ScanInitial extends ScanState {}
 
-class CorrectQrScanned extends ScanState {
-  final CityScanQrCode cityScanQrCode;
+//init camera
+class CameraInitiailizedFailedState extends ScanState {
+  final String errorMsg;
+  CameraInitiailizedFailedState(this.errorMsg);
+}
+
+class CameraInitiailizedSucessState extends ScanState {
   final CameraController cameraController;
-
-  CorrectQrScanned(this.cityScanQrCode, this.cameraController);
+  CameraInitiailizedSucessState(this.cameraController);
 }
 
-class CameraInitiailizedFailed extends ScanState {}
+//bin image tab
 
-class ValidImageTakenState extends ScanState {}
+class BinImageUploadingState extends ScanState {
+  final String filepath;
 
-class InvalidImageTakenState extends ScanState {}
-
-class ErrorScanValidationState extends ScanState {
-  final Exception e;
-  ErrorScanValidationState(this.e);
+  BinImageUploadingState(this.filepath);
 }
 
+class BinImageSuccessState extends ScanState {}
+
+class BinImageFailedUploadState extends ScanState {}
+
+//waste item tab
 class WasteItemImageTakenState extends ScanState {}
 
 class WasteImageUploadingState extends ScanState {
@@ -36,6 +42,7 @@ class WasteImageFailedUploadState extends ScanState {}
 
 class FailedToTakeWasteImage extends ScanState {}
 
+//winnings tab
 class WinningScanStateState extends ScanState {
   final ScanWinnings scanWinnings;
   WinningScanStateState(this.scanWinnings);
@@ -49,4 +56,11 @@ class FailedToFetchScanWinnings extends ScanState {
   FailedToFetchScanWinnings(this.dataFetchException);
 }
 
+//throwing tab
 class DoneThrowingItemState extends ScanState {}
+
+class UploadingDataState extends ScanState {}
+
+class UploadDataSuccessState extends ScanState {}
+
+class UploadDataFailedState extends ScanState {}

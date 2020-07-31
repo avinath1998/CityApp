@@ -23,6 +23,11 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   final String _scanKey = "CityScanBin";
   final DataRepository _dataRepository;
   final Logger logger = Logger("ScanBloc");
+  String _currentBinImage;
+  String _currentWasteImage;
+  ScanWinnings _currentScanWinnings;
+  String _currentScanDataId;
+
   QRViewController _controller;
   StreamSubscription sub;
   CityScanQrCode currentCityScanQrCode;
@@ -36,59 +41,30 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   Stream<ScanState> mapEventToState(
     ScanEvent event,
   ) async* {
-    if (event is QRViewCreatedEvent) {
-      yield* _initQRScanner(event._controller);
-    } else if (event is QRCodeReceived) {
-      yield* _qrCodeReceived(event._cityScanQrCode);
+    if (event is InitializeCameraEvent) {
+      yield* _initCameraController();
     } else if (event is WasteItemImageTakenEvent) {
       yield* _takeWastePicture(event.cameraController, event.user);
-    } else if (event is FailedQRCodeVerificationEvent) {
-      yield ErrorScanValidationState(event.e);
     } else if (event is CheckWinningsEvent) {
       yield* _checkWinninges(event.currentUser);
     } else if (event is DoneThrowingItemEvent) {
       yield DoneThrowingItemState();
+    } else if (event is BinImageTakenEvent) {
+      yield* _takeBinPicture(event.cameraController, event.user);
+    } else if (event is UploadDisposalDataEvent) {
+      yield* _saveDisposalData(event.currentUser);
     }
   }
 
-  Stream<ScanState> _qrCodeReceived(CityScanQrCode code) async* {
+  Stream<ScanState> _initCameraController() async* {
     try {
       CameraController _cameraController = await _initCameraScanner();
-      yield (CorrectQrScanned(code, _cameraController));
+      yield (CameraInitiailizedSucessState(_cameraController));
     } on CameraException catch (e, stacktrace) {
       logger.severe(e);
       logger.severe(stacktrace);
-      yield (CameraInitiailizedFailed());
+      yield (CameraInitiailizedFailedState(e.toString()));
     }
-  }
-
-  Stream<ScanState> _initQRScanner(QRViewController controller) async* {
-    print("Initializing QR Code");
-    sub = controller.scannedDataStream.listen((scanData) async {
-      try {
-        final Map<String, dynamic> data = json.decode(scanData);
-        if (data.containsKey("type")) {
-          if (data["type"] == _scanKey) {
-            CityScanQrCode code =
-                CityScanQrCode.fromJson(json.decode(scanData));
-            currentCityScanQrCode = code;
-            add(QRCodeReceived(code));
-            sub.cancel();
-            controller.dispose();
-            return;
-          }
-        }
-        sub.cancel();
-        controller.dispose();
-        add(FailedQRCodeVerificationEvent(Exception("Invalid QR Code")));
-      } catch (e, stacktrace) {
-        logger.severe(e);
-        logger.severe(stacktrace);
-        sub.cancel();
-        controller.dispose();
-        add(FailedQRCodeVerificationEvent(e));
-      }
-    });
   }
 
   Future<CameraController> _initCameraScanner() async {
@@ -102,6 +78,29 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     return _cameraController;
   }
 
+  Stream<ScanState> _takeBinPicture(
+      CameraController cameraController, CurrentUser user) async* {
+    logger.info("taking bin picture");
+    try {
+      String filePath = await _generateNewFilePath();
+      await cameraController.takePicture(filePath);
+      Uint8List image = await File(filePath)
+          .readAsBytes(); //throws an unsupported error if image not found
+      yield BinImageUploadingState(filePath);
+      String binImageRef = await _dataRepository.uploadBinImage(user, image);
+      _currentBinImage = binImageRef;
+      yield BinImageSuccessState();
+    } on CameraException catch (e, stacktrace) {
+      logger.severe("Error with the camera: ${e.description}");
+      logger.severe(stacktrace);
+      yield BinImageFailedUploadState();
+    } catch (e, stacktrace) {
+      logger.severe("Error taking image ${e.description}");
+      logger.severe(stacktrace);
+      yield BinImageFailedUploadState();
+    }
+  }
+
   Stream<ScanState> _takeWastePicture(
       CameraController cameraController, CurrentUser user) async* {
     logger.info("taking waste picture");
@@ -111,7 +110,9 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
       Uint8List image = await File(filePath)
           .readAsBytes(); //throws an unsupported error if image not found
       yield WasteImageUploadingState(filePath);
-      await _dataRepository.uploadWasteImage(user, image);
+      String wasteImageRef =
+          await _dataRepository.uploadWasteImage(user, image);
+      _currentWasteImage = wasteImageRef;
       yield WasteImageSuccessState();
     } on CameraException catch (e, stacktrace) {
       logger.severe("Error with the camera: ${e.description}");
@@ -137,6 +138,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     logger.info("Checking Winnings");
     try {
       ScanWinnings winnings = await _dataRepository.fetchScanWinnings(user);
+      _currentScanWinnings = winnings;
       if (winnings == null) {
         logger.info("No winnings fetched.");
         yield (NoScanWinningsState());
@@ -147,6 +149,24 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
       }
     } on DataFetchException catch (e) {
       yield (FailedToFetchScanWinnings(e));
+    }
+  }
+
+  Stream<ScanState> _saveDisposalData(CurrentUser user) async* {
+    yield UploadingDataState();
+    if (_currentWasteImage != null && _currentBinImage != null) {
+      try {
+        // String ref = await _dataRepository.saveDisposalData(
+        //     user, _currentBinImage, _currentWasteImage, _currentScanWinnings);
+        // _currentScanDataId = ref;
+        // logger.info("Saved Data into $ref");
+        yield UploadDataSuccessState();
+      } catch (e) {
+        logger.severe(e.toString());
+        yield UploadDataFailedState();
+      }
+    } else {
+      yield UploadDataFailedState();
     }
   }
 

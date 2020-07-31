@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> _radiusAnimation;
   ScrollController _scrollController;
   TaggedBin _currentSelectedBin;
-  
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _scrollController.dispose();
     _backController.dispose();
     _cardSlideController.dispose();
-    _nearbyBinsBloc.close();
+    // _nearbyBinsBloc.close();
   }
 
   @override
@@ -93,121 +93,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ],
       child: SafeArea(
         child: Scaffold(
-          body: StreamBuilder<QuerySnapshot>(
-            stream: Firestore.instance
-                .collection("liveBinSetting")
-                .where("isActive", isEqualTo: true)
-                .snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    CityColors.primary_teal,
-                    CityColors.primary_teal[700]
-                  ])),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              } else if (snapshot.connectionState == ConnectionState.active) {
-                return Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    CityColors.primary_teal,
-                    CityColors.primary_teal[700]
-                  ])),
-                  child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return ScaleTransition(child: child, scale: animation);
-                    },
-                    switchInCurve: Curves.easeOut,
-                    layoutBuilder: (context, widgets) {
-                      if (snapshot.hasData) {
-                        if (snapshot.data.documents.length > 0) {
-                          return _buildLiveHappening(snapshot);
-                        } else {
-                          return _buildNoLive();
-                        }
-                      } else {
-                        return _buildNoLive();
-                      }
-                    },
-                  ),
-                );
-              } else {
-                return Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    CityColors.primary_teal,
-                    CityColors.primary_teal[700]
-                  ])),
-                  key: Key("KeyContainerWhoops"),
-                  child: Text("Whoops, something went wrong, try again later."),
-                );
-              }
-            },
+          body: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+              CityColors.primary_teal,
+              CityColors.primary_teal[700]
+            ])),
+            child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(child: child, scale: animation);
+              },
+              switchInCurve: Curves.easeOut,
+              layoutBuilder: (context, widgets) {
+                return _buildLiveHappening();
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildNoLive() {
-    return Container(
-      key: Key("LiveNoContainer"),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-                width: 250.0,
-                child: Material(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      child:
-                          Image.asset("assets/images/ekva_primary_light.jpg")),
-                )),
-            SizedBox(
-              height: 20.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text("Hi,",
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                "We are currently not\nactive, stay tuned for\nupdates!",
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLiveHappening(snapshot) {
-    Map<String, dynamic> map = snapshot.data.documents[0].data;
-    map["id"] = snapshot.data.documents[0].documentID;
-    LiveBinSetting setting = LiveBinSetting.fromJson(map);
-    print(
-      MediaQuery.of(context).size.width,
-    );
-    print("MEDIAQUERY");
+  Widget _buildLiveHappening() {
     return Container(
       key: Key("LiveContainer"),
       child: Center(
@@ -264,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                     Flexible(
                       child: Text(
-                        "Our waste bins are live, come find us to win some awesome rewards at",
+                        "Win prizes for throwing away your trash.",
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           color: Colors.white,
@@ -275,7 +183,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ],
                 ),
                 SizedBox(
-                  height: 15.0,
+                  height: 15,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 35,
+                    child: Divider(
+                      thickness: 3,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -283,20 +204,99 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     SizedBox(
                       width: 20.0,
                     ),
-                    Flexible(
-                      child: Text(
-                        setting.locationName,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold),
+                    Text(
+                      "1. Find a ",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5.0,
+                    ),
+                    Icon(FontAwesomeIcons.trashAlt,
+                        color: Colors.white, size: 30),
+                    Text(
+                      " anywhere.",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
                       ),
                     ),
                   ],
                 ),
                 SizedBox(
-                  height: 15.0,
+                  height: 15,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Text(
+                      "2. Take a ",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                    Text(
+                      " of ",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5.0,
+                    ),
+                    Icon(FontAwesomeIcons.trashAlt,
+                        color: Colors.white, size: 30),
+                  ],
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Text(
+                      "3. Take a ",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                    Text(
+                      " of ",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5.0,
+                    ),
+                    Image.asset(
+                      "assets/images/water.png",
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10.0,
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -306,15 +306,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                     Flexible(
                       child: Text(
-                        "Remember, our waste bins only accept plastic items!",
+                        "4. Win Prizes!",
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 15.0,
+                          fontSize: 20.0,
                         ),
                       ),
                     ),
+                    SizedBox(
+                      width: 5.0,
+                    ),
+                    Icon(
+                      FontAwesomeIcons.dollarSign,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ],
+                ),
+                SizedBox(
+                  height: 10.0,
                 ),
                 SizedBox(
                   height: 15.0,
@@ -324,8 +335,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   child: RaisedButton(
                     onPressed: () async {
                       if (await Permission.camera.request().isGranted) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ScanScreen()));
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(30.0))),
+                                  title: Text("Please Don't Cheat!",
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                      )),
+                                  content: Text(
+                                    "Do not cheat and take pictures of the same garbage item.\n\nYou will be disqualified if you do!",
+                                  ),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20.0))),
+                                      child: Text("Ok"),
+                                      color: CityColors.primary_teal,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ScanScreen()));
+                                      },
+                                    )
+                                  ],
+                                ));
                       } else {
                         showDialog(
                             context: context,
@@ -354,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
-                        "Scan a bin",
+                        "Start",
                         style: TextStyle(color: Colors.teal),
                       ),
                     ),

@@ -20,8 +20,12 @@ abstract class DB {
   StreamController<TaggedBin> openBinStream();
   void closeBinStream();
   Future<String> uploadWasteImageData(CurrentUser user, Uint8List image);
-  void saveDisposalData(CurrentUser user, String ref);
+  Future<String> uploadBinImageData(CurrentUser user, Uint8List image);
+  Future<String> saveDisposalData(CurrentUser user, String binImageRef,
+      String wasteItemRef, ScanWinnings scanWinningsId, String phoneNumber);
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
+  Future<void> savePhoneNumberForWinnings(
+      CurrentUser user, String phoneNumber, String disposalId);
 }
 
 class FirebaseDB extends DB {
@@ -119,6 +123,7 @@ class FirebaseDB extends DB {
         .ref()
         .child("cityscan")
         .child(user.id)
+        .child("wasteItems")
         .child(DateTime.now().toIso8601String() + ".jpg");
     final StorageUploadTask uploadTask = storageReference.putData(image);
     final StreamSubscription<StorageTaskEvent> streamSubscription =
@@ -133,16 +138,43 @@ class FirebaseDB extends DB {
   }
 
   @override
-  void saveDisposalData(final CurrentUser user, final String photoSrc) async {
+  Future<String> uploadBinImageData(CurrentUser user, Uint8List image) async {
+    final StorageReference storageReference = FirebaseStorage()
+        .ref()
+        .child("cityscan")
+        .child(user.id)
+        .child("bins")
+        .child(DateTime.now().toIso8601String() + ".jpg");
+    final StorageUploadTask uploadTask = storageReference.putData(image);
+    final StreamSubscription<StorageTaskEvent> streamSubscription =
+        uploadTask.events.listen((event) {
+      logger.info('EVENT ${event.type}');
+    });
+    await uploadTask.onComplete;
+    streamSubscription.cancel();
+    logger.info("Successfully saved file");
+    String downloadUrl = await storageReference.getDownloadURL();
+    return downloadUrl;
+  }
+
+  @override
+  Future<String> saveDisposalData(
+      final CurrentUser user,
+      final String binImage,
+      final String wasteImage,
+      final ScanWinnings scanWinnings,
+      final String phoneNumber) async {
     logger.info("Saving Disposal data....");
     DocumentReference ref =
         await Firestore.instance.collection("scanDisposals").add({
-      "photoSrc": photoSrc,
+      "binImage": binImage,
+      "wasteImage": wasteImage,
       "time": DateTime.now().millisecondsSinceEpoch,
-      "userId": user.id
+      "userId": user.id,
+      "scanWinningsId": scanWinnings != null ? scanWinnings.id : null,
+      "phoneNumber": phoneNumber
     });
-
-    logger.info("Saved Disposal Data");
+    return ref.documentID;
   }
 
   @override
@@ -179,6 +211,17 @@ class FirebaseDB extends DB {
     logger.info(map);
     logger.info(scanWinnings);
     return scanWinnings;
+  }
+
+  @override
+  Future<void> savePhoneNumberForWinnings(
+      CurrentUser user, String phoneNumber, String disposalId) async {
+    logger.info("Saving Phone number in database");
+    logger.info("Disposal ID: $disposalId");
+    await Firestore.instance
+        .collection("scanDisposals")
+        .document(disposalId)
+        .updateData({"phoneNumber": phoneNumber});
   }
 }
 

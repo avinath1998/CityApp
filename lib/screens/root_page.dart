@@ -29,6 +29,7 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    BlocProvider.of<AuthBloc>(context).signIn("a", "a");
     //BlocProvider.of<AuthBloc>(context).add(CheckIfSignedInEvent());
   }
 
@@ -43,15 +44,15 @@ class _RootPageState extends State<RootPage> {
             if (state is SignedInState) {
               return HomeScreen();
             } else if (state is SignedOutState) {
-              return OnboardingScreen(isWaiting: false);
+              return HomeScreen();
             } else if (state is SignInFailedState) {
-              return OnboardingScreen(errorMsg: state.errorMsg);
+              return HomeScreen();
             } else if (state is SigningInWaitingState) {
-              return OnboardingScreen(isWaiting: true);
+              return Scaffold(body: Center(child: CircularProgressIndicator()));
             } else if (state is AuthInitial) {
-              return OnboardingScreen(isWaiting: false);
+              return HomeScreen();
             } else {
-              return OnboardingScreen(isWaiting: false);
+              return HomeScreen();
             }
           },
         );

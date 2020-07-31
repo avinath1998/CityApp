@@ -91,10 +91,31 @@ class DataRepository {
     _binStreamSubscription?.cancel();
   }
 
-  Future<void> uploadWasteImage(CurrentUser user, Uint8List image) async {
+  Future<String> uploadWasteImage(CurrentUser user, Uint8List image) async {
     try {
       String ref = await db.uploadWasteImageData(user, image);
-      await db.saveDisposalData(user, ref);
+      return ref;
+    } catch (e, stacktrace) {
+      logger.severe("Error uploading disposal data");
+      logger.severe(stacktrace);
+      throw DataUploadException(e, stacktrace);
+    }
+  }
+
+  Future<String> saveDisposalData(
+      CurrentUser user,
+      String binImageRef,
+      String wasteItemRef,
+      ScanWinnings scanWinnings,
+      String phoneNumber) async {
+    return db.saveDisposalData(
+        user, binImageRef, wasteItemRef, scanWinnings, phoneNumber);
+  }
+
+  Future<String> uploadBinImage(CurrentUser user, Uint8List image) async {
+    try {
+      String ref = await db.uploadBinImageData(user, image);
+      return ref;
     } catch (e, stacktrace) {
       logger.severe("Error uploading disposal data");
       logger.severe(stacktrace);
