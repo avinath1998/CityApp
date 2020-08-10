@@ -19,6 +19,7 @@ class HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<HomeTab> {
   List<String> testList = ["123", "23", "23", "431", "213"];
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -68,15 +69,15 @@ class _HomeTabState extends State<HomeTab> {
                                   .textTheme
                                   .headline4
                                   .copyWith(fontWeight: FontWeight.bold)),
-                          // TextSpan(
-                          //     text: BlocProvider.of<AuthBloc>(
-                          //           context,
-                          //         ).currentUser.name.split(" ")[0] +
-                          //         ",",
-                          //     style: Theme.of(context)
-                          //         .textTheme
-                          //         .headline4
-                          //         .copyWith(fontWeight: FontWeight.bold)),
+                          TextSpan(
+                              text: BlocProvider.of<AuthBloc>(
+                                    context,
+                                  ).currentUser.name.split(" ")[0] +
+                                  ",",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline4
+                                  .copyWith(fontWeight: FontWeight.bold)),
                         ]),
                       ),
                       Text(

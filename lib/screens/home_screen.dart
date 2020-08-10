@@ -50,8 +50,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _homeTabBloc = HomeTabBloc();
-    // _nearbyBinsBloc =
-    //     NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
+    _nearbyBinsBloc =
+        NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
     _cardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _backController = AnimationController(
@@ -66,8 +66,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      //_nearbyBinsBloc.add(InitializeCurrentLocationEvent());
-      //_nearbyBinsBloc.add(OpenBinStreamEvent());
+      _nearbyBinsBloc.add(InitializeCurrentLocationEvent());
+      _nearbyBinsBloc.add(OpenBinStreamEvent());
     });
   }
 
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _scrollController.dispose();
     _backController.dispose();
     _cardSlideController.dispose();
-    // _nearbyBinsBloc.close();
+    _nearbyBinsBloc.close();
   }
 
   @override
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               },
               switchInCurve: Curves.easeOut,
               layoutBuilder: (context, widgets) {
-                return _buildLiveHappening();
+                return _buildNormalHome();
               },
             ),
           ),
@@ -419,13 +419,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               BlocListener(
                 bloc: _homeTabBloc,
                 listener: (context, state) async {
+                  logger.info(state);
                   if (state is HomeTabNearbyState) {
                     _cardSlideController.reverse();
                     //_mapClosestBinController.forward();
-                  } else if (state is HomeTabAddBinState) {
-                    _mapClosestBinController.reverse();
-                    _cardSlideController.reverse();
-                    //_cardSlideController.forward();
                   } else if (state is HomeTabTrophiesState) {
                     _mapClosestBinController.reverse();
                     _cardSlideController.forward();
@@ -448,7 +445,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     setState(() {
                       _currentSelectedBottomNav = 0;
                     });
-                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
                   } else if (state is ScanScreenState) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => ScanScreen()));
@@ -467,7 +463,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     setState(() {
                       _currentSelectedBin = state.bin;
                     });
-                    logger.info("Nearby: ${state}");
+                    _cardSlideController.reverse();
+                    _backController.reverse();
                     await _mapClosestBinController.forward();
                   }
                 },
@@ -508,12 +505,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.NearbyTab));
                     break;
                   case 1:
-                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
-                    break;
-                  case 2:
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.TrophiesTab));
                     break;
-                  case 3:
+                  case 2:
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.MeTab));
                     break;
                 }
@@ -522,22 +516,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               inactiveColor: Colors.black54,
               items: [
                 TitledNavigationBarItem(title: 'Map', icon: Icons.map),
-                TitledNavigationBarItem(title: 'Add Bin', icon: Icons.add),
                 TitledNavigationBarItem(
-                    title: 'Leaderboard', icon: FontAwesomeIcons.trophy),
+                    title: 'My Rewards', icon: FontAwesomeIcons.trophy),
                 TitledNavigationBarItem(
                     title: 'Me', icon: Icons.account_circle),
               ]),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ScanScreen()));
-            },
-          ),
         ),
       ),
     );
@@ -561,19 +544,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(20),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                // GestureDetector(
-                //   onTap: () {
-                //     _mapClosestBinController.reverse();
-                //   },
-                //   child: Container(
-                //     padding: const EdgeInsets.only(bottom: 10.0),
-                //     child: Icon(
-                //       Icons.keyboard_arrow_down,
-                //       color: Colors.white,
-                //       size: 25.0,
-                //     ),
-                //   ),
-                // ),
+                GestureDetector(
+                  onTap: () {
+                    _mapClosestBinController.reverse();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.black,
+                      size: 30.0,
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -647,9 +630,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20.0))),
                               color: CityColors.primary_teal,
-                              child: Text("Go",
+                              child: Text("Scan",
                                   style: TextStyle(color: Colors.white)),
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ScanScreen()));
+                              },
                             ),
                           )
                         ],

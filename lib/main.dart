@@ -1,6 +1,7 @@
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/networking/db.dart';
 import 'package:citycollection/screens/home_screen.dart';
+import 'package:citycollection/screens/onboarding_screen.dart';
 import 'package:citycollection/screens/root_page.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,8 @@ class MyApp extends StatelessWidget {
                             .textTheme
                             .headline6
                             .copyWith(color: Colors.black),
+                        button: Theme.of(context).textTheme.button.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.w500),
                       ))),
           home: RootPage(),
         ));

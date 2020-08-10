@@ -114,8 +114,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       print(TAG + " Signing in.");
       yield (SigningInWaitingState());
-      currentUser = await _authService.anonSignIn();
+      currentUser = await _authService.signIn("a@a.com", "password");
       if (currentUser == null) {
+        logger.info("current user is null");
         yield (SigningInWaitingState());
       } else {
         yield SignedInState(currentUser);

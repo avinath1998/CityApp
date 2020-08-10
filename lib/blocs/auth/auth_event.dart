@@ -12,13 +12,11 @@ class SignInEvent extends AuthEvent {
 
 class SignInPhoneNumber extends AuthEvent {
   final String phoneNumber;
-
   SignInPhoneNumber(this.phoneNumber);
 }
 
 class AuthCodeEnteredEvent extends AuthEvent {
   final String passcode;
-
   AuthCodeEnteredEvent(this.passcode);
 }
 

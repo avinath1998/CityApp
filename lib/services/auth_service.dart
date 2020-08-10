@@ -35,6 +35,7 @@ class FirebaseAuthService implements AuthService {
       print(TAG + " User has been Found. ${result.user.uid}");
     }
     try {
+      logger.info("Parsing user");
       CurrentUser user = await GetIt.instance<DataRepository>()
           .fetchCurrentUser(result.user.uid);
       if (user == null) {
@@ -42,7 +43,6 @@ class FirebaseAuthService implements AuthService {
         throw NoUserFoundException("User not saved in database");
       } else {
         print(TAG + " Returning user to calling function ${result.user.uid}");
-
         return user;
       }
     } on DataFetchException catch (e) {

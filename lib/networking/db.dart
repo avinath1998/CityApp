@@ -42,7 +42,9 @@ class FirebaseDB extends DB {
       Map<String, dynamic> userData = doc.data;
       userData.putIfAbsent("id", () => doc.documentID);
       userData.putIfAbsent("userType", () => UserType.CurrentUser);
+      logger.info(userData);
       CurrentUser user = CurrentUser.fromJson(userData);
+      logger.info(doc.data);
       return user;
     } else {
       throw NoUserFoundException("User not found in DB");

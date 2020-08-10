@@ -74,7 +74,6 @@ class _NearbyTabState extends State<NearbyTab> {
                     markerId: MarkerId(taggedBin.id),
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
-                    infoWindow: InfoWindow(title: taggedBin.id),
                     onTap: () {
                       BlocProvider.of<NearbyBinsBloc>(context)
                           .add(SelectBinEvent(taggedBin));
