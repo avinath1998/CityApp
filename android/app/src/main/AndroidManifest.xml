@@ -10,7 +10,7 @@
         android:label="Ekva"
         android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyCCzyZAtHdzNmHRL3GIZUUzGF80p1HDtVk"/>
+               android:value="AIzaSyA-oGFP7FUpmLWCcMTjSXHKQdzJO-5Yd3k"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

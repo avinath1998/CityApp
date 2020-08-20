@@ -28,6 +28,7 @@ import 'home_tabs/home_tab.dart';
 import 'home_tabs/me_tab.dart';
 import 'home_tabs/nearby_tab.dart';
 import 'home_tabs/redeem_tab.dart';
+import 'home_tabs/take_picture_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -45,13 +46,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> _radiusAnimation;
   ScrollController _scrollController;
   TaggedBin _currentSelectedBin;
-  
+
   @override
   void initState() {
     super.initState();
     _homeTabBloc = HomeTabBloc();
-    // _nearbyBinsBloc =
-    //     NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
+    _nearbyBinsBloc =
+        NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
     _cardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _backController = AnimationController(
@@ -66,8 +67,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      //_nearbyBinsBloc.add(InitializeCurrentLocationEvent());
-      //_nearbyBinsBloc.add(OpenBinStreamEvent());
+      _nearbyBinsBloc.add(InitializeCurrentLocationEvent());
+      _nearbyBinsBloc.add(OpenBinStreamEvent());
     });
   }
 
@@ -92,62 +93,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         )
       ],
       child: SafeArea(
-        child: Scaffold(
-          body: StreamBuilder<QuerySnapshot>(
-            stream: Firestore.instance
-                .collection("liveBinSetting")
-                .where("isActive", isEqualTo: true)
-                .snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    CityColors.primary_teal,
-                    CityColors.primary_teal[700]
-                  ])),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              } else if (snapshot.connectionState == ConnectionState.active) {
-                return Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    CityColors.primary_teal,
-                    CityColors.primary_teal[700]
-                  ])),
-                  child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return ScaleTransition(child: child, scale: animation);
-                    },
-                    switchInCurve: Curves.easeOut,
-                    layoutBuilder: (context, widgets) {
-                      if (snapshot.hasData) {
-                        if (snapshot.data.documents.length > 0) {
-                          return _buildLiveHappening(snapshot);
-                        } else {
-                          return _buildNoLive();
-                        }
-                      } else {
-                        return _buildNoLive();
-                      }
-                    },
-                  ),
-                );
-              } else {
-                return Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    CityColors.primary_teal,
-                    CityColors.primary_teal[700]
-                  ])),
-                  key: Key("KeyContainerWhoops"),
-                  child: Text("Whoops, something went wrong, try again later."),
-                );
-              }
-            },
-          ),
-        ),
+        child: Scaffold(body: _buildNormalHome()),
       ),
     );
   }
@@ -380,17 +326,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               BlocListener(
                 bloc: _homeTabBloc,
                 listener: (context, state) async {
+                  logger.info(state);
                   if (state is HomeTabNearbyState) {
                     _cardSlideController.reverse();
                     //_mapClosestBinController.forward();
                   } else if (state is HomeTabAddBinState) {
-                    _mapClosestBinController.reverse();
-                    _cardSlideController.reverse();
-                    //_cardSlideController.forward();
-                  } else if (state is HomeTabTrophiesState) {
-                    _mapClosestBinController.reverse();
-                    _cardSlideController.forward();
-                  } else if (state is HomeTabMeState) {
                     _cardSlideController.reverse();
                     _mapClosestBinController.reverse();
                     _backController.forward();
@@ -401,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         enableDrag: true,
                         backgroundColor: Colors.transparent,
                         builder: (context, scrollController) {
-                          return MeTab(
+                          return TakePictureTab(
                             scrollController: scrollController,
                           );
                         });
@@ -410,6 +350,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       _currentSelectedBottomNav = 0;
                     });
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
+                  } else if (state is HomeTabMeState) {
+                    _mapClosestBinController.reverse();
+                    _cardSlideController.reverse();
+                    _cardSlideController.forward();
                   } else if (state is ScanScreenState) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => ScanScreen()));
@@ -472,9 +416,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
                     break;
                   case 2:
-                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.TrophiesTab));
-                    break;
-                  case 3:
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.MeTab));
                     break;
                 }
@@ -485,20 +426,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 TitledNavigationBarItem(title: 'Map', icon: Icons.map),
                 TitledNavigationBarItem(title: 'Add Bin', icon: Icons.add),
                 TitledNavigationBarItem(
-                    title: 'Leaderboard', icon: FontAwesomeIcons.trophy),
-                TitledNavigationBarItem(
-                    title: 'Me', icon: Icons.account_circle),
+                    title: 'My Bins', icon: Icons.account_circle),
               ]),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => ScanScreen()));
-            },
-          ),
+          // floatingActionButton: FloatingActionButton(
+          //   child: Icon(
+          //     Icons.add,
+          //     color: Colors.white,
+          //   ),
+          //   onPressed: () {
+          //     Navigator.of(context)
+          //         .push(MaterialPageRoute(builder: (context) => ScanScreen()));
+          //   },
+          // ),
         ),
       ),
     );
@@ -522,19 +461,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(20),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                // GestureDetector(
-                //   onTap: () {
-                //     _mapClosestBinController.reverse();
-                //   },
-                //   child: Container(
-                //     padding: const EdgeInsets.only(bottom: 10.0),
-                //     child: Icon(
-                //       Icons.keyboard_arrow_down,
-                //       color: Colors.white,
-                //       size: 25.0,
-                //     ),
-                //   ),
-                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -549,8 +475,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   alignment: Alignment.centerLeft,
                                   child: CachedNetworkImage(
                                     imageUrl: _currentSelectedBin.imageSrc,
-                                    placeholder: (context, url) =>
-                                        CircularProgressIndicator(),
+                                    placeholder: (context, url) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: CircularProgressIndicator(),
+                                    ),
                                     imageBuilder: (context, imageprovider) {
                                       return Container(
                                         height: 140,

@@ -74,14 +74,12 @@ class _NearbyTabState extends State<NearbyTab> {
                     markerId: MarkerId(taggedBin.id),
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
-                    infoWindow: InfoWindow(title: taggedBin.id),
+                    infoWindow: InfoWindow(title: taggedBin.binName),
                     onTap: () {
                       BlocProvider.of<NearbyBinsBloc>(context)
                           .add(SelectBinEvent(taggedBin));
                     }));
               });
-              logger.info(state.taggedBins.length);
-              logger.info(_binMarkers.length);
             });
           } else if (state is BinChangeErrorState) {
             Scaffold.of(context).showSnackBar(
