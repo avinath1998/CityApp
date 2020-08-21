@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:citycollection/exceptions/NoCameraFoundException.dart';
 import 'package:equatable/equatable.dart';
 import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'take_picture_event.dart';
 part 'take_picture_state.dart';
@@ -33,7 +35,31 @@ class TakePictureBloc extends Bloc<TakePictureEvent, TakePictureState> {
   ) async* {
     if (event is InitializeCameraEvent) {
       yield* _initCamera();
-    } else if (event is InitPictureTakeEvent) {}
+    } else if (event is InitPictureTakeEvent) {
+      yield* _takePicture();
+    }
+  }
+
+  Future<String> _generateNewFilePath() async {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String dirPath = '${appDocDir.path}/Pictures/flutter_test';
+    await Directory(dirPath).create(recursive: true);
+    final String filePath = '$dirPath/${DateTime.now().toIso8601String()}.jpg';
+    logger.info(filePath);
+    return filePath;
+  }
+
+  Stream<TakePictureState> _takePicture() async* {
+    logger.info("Taking picture");
+    if (_cameraController != null) {
+      String filePath = await _generateNewFilePath();
+      await _cameraController.takePicture(filePath);
+      File file = File(filePath);
+      yield (CameraPictureTakenSuccessState(file));
+      logger.info("Done taking picture");
+    } else {
+      logger.severe("Camera Controller is null");
+    }
   }
 
   Stream<TakePictureState> _initCamera() async* {

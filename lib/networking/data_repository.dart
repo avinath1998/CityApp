@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:citycollection/exceptions/DataFetchException.dart';
@@ -95,6 +96,19 @@ class DataRepository {
     try {
       String ref = await db.uploadWasteImageData(user, image);
       await db.saveDisposalData(user, ref);
+    } catch (e, stacktrace) {
+      logger.severe("Error uploading disposal data");
+      logger.severe(stacktrace);
+      throw DataUploadException(e, stacktrace);
+    }
+  }
+
+  Future<void> uploadTaggedBin(
+      CurrentUser user, TaggedBin bin, File image) async {
+    try {
+      String ref = await db.uploadBinImageData(user, image);
+      TaggedBin updatedBin = bin.copyWith(imageSrc: ref);
+      await db.saveTaggedBin(user, updatedBin);
     } catch (e, stacktrace) {
       logger.severe("Error uploading disposal data");
       logger.severe(stacktrace);

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:citycollection/exceptions/DataFetchException.dart';
@@ -22,6 +23,8 @@ abstract class DB {
   Future<String> uploadWasteImageData(CurrentUser user, Uint8List image);
   void saveDisposalData(CurrentUser user, String ref);
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
+  Future<String> uploadBinImageData(CurrentUser user, File image);
+  Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
 }
 
 class FirebaseDB extends DB {
@@ -179,6 +182,36 @@ class FirebaseDB extends DB {
     logger.info(map);
     logger.info(scanWinnings);
     return scanWinnings;
+  }
+
+  @override
+  Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin) async {
+    logger.info("Saving Tagged bin");
+    Map<String, dynamic> data = bin.toJson();
+    data.remove("id");
+    DocumentReference ref =
+        await Firestore.instance.collection("taggedBins").add(data);
+    logger.info("Saved tagged bin information: ${ref.documentID}");
+  }
+
+  @override
+  Future<String> uploadBinImageData(CurrentUser user, File image) async {
+    final StorageReference storageReference = FirebaseStorage()
+        .ref()
+        .child("findmybin")
+        .child(user.id)
+        .child(DateTime.now().toIso8601String() + ".jpg");
+    final StorageUploadTask uploadTask =
+        storageReference.putData(image.readAsBytesSync());
+    final StreamSubscription<StorageTaskEvent> streamSubscription =
+        uploadTask.events.listen((event) {
+      logger.info('EVENT ${event.type}');
+    });
+    await uploadTask.onComplete;
+    streamSubscription.cancel();
+    logger.info("Successfully saved file");
+    String downloadUrl = await storageReference.getDownloadURL();
+    return downloadUrl;
   }
 }
 

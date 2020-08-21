@@ -16,7 +16,7 @@ _$_TaggedBin _$_$_TaggedBinFromJson(Map<String, dynamic> json) {
     isNew: json['isNew'] as bool,
     locationLan: (json['locationLan'] as num)?.toDouble(),
     locationLon: (json['locationLon'] as num)?.toDouble(),
-    taggedTime: (json['taggedTime'] as num)?.toDouble(),
+    taggedTime: json['taggedTime'] as int,
     pointsEarned: json['pointsEarned'] as int,
     reportStrikes: json['reportStrikes'] as int,
   );

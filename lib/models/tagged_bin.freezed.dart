@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named
+// ignore_for_file: deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies
 
 part of 'tagged_bin.dart';
 
@@ -15,6 +15,7 @@ TaggedBin _$TaggedBinFromJson(Map<String, dynamic> json) {
 class _$TaggedBinTearOff {
   const _$TaggedBinTearOff();
 
+// ignore: unused_element
   _TaggedBin call(
       {String id,
       String binName,
@@ -24,7 +25,7 @@ class _$TaggedBinTearOff {
       bool isNew,
       double locationLan,
       double locationLon,
-      double taggedTime,
+      int taggedTime,
       int pointsEarned,
       int reportStrikes}) {
     return _TaggedBin(
@@ -55,7 +56,7 @@ mixin _$TaggedBin {
   bool get isNew;
   double get locationLan;
   double get locationLon;
-  double get taggedTime;
+  int get taggedTime;
   int get pointsEarned;
   int get reportStrikes;
 
@@ -75,7 +76,7 @@ abstract class $TaggedBinCopyWith<$Res> {
       bool isNew,
       double locationLan,
       double locationLon,
-      double taggedTime,
+      int taggedTime,
       int pointsEarned,
       int reportStrikes});
 }
@@ -112,8 +113,7 @@ class _$TaggedBinCopyWithImpl<$Res> implements $TaggedBinCopyWith<$Res> {
           locationLan == freezed ? _value.locationLan : locationLan as double,
       locationLon:
           locationLon == freezed ? _value.locationLon : locationLon as double,
-      taggedTime:
-          taggedTime == freezed ? _value.taggedTime : taggedTime as double,
+      taggedTime: taggedTime == freezed ? _value.taggedTime : taggedTime as int,
       pointsEarned:
           pointsEarned == freezed ? _value.pointsEarned : pointsEarned as int,
       reportStrikes: reportStrikes == freezed
@@ -137,7 +137,7 @@ abstract class _$TaggedBinCopyWith<$Res> implements $TaggedBinCopyWith<$Res> {
       bool isNew,
       double locationLan,
       double locationLon,
-      double taggedTime,
+      int taggedTime,
       int pointsEarned,
       int reportStrikes});
 }
@@ -175,8 +175,7 @@ class __$TaggedBinCopyWithImpl<$Res> extends _$TaggedBinCopyWithImpl<$Res>
           locationLan == freezed ? _value.locationLan : locationLan as double,
       locationLon:
           locationLon == freezed ? _value.locationLon : locationLon as double,
-      taggedTime:
-          taggedTime == freezed ? _value.taggedTime : taggedTime as double,
+      taggedTime: taggedTime == freezed ? _value.taggedTime : taggedTime as int,
       pointsEarned:
           pointsEarned == freezed ? _value.pointsEarned : pointsEarned as int,
       reportStrikes: reportStrikes == freezed
@@ -221,7 +220,7 @@ class _$_TaggedBin implements _TaggedBin {
   @override
   final double locationLon;
   @override
-  final double taggedTime;
+  final int taggedTime;
   @override
   final int pointsEarned;
   @override
@@ -302,7 +301,7 @@ abstract class _TaggedBin implements TaggedBin {
       bool isNew,
       double locationLan,
       double locationLon,
-      double taggedTime,
+      int taggedTime,
       int pointsEarned,
       int reportStrikes}) = _$_TaggedBin;
 
@@ -326,7 +325,7 @@ abstract class _TaggedBin implements TaggedBin {
   @override
   double get locationLon;
   @override
-  double get taggedTime;
+  int get taggedTime;
   @override
   int get pointsEarned;
   @override

@@ -3,6 +3,7 @@ import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
+import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/models/live_bin_setting.dart';
 import 'package:citycollection/models/tagged_bin.dart';
@@ -46,11 +47,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> _radiusAnimation;
   ScrollController _scrollController;
   TaggedBin _currentSelectedBin;
+  TaggedBinsBloc _taggedBinsBloc;
 
   @override
   void initState() {
     super.initState();
     _homeTabBloc = HomeTabBloc();
+    _taggedBinsBloc = TaggedBinsBloc(GetIt.instance<DataRepository>());
     _nearbyBinsBloc =
         NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
     _cardSlideController = AnimationController(
@@ -90,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         BlocProvider(
           create: (context) => _homeTabBloc,
+        ),
+        BlocProvider(
+          create: (context) => _taggedBinsBloc,
         )
       ],
       child: SafeArea(
@@ -329,6 +335,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   logger.info(state);
                   if (state is HomeTabNearbyState) {
                     _cardSlideController.reverse();
+                    _backController.reverse();
                     //_mapClosestBinController.forward();
                   } else if (state is HomeTabAddBinState) {
                     _cardSlideController.reverse();
@@ -341,8 +348,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         enableDrag: true,
                         backgroundColor: Colors.transparent,
                         builder: (context, scrollController) {
-                          return TakePictureTab(
-                            scrollController: scrollController,
+                          return BlocProvider.value(
+                            value: _taggedBinsBloc,
+                            child: TakePictureTab(
+                              scrollController: scrollController,
+                            ),
                           );
                         });
                     _backController.reverse();
@@ -352,7 +362,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
                   } else if (state is HomeTabMeState) {
                     _mapClosestBinController.reverse();
-                    _cardSlideController.reverse();
                     _cardSlideController.forward();
                   } else if (state is ScanScreenState) {
                     Navigator.of(context).push(
@@ -368,6 +377,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   if (state is SelectedBinState) {
                     if (_mapClosestBinController.isCompleted) {
                       await _mapClosestBinController.reverse();
+                      await _cardSlideController.reverse();
+                      await _backController.reverse();
                     }
                     setState(() {
                       _currentSelectedBin = state.bin;

@@ -15,7 +15,7 @@ abstract class TaggedBin with _$TaggedBin {
       bool isNew,
       double locationLan,
       double locationLon,
-      double taggedTime,
+      int taggedTime,
       int pointsEarned,
       int reportStrikes}) = _TaggedBin;
 
