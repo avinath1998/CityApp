@@ -11,6 +11,8 @@ abstract class AuthService {
   Future<CurrentUser> checkIfAlreadySignedIn();
   Future<void> signOut();
   Future<CurrentUser> anonSignIn();
+
+  Future<CurrentUser> register(String email, String password, String name);
 }
 
 class FirebaseAuthService implements AuthService {
@@ -96,5 +98,28 @@ class FirebaseAuthService implements AuthService {
       logger.severe("Auth result returned nothing");
     }
     return currentUser;
+  }
+
+  @override
+  Future<CurrentUser> register(
+      String email, String password, String name) async {
+    logger.info("Registering");
+    try {
+      AuthResult result = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .catchError((err) {
+        logger.info(err.toString());
+      });
+
+      CurrentUser user;
+      if (result != null) {
+        user = CurrentUser(email: result.user.email, id: result.user.uid);
+        await GetIt.instance<DataRepository>()
+            .createUser(email, result.user.displayName, result.user.uid);
+      }
+      return user;
+    } catch (e) {
+      logger.info(e.to);
+    }
   }
 }

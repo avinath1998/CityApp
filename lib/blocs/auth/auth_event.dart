@@ -13,3 +13,9 @@ class SignInEvent extends AuthEvent {
 class SignOutEvent extends AuthEvent {}
 
 class CheckIfSignedInEvent extends AuthEvent {}
+
+class RegisterUserEvent extends AuthEvent {
+  final CurrentUser user;
+  final String password;
+  RegisterUserEvent(this.user, this.password);
+}

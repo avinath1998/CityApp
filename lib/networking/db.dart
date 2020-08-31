@@ -25,6 +25,7 @@ abstract class DB {
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
   Future<String> uploadBinImageData(CurrentUser user, File image);
   Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
+  Future<void> createUser(String email, String name, String uid);
 }
 
 class FirebaseDB extends DB {
@@ -212,6 +213,14 @@ class FirebaseDB extends DB {
     logger.info("Successfully saved file");
     String downloadUrl = await storageReference.getDownloadURL();
     return downloadUrl;
+  }
+
+  @override
+  Future<void> createUser(String email, String name, String uid) async {
+    await Firestore.instance.collection("users").document(uid).setData({
+      "email": email,
+      "name": name,
+    });
   }
 }
 

@@ -5,6 +5,8 @@ import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/services/auth_service.dart';
+import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 
 part 'auth_event.dart';
@@ -13,6 +15,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthService _authService;
   final String TAG = "AUTHBLOC: ";
+  final Logger logger = Logger("AuthBloc");
   CurrentUser currentUser;
 
   AuthBloc(this._authService);
@@ -34,6 +37,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       yield* signOut();
     } else if (event is CheckIfSignedInEvent) {
       yield* _checkIfSignedIn();
+    } else if (event is RegisterUserEvent) {
+      yield* _registerEmail(event.user.email, event.password, event.user.name);
     }
   }
 
@@ -74,6 +79,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on DataFetchException catch (ex) {
       print(TAG + " Data could not be retrieved $ex");
       yield SignInFailedState("Oops! An error has occured, try again.");
+    }
+  }
+
+  Stream<AuthState> _registerEmail(
+      String email, String password, String name) async* {
+    try {
+      print(TAG + "Registering");
+      yield (RegistrationWaitingState());
+      currentUser = await _authService.register(email, password, name);
+      if (currentUser == null) {
+        yield (RegistrationFailedState(
+            NoUserFoundException("No user registered"),
+            "Current User not registered"));
+      } else {
+        yield RegistrationSuccessfulState(currentUser);
+        print(TAG + " Sign in Successful");
+      }
+    } on NoUserFoundException catch (ex) {
+      print(TAG + " Could not sign in, user not found. $ex");
+      yield SignInFailedState("Sorry, you are not registered to use this app.");
+    } on DataFetchException catch (ex) {
+      print(TAG + " Data could not be retrieved $ex");
+      yield SignInFailedState("Oops! An error has occured, try again.");
+    } on PlatformException catch (e) {
+      logger.severe(e.message);
     }
   }
 

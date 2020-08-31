@@ -21,6 +21,9 @@ abstract class CurrentUser extends User with _$CurrentUser {
       List<Redemption> redemptions,
       String id,
       String name,
+      String email,
+      String phoneNumber,
+      String password,
       UserType userType}) = _CurrentUser;
 
   factory CurrentUser.fromJson(Map<String, dynamic> json) =>

@@ -3,6 +3,8 @@ import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/models/tagged_bin.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -80,29 +82,68 @@ class _HomeTabState extends State<HomeTab> {
                         ]),
                       ),
                       Text(
-                        "have you recycled today?",
+                        "here are your bins.",
                         style: Theme.of(context).textTheme.headline5,
                       ),
                     ],
                   ),
                 ),
               ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return Container(
-                    margin: const EdgeInsets.all(5),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(30.0))),
-                      child: Container(
-                        height: 200,
-                        width: MediaQuery.of(context).size.width,
-                        child: Center(child: Text("Test")),
-                      ),
-                    ),
-                  );
-                }, childCount: testList.length),
+              StreamBuilder<QuerySnapshot>(
+                stream: Firestore.instance
+                    .collection("taggedBins")
+                    .where("userId",
+                        isEqualTo:
+                            BlocProvider.of<AuthBloc>(context).currentUser.id)
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                      return SliverToBoxAdapter(
+                        child: Center(
+                            child: Text("An error has occured, try again.")),
+                      );
+                      break;
+                    case ConnectionState.waiting:
+                      return SliverToBoxAdapter(
+                          child: Center(child: CircularProgressIndicator()));
+                      break;
+                    case ConnectionState.active:
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          Map<String, dynamic> innerMap =
+                              snapshot.data.documents[index].data;
+                          innerMap["id"] =
+                              snapshot.data.documents[index].documentID;
+                          TaggedBin bin = TaggedBin.fromJson(innerMap);
+                          return Container(
+                            margin: const EdgeInsets.all(5),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(30.0))),
+                              child: Container(
+                                height: 200,
+                                width: MediaQuery.of(context).size.width,
+                                child: Center(child: Text(bin.binName)),
+                              ),
+                            ),
+                          );
+                        }, childCount: snapshot.data.documents.length),
+                      );
+
+                      break;
+                    case ConnectionState.done:
+                      return SliverToBoxAdapter(
+                        child: Center(
+                            child: Text("An error has occured, try again.")),
+                      );
+                      break;
+                    default:
+                      return SliverToBoxAdapter(
+                          child: Center(child: CircularProgressIndicator()));
+                  }
+                },
               )
             ],
           ),

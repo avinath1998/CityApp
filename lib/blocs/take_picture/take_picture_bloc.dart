@@ -56,6 +56,8 @@ class TakePictureBloc extends Bloc<TakePictureEvent, TakePictureState> {
       await _cameraController.takePicture(filePath);
       File file = File(filePath);
       yield (CameraPictureTakenSuccessState(file));
+      yield (TakePictureInitial());
+
       logger.info("Done taking picture");
     } else {
       logger.severe("Camera Controller is null");

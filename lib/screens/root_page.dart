@@ -43,15 +43,15 @@ class _RootPageState extends State<RootPage> {
             if (state is SignedInState) {
               return HomeScreen();
             } else if (state is SignedOutState) {
-              return OnboardingScreen(isWaiting: false);
+              return LoginScreen(isWaiting: false);
             } else if (state is SignInFailedState) {
-              return OnboardingScreen(errorMsg: state.errorMsg);
+              return LoginScreen(errorMsg: state.errorMsg);
             } else if (state is SigningInWaitingState) {
-              return OnboardingScreen(isWaiting: true);
+              return LoginScreen(isWaiting: true);
             } else if (state is AuthInitial) {
-              return OnboardingScreen(isWaiting: false);
+              return LoginScreen(isWaiting: false);
             } else {
-              return OnboardingScreen(isWaiting: false);
+              return LoginScreen(isWaiting: false);
             }
           },
         );

@@ -21,6 +21,9 @@ _$_CurrentUser _$_$_CurrentUserFromJson(Map<String, dynamic> json) {
         ?.toList(),
     id: json['id'] as String,
     name: json['name'] as String,
+    email: json['email'] as String,
+    phoneNumber: json['phoneNumber'] as String,
+    password: json['password'] as String,
     userType: _$enumDecodeNullable(_$UserTypeEnumMap, json['userType']),
   );
 }
@@ -34,6 +37,9 @@ Map<String, dynamic> _$_$_CurrentUserToJson(_$_CurrentUser instance) =>
       'redemptions': instance.redemptions?.map((e) => e?.toJson())?.toList(),
       'id': instance.id,
       'name': instance.name,
+      'email': instance.email,
+      'phoneNumber': instance.phoneNumber,
+      'password': instance.password,
       'userType': _$UserTypeEnumMap[instance.userType],
     };
 

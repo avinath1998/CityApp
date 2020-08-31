@@ -19,3 +19,18 @@ class SignInFailedState extends AuthState {
 
   SignInFailedState(this.errorMsg);
 }
+
+class RegistrationWaitingState extends AuthState {}
+
+class RegistrationSuccessfulState extends AuthState {
+  final CurrentUser user;
+
+  RegistrationSuccessfulState(this.user);
+}
+
+class RegistrationFailedState extends AuthState {
+  final Exception e;
+  final String errorMsg;
+
+  RegistrationFailedState(this.e, this.errorMsg);
+}
