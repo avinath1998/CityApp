@@ -14,8 +14,8 @@ part 'redeem_prize_state.dart';
 
 class RedeemPrizeBloc extends Bloc<RedeemPrizeEvent, RedeemPrizeState> {
   final String TAG = "REDEEMPRIZEBLOC: ";
-  @override
-  RedeemPrizeState get initialState => RedeemPrizeInitial();
+
+  RedeemPrizeBloc() : super(RedeemPrizeInitial());
 
   @override
   Stream<RedeemPrizeState> mapEventToState(

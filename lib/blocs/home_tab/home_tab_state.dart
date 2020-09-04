@@ -5,18 +5,12 @@ abstract class HomeTabState {}
 
 class HomeTabInitial extends HomeTabState {}
 
-class HomeTabHomeState extends HomeTabState {}
-
 class HomeTabRedeemState extends HomeTabState {}
 
 class HomeTabMeState extends HomeTabState {}
 
 class HomeTabNearbyState extends HomeTabState {}
 
-class HomeTabScheduleState extends HomeTabState {}
-
 class HomeTabTrophiesState extends HomeTabState {}
 
 class HomeTabAddBinState extends HomeTabState {}
-
-class ScanScreenState extends HomeTabState {}

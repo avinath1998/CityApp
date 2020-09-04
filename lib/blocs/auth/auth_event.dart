@@ -17,5 +17,6 @@ class CheckIfSignedInEvent extends AuthEvent {}
 class RegisterUserEvent extends AuthEvent {
   final CurrentUser user;
   final String password;
-  RegisterUserEvent(this.user, this.password);
+  final DateTime dob;
+  RegisterUserEvent(this.user, this.password, this.dob);
 }

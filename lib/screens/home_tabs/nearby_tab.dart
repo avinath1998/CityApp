@@ -25,13 +25,20 @@ class _NearbyTabState extends State<NearbyTab> {
       target: LatLng(37.43296265331129, -122.08832357078792),
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
-  bool _isBinsStreamOpen = false;
+
   List<Marker> _binMarkers = <Marker>[];
   final Logger logger = Logger("NearbyTabState");
+  BitmapDescriptor pinLocationIcon;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<BitmapDescriptor> _loadBinImage() async {
+    return await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(size: Size(60, 60)),
+        'assets/images/recycle_bin.png');
   }
 
   @override
@@ -43,7 +50,7 @@ class _NearbyTabState extends State<NearbyTab> {
   Widget build(BuildContext context) {
     return Container(
       child: BlocListener<NearbyBinsBloc, NearbyBinsState>(
-        listener: (BuildContext context, state) {
+        listener: (BuildContext context, state) async {
           if (state is CurrentLocationLoadingState) {
             showDialog(
                 context: context,
@@ -67,11 +74,13 @@ class _NearbyTabState extends State<NearbyTab> {
                 });
             Navigator.of(context).pop();
           } else if (state is BinsChangedState) {
+            BitmapDescriptor image = await _loadBinImage();
             setState(() {
               _binMarkers.clear();
               state.taggedBins.forEach((taggedBin) {
                 _binMarkers.add(Marker(
                     markerId: MarkerId(taggedBin.id),
+                    icon: image,
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
                     infoWindow: InfoWindow(title: taggedBin.binName),

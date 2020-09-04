@@ -10,8 +10,7 @@ part 'home_tab_event.dart';
 part 'home_tab_state.dart';
 
 class HomeTabBloc extends Bloc<HomeTabEvent, HomeTabState> {
-  @override
-  HomeTabState get initialState => HomeTabInitial();
+  HomeTabBloc() : super(HomeTabInitial());
 
   @override
   Stream<HomeTabState> mapEventToState(
@@ -19,26 +18,20 @@ class HomeTabBloc extends Bloc<HomeTabEvent, HomeTabState> {
   ) async* {
     if (event is SwitchTabEvent) {
       switch (event.homeTab) {
+        case HomeTabs.NearbyTab:
+          yield (HomeTabNearbyState());
+          break;
+        case HomeTabs.AddBinTab:
+          yield (HomeTabAddBinState());
+          break;
+        case HomeTabs.TrophiesTab:
+          yield (HomeTabTrophiesState());
+          break;
         case HomeTabs.RedeemTab:
           yield (HomeTabRedeemState());
           break;
         case HomeTabs.MeTab:
           yield (HomeTabMeState());
-          break;
-        case HomeTabs.NearbyTab:
-          yield (HomeTabNearbyState());
-          break;
-        case HomeTabs.PersonalHomeTab:
-          yield (HomeTabHomeState());
-          break;
-        case HomeTabs.ScheduleTab:
-          yield (HomeTabScheduleState());
-          break;
-        case HomeTabs.TrophiesTab:
-          yield (HomeTabTrophiesState());
-          break;
-        case HomeTabs.AddBinTab:
-          yield (HomeTabAddBinState());
           break;
       }
     }

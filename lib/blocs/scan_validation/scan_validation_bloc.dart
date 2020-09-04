@@ -6,9 +6,9 @@ import 'package:meta/meta.dart';
 part 'scan_validation_event.dart';
 part 'scan_validation_state.dart';
 
-class ScanValidationBloc extends Bloc<ScanValidationEvent, ScanValidationState> {
-  @override
-  ScanValidationState get initialState => ScanValidationInitial();
+class ScanValidationBloc
+    extends Bloc<ScanValidationEvent, ScanValidationState> {
+  ScanValidationBloc() : super(ScanValidationInitial());
 
   @override
   Stream<ScanValidationState> mapEventToState(

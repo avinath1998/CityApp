@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
+import 'package:citycollection/exceptions/authentication_exceptions.dart';
+import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
@@ -18,14 +21,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Logger logger = Logger("AuthBloc");
   CurrentUser currentUser;
 
-  AuthBloc(this._authService);
+  AuthBloc(this._authService) : super(AuthInitial());
 
   void signIn(String email, String password) {
     add(SignInEvent(email, password));
   }
-
-  @override
-  AuthState get initialState => AuthInitial();
 
   @override
   Stream<AuthState> mapEventToState(
@@ -34,11 +34,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (event is SignInEvent) {
       yield* _signIn(event.email, event.password);
     } else if (event is SignOutEvent) {
-      yield* signOut();
+      yield* _signOut();
     } else if (event is CheckIfSignedInEvent) {
       yield* _checkIfSignedIn();
     } else if (event is RegisterUserEvent) {
-      yield* _registerEmail(event.user.email, event.password, event.user.name);
+      yield* _registerEmail(
+          event.user.email, event.password, event.user.name, event.dob);
     }
   }
 
@@ -59,6 +60,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on DataFetchException catch (ex) {
       print(TAG + " Data could not be retrieved $ex");
       yield SignedOutState();
+    } catch (e) {
+      logger.severe(e.toString());
+      yield SignedOutState();
     }
   }
 
@@ -66,7 +70,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       print(TAG + " Signing in.");
       yield (SigningInWaitingState());
-      currentUser = await _authService.anonSignIn();
+      currentUser = await _authService.signIn(email, password);
       if (currentUser == null) {
         yield (SigningInWaitingState());
       } else {
@@ -75,39 +79,93 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print(TAG + " Sign in Successful");
     } on NoUserFoundException catch (ex) {
       print(TAG + " Could not sign in, user not found. $ex");
-      yield SignInFailedState("Sorry, you are not registered to use this app.");
+      yield SignInFailedState("Sorry, you are not registered to use this app.",
+          AuthenticationException.userNotFound);
     } on DataFetchException catch (ex) {
       print(TAG + " Data could not be retrieved $ex");
-      yield SignInFailedState("Oops! An error has occured, try again.");
+      yield SignInFailedState("Oops! An error has occured, try again.",
+          AuthenticationException.fetchFailed);
+    } on UserNotVerifiedException catch (ex) {
+      yield SignInFailedState("Oops! An error has occured, try again.",
+          AuthenticationException.userNotVerified);
+    } on PlatformException catch (error) {
+      logger.info(error.details);
+      switch (error.code) {
+        case "ERROR_INVALID_EMAIL":
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.invalidEmail);
+          break;
+        case "ERROR_WRONG_PASSWORD":
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.wrongPassword);
+          break;
+        case "ERROR_USER_NOT_FOUND":
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.userNotFound);
+          break;
+        case "ERROR_USER_DISABLED":
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.userDisabled);
+          break;
+        case "ERROR_TOO_MANY_REQUESTS":
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.tooManyRequests);
+          break;
+        case "ERROR_OPERATION_NOT_ALLOWED":
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.operationNotAllowed);
+          break;
+        default:
+          yield SignInFailedState("Oops! An error has occured, try again.",
+              AuthenticationException.generalAuth);
+      }
+    } catch (ex) {
+      yield SignInFailedState("Oops! An error has occured, try again.",
+          AuthenticationException.generalAuth);
     }
   }
 
   Stream<AuthState> _registerEmail(
-      String email, String password, String name) async* {
+      String email, String password, String name, DateTime dob) async* {
     try {
       print(TAG + "Registering");
       yield (RegistrationWaitingState());
-      currentUser = await _authService.register(email, password, name);
+      currentUser = await _authService.register(email, password, name, dob);
+
       if (currentUser == null) {
         yield (RegistrationFailedState(
-            NoUserFoundException("No user registered"),
-            "Current User not registered"));
+            "No user found", RegistrationException.userNotSaved));
       } else {
         yield RegistrationSuccessfulState(currentUser);
         print(TAG + " Sign in Successful");
       }
-    } on NoUserFoundException catch (ex) {
-      print(TAG + " Could not sign in, user not found. $ex");
-      yield SignInFailedState("Sorry, you are not registered to use this app.");
-    } on DataFetchException catch (ex) {
-      print(TAG + " Data could not be retrieved $ex");
-      yield SignInFailedState("Oops! An error has occured, try again.");
+    } on DataFetchException catch (e) {
+      yield RegistrationFailedState(
+          e.errorMsg, RegistrationException.userNotSaved);
     } on PlatformException catch (e) {
-      logger.severe(e.message);
+      switch (e.code) {
+        case "ERROR_WEAK_PASSWORD":
+          yield RegistrationFailedState(
+              e.details, RegistrationException.errorWeakPassword);
+          break;
+        case "ERROR_INVALID_EMAIL":
+          yield RegistrationFailedState(
+              e.details, RegistrationException.invalidEmail);
+          break;
+        case "ERROR_EMAIL_ALREADY_IN_USE":
+          yield RegistrationFailedState(
+              e.details, RegistrationException.emailAreadyInUse);
+          break;
+      }
+    } catch (e) {
+      logger.severe(e.toString());
+      yield RegistrationFailedState(
+          e.toString(), RegistrationException.generalAuth);
     }
   }
 
-  Stream<AuthState> signOut() async* {
+  Stream<AuthState> _signOut() async* {
     await _authService.signOut();
+    yield SignedOutState();
   }
 }

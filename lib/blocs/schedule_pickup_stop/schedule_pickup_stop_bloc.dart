@@ -11,13 +11,10 @@ class SchedulePickupStopBloc
     extends Bloc<SchedulePickupStopEvent, SchedulePickupStopState> {
   final DataRepository _dataRepository;
 
-  SchedulePickupStopBloc(this._dataRepository);
+  SchedulePickupStopBloc(this._dataRepository)
+      : super(SchedulePickupStopInitial());
   @override
   Stream<SchedulePickupStopState> mapEventToState(
     SchedulePickupStopEvent event,
   ) async* {}
-
-  @override
-  // TODO: implement initialState
-  SchedulePickupStopState get initialState => throw UnimplementedError();
 }

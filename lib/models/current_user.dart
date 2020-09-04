@@ -23,8 +23,7 @@ abstract class CurrentUser extends User with _$CurrentUser {
       String name,
       String email,
       String phoneNumber,
-      String password,
-      UserType userType}) = _CurrentUser;
+      String password}) = _CurrentUser;
 
   factory CurrentUser.fromJson(Map<String, dynamic> json) =>
       _$CurrentUserFromJson(json);

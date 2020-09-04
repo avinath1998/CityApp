@@ -1,5 +1,7 @@
+import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MeTab extends StatefulWidget {
   final ScrollController scrollController;

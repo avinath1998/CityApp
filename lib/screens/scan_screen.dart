@@ -66,7 +66,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
         body: BlocProvider(
           create: (context) => _scanBloc,
           child: BlocListener<ScanBloc, ScanState>(
-              bloc: _scanBloc,
+              cubit: _scanBloc,
               listener: (context, state) {
                 //qrcode tab
                 if (state is CorrectQrScanned) {

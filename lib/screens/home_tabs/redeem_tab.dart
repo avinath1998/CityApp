@@ -308,7 +308,7 @@ class _RedeemTabState extends State<RedeemTab> {
                     ),
                   ),
                   BlocBuilder(
-                      bloc: _bloc,
+                      cubit: _bloc,
                       builder: (context, state) {
                         if (state is RedeemPrizeInitial) {
                           return MaterialButton(

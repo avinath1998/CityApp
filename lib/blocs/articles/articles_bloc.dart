@@ -13,10 +13,7 @@ part 'articles_state.dart';
 class ArticlesBloc extends Bloc<ArticlesEvent, ArticlesState> {
   final DataRepository _dataRepository;
   final Logger logger = Logger("ArticlesBloc");
-  ArticlesBloc(this._dataRepository);
-
-  @override
-  ArticlesState get initialState => ArticlesInitial();
+  ArticlesBloc(this._dataRepository) : super(ArticlesInitial());
 
   @override
   Stream<ArticlesState> mapEventToState(

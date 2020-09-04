@@ -27,10 +27,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   StreamSubscription sub;
   CityScanQrCode currentCityScanQrCode;
 
-  ScanBloc(this._dataRepository);
-
-  @override
-  ScanState get initialState => ScanInitial();
+  ScanBloc(this._dataRepository) : super(ScanInitial());
 
   @override
   Stream<ScanState> mapEventToState(

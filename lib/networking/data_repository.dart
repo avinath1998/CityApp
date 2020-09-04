@@ -24,9 +24,9 @@ class DataRepository {
   final Logger logger = Logger("DataRepository");
   double redeemPageScrollPosition = 0;
 
-  Future<void> createUser(String email, String name, String uid) {
+  Future<void> createUser(String email, String name, String uid, DateTime dob) {
     try {
-      return db.createUser(email, name, uid);
+      return db.createUser(email, name, uid, dob);
     } catch (e, stk) {
       throw DataUploadException(e.toString(), stk);
     }

@@ -1,8 +1,10 @@
 import 'package:citycollection/exceptions/DataFetchException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
+import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 
@@ -11,8 +13,9 @@ abstract class AuthService {
   Future<CurrentUser> checkIfAlreadySignedIn();
   Future<void> signOut();
   Future<CurrentUser> anonSignIn();
-
-  Future<CurrentUser> register(String email, String password, String name);
+  Future<void> sendConfirmationEmail(FirebaseUser user);
+  Future<CurrentUser> register(
+      String email, String password, String name, DateTime dob);
 }
 
 class FirebaseAuthService implements AuthService {
@@ -22,18 +25,20 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<CurrentUser> signIn(String email, String password) async {
     print(TAG + " Signing in");
-    AuthResult result = await _firebaseAuth
+    var result = await _firebaseAuth
         .signInWithEmailAndPassword(email: email, password: password)
-        .catchError((err) {
-      print(TAG + " An error has occured signing in.");
-
-      throw NoUserFoundException("Credentials not found!");
+        .catchError((e) {
+      logger.info(e.toString);
+      throw e;
     });
 
     if (result.user == null) {
       throw NoUserFoundException("Credentials not found!");
     } else {
       print(TAG + " User has been Found. ${result.user.uid}");
+    }
+    if (!result.user.isEmailVerified) {
+      throw UserNotVerifiedException("Not Verified");
     }
     try {
       CurrentUser user = await GetIt.instance<DataRepository>()
@@ -102,24 +107,22 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<CurrentUser> register(
-      String email, String password, String name) async {
+      String email, String password, String name, DateTime dob) async {
     logger.info("Registering");
-    try {
-      AuthResult result = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .catchError((err) {
-        logger.info(err.toString());
-      });
-
-      CurrentUser user;
-      if (result != null) {
-        user = CurrentUser(email: result.user.email, id: result.user.uid);
-        await GetIt.instance<DataRepository>()
-            .createUser(email, result.user.displayName, result.user.uid);
-      }
-      return user;
-    } catch (e) {
-      logger.info(e.to);
+    AuthResult result = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
+    await sendConfirmationEmail(result.user);
+    CurrentUser user;
+    if (result != null) {
+      user = CurrentUser(email: result.user.email, id: result.user.uid);
+      await GetIt.instance<DataRepository>()
+          .createUser(email, name, result.user.uid, dob);
     }
+    return user;
+  }
+
+  @override
+  Future<void> sendConfirmationEmail(FirebaseUser user) async {
+    await user.sendEmailVerification();
   }
 }

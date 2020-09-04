@@ -25,7 +25,7 @@ abstract class DB {
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
   Future<String> uploadBinImageData(CurrentUser user, File image);
   Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
-  Future<void> createUser(String email, String name, String uid);
+  Future<void> createUser(String email, String name, String uid, DateTime dob);
 }
 
 class FirebaseDB extends DB {
@@ -41,7 +41,6 @@ class FirebaseDB extends DB {
     if (doc.exists) {
       Map<String, dynamic> userData = doc.data;
       userData.putIfAbsent("id", () => doc.documentID);
-      userData.putIfAbsent("userType", () => UserType.CurrentUser);
       CurrentUser user = CurrentUser.fromJson(userData);
       return user;
     } else {
@@ -216,10 +215,15 @@ class FirebaseDB extends DB {
   }
 
   @override
-  Future<void> createUser(String email, String name, String uid) async {
-    await Firestore.instance.collection("users").document(uid).setData({
+  Future<void> createUser(
+      String email, String name, String uid, DateTime dob) async {
+    return await Firestore.instance.collection("users").document(uid).setData({
       "email": email,
       "name": name,
+      "points": 0,
+      "phoneNumber": null,
+      "address": null,
+      "dob": dob.toIso8601String()
     });
   }
 }

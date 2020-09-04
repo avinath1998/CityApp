@@ -134,7 +134,7 @@ class _TakePictureTabState extends State<TakePictureTab>
                 child: MultiBlocListener(
                   listeners: [
                     BlocListener<TakePictureBloc, TakePictureState>(
-                      bloc: _bloc,
+                      cubit: _bloc,
                       listener: (context, TakePictureState state) {
                         if (state is CameraInitializeSuccessState) {
                           setState(() {

@@ -16,8 +16,7 @@ class TakePictureBloc extends Bloc<TakePictureEvent, TakePictureState> {
   final Logger logger = Logger("TakePictureBloc");
   CameraController _cameraController;
 
-  @override
-  TakePictureState get initialState => TakePictureInitial();
+  TakePictureBloc() : super(TakePictureInitial());
 
   @override
   Future<void> close() {

@@ -45,10 +45,7 @@ class _HomeTabState extends State<HomeTab> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: InkWell(
-                          onTap: () {
-                            BlocProvider.of<HomeTabBloc>(context)
-                                .add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
-                          },
+                          onTap: () {},
                           child: Container(
                             padding: const EdgeInsets.all(20.0),
                             child: Icon(

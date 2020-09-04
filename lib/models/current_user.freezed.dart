@@ -26,8 +26,7 @@ class _$CurrentUserTearOff {
       String name,
       String email,
       String phoneNumber,
-      String password,
-      UserType userType}) {
+      String password}) {
     return _CurrentUser(
       address: address,
       dob: dob,
@@ -39,7 +38,6 @@ class _$CurrentUserTearOff {
       email: email,
       phoneNumber: phoneNumber,
       password: password,
-      userType: userType,
     );
   }
 }
@@ -58,7 +56,6 @@ mixin _$CurrentUser {
   String get email;
   String get phoneNumber;
   String get password;
-  UserType get userType;
 
   Map<String, dynamic> toJson();
   $CurrentUserCopyWith<CurrentUser> get copyWith;
@@ -78,8 +75,7 @@ abstract class $CurrentUserCopyWith<$Res> {
       String name,
       String email,
       String phoneNumber,
-      String password,
-      UserType userType});
+      String password});
 }
 
 class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
@@ -101,7 +97,6 @@ class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
     Object email = freezed,
     Object phoneNumber = freezed,
     Object password = freezed,
-    Object userType = freezed,
   }) {
     return _then(_value.copyWith(
       address: address == freezed ? _value.address : address as String,
@@ -117,7 +112,6 @@ class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
       phoneNumber:
           phoneNumber == freezed ? _value.phoneNumber : phoneNumber as String,
       password: password == freezed ? _value.password : password as String,
-      userType: userType == freezed ? _value.userType : userType as UserType,
     ));
   }
 }
@@ -138,8 +132,7 @@ abstract class _$CurrentUserCopyWith<$Res>
       String name,
       String email,
       String phoneNumber,
-      String password,
-      UserType userType});
+      String password});
 }
 
 class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
@@ -163,7 +156,6 @@ class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
     Object email = freezed,
     Object phoneNumber = freezed,
     Object password = freezed,
-    Object userType = freezed,
   }) {
     return _then(_CurrentUser(
       address: address == freezed ? _value.address : address as String,
@@ -179,7 +171,6 @@ class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
       phoneNumber:
           phoneNumber == freezed ? _value.phoneNumber : phoneNumber as String,
       password: password == freezed ? _value.password : password as String,
-      userType: userType == freezed ? _value.userType : userType as UserType,
     ));
   }
 }
@@ -196,8 +187,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       this.name,
       this.email,
       this.phoneNumber,
-      this.password,
-      this.userType});
+      this.password});
 
   factory _$_CurrentUser.fromJson(Map<String, dynamic> json) =>
       _$_$_CurrentUserFromJson(json);
@@ -222,12 +212,10 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
   final String phoneNumber;
   @override
   final String password;
-  @override
-  final UserType userType;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CurrentUser(address: $address, dob: $dob, points: $points, pickups: $pickups, redemptions: $redemptions, id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, password: $password, userType: $userType)';
+    return 'CurrentUser(address: $address, dob: $dob, points: $points, pickups: $pickups, redemptions: $redemptions, id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, password: $password)';
   }
 
   @override
@@ -244,8 +232,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('email', email))
       ..add(DiagnosticsProperty('phoneNumber', phoneNumber))
-      ..add(DiagnosticsProperty('password', password))
-      ..add(DiagnosticsProperty('userType', userType));
+      ..add(DiagnosticsProperty('password', password));
   }
 
   @override
@@ -276,10 +263,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
                     .equals(other.phoneNumber, phoneNumber)) &&
             (identical(other.password, password) ||
                 const DeepCollectionEquality()
-                    .equals(other.password, password)) &&
-            (identical(other.userType, userType) ||
-                const DeepCollectionEquality()
-                    .equals(other.userType, userType)));
+                    .equals(other.password, password)));
   }
 
   @override
@@ -294,8 +278,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       const DeepCollectionEquality().hash(name) ^
       const DeepCollectionEquality().hash(email) ^
       const DeepCollectionEquality().hash(phoneNumber) ^
-      const DeepCollectionEquality().hash(password) ^
-      const DeepCollectionEquality().hash(userType);
+      const DeepCollectionEquality().hash(password);
 
   @override
   _$CurrentUserCopyWith<_CurrentUser> get copyWith =>
@@ -318,8 +301,7 @@ abstract class _CurrentUser implements CurrentUser {
       String name,
       String email,
       String phoneNumber,
-      String password,
-      UserType userType}) = _$_CurrentUser;
+      String password}) = _$_CurrentUser;
 
   factory _CurrentUser.fromJson(Map<String, dynamic> json) =
       _$_CurrentUser.fromJson;
@@ -344,8 +326,6 @@ abstract class _CurrentUser implements CurrentUser {
   String get phoneNumber;
   @override
   String get password;
-  @override
-  UserType get userType;
   @override
   _$CurrentUserCopyWith<_CurrentUser> get copyWith;
 }

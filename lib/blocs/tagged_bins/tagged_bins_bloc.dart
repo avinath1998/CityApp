@@ -18,7 +18,7 @@ class TaggedBinsBloc extends Bloc<TaggedBinsEvent, TaggedBinsState> {
 
   final DataRepository _dataRepository;
 
-  TaggedBinsBloc(this._dataRepository);
+  TaggedBinsBloc(this._dataRepository) : super(TaggedBinsInitial());
 
   @override
   Stream<TaggedBinsState> mapEventToState(
@@ -28,9 +28,6 @@ class TaggedBinsBloc extends Bloc<TaggedBinsEvent, TaggedBinsState> {
       yield* _uploadTaggedBin(event.user, event.bin, event.image);
     }
   }
-
-  @override
-  TaggedBinsState get initialState => TaggedBinsInitial();
 
   Stream<TaggedBinsState> _uploadTaggedBin(
       CurrentUser user, TaggedBin bin, File image) async* {

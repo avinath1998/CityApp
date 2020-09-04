@@ -11,9 +11,8 @@ part 'redeem_event.dart';
 part 'redeem_state.dart';
 
 class RedeemBloc extends Bloc<RedeemEvent, RedeemState> {
-  @override
-  RedeemState get initialState =>
-      RedeemInitial(GetIt.instance<DataRepository>().cachedPrizes);
+  RedeemBloc()
+      : super(RedeemInitial(GetIt.instance<DataRepository>().cachedPrizes));
 
   @override
   Stream<RedeemState> mapEventToState(

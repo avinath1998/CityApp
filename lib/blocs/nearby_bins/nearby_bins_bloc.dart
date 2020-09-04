@@ -14,7 +14,8 @@ part 'nearby_bins_event.dart';
 part 'nearby_bins_state.dart';
 
 class NearbyBinsBloc extends Bloc<NearbyBinsEvent, NearbyBinsState> {
-  NearbyBinsBloc(this._dataRepository, this._geolocator);
+  NearbyBinsBloc(this._dataRepository, this._geolocator)
+      : super(NearbyBinsInitial());
 
   final DataRepository _dataRepository;
   final Geolocator _geolocator;

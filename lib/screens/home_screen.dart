@@ -30,8 +30,12 @@ import 'home_tabs/me_tab.dart';
 import 'home_tabs/nearby_tab.dart';
 import 'home_tabs/redeem_tab.dart';
 import 'home_tabs/take_picture_tab.dart';
+import 'dart:math';
+import 'package:citycollection/blocs/auth/auth_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = "/home";
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -42,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   NearbyBinsBloc _nearbyBinsBloc;
   int _currentSelectedBottomNav = 0;
   AnimationController _cardSlideController;
+  AnimationController _pointsCardController;
+
   AnimationController _backController;
   AnimationController _mapClosestBinController;
   Animation<double> _radiusAnimation;
@@ -59,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _cardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _backController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
+    _pointsCardController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _mapClosestBinController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
@@ -82,239 +90,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _backController.dispose();
     _cardSlideController.dispose();
     _nearbyBinsBloc.close();
+    _pointsCardController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => _nearbyBinsBloc,
-        ),
-        BlocProvider(
-          create: (context) => _homeTabBloc,
-        ),
-        BlocProvider(
-          create: (context) => _taggedBinsBloc,
-        )
-      ],
-      child: SafeArea(
-        child: Scaffold(body: _buildNormalHome()),
-      ),
-    );
-  }
-
-  Widget _buildNoLive() {
-    return Container(
-      key: Key("LiveNoContainer"),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-                width: 250.0,
-                child: Material(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      child:
-                          Image.asset("assets/images/ekva_primary_light.jpg")),
-                )),
-            SizedBox(
-              height: 20.0,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text("Hi,",
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                "We are currently not\nactive, stay tuned for\nupdates!",
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLiveHappening(snapshot) {
-    Map<String, dynamic> map = snapshot.data.documents[0].data;
-    map["id"] = snapshot.data.documents[0].documentID;
-    LiveBinSetting setting = LiveBinSetting.fromJson(map);
-    print(
-      MediaQuery.of(context).size.width,
-    );
-    print("MEDIAQUERY");
-    return Container(
-      key: Key("LiveContainer"),
-      child: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            width: 300,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                      width:
-                          MediaQuery.of(context).size.width > 400 ? 150.0 : 100,
-                      child: Material(
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(30.0))),
-                        child: ClipRRect(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(30.0)),
-                            child: Image.asset(
-                                "assets/images/ekva_primary_light.jpg")),
-                      )),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    Flexible(
-                      child: Text(
-                        "Hi,",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    Flexible(
-                      child: Text(
-                        "Our waste bins are live, come find us to win some awesome rewards at",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 15.0,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    Flexible(
-                      child: Text(
-                        setting.locationName,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 15.0,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    Flexible(
-                      child: Text(
-                        "Remember, our waste bins only accept plastic items!",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 15.0,
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: RaisedButton(
-                    onPressed: () async {
-                      if (await Permission.camera.request().isGranted) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ScanScreen()));
-                      } else {
-                        showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(30.0))),
-                                  title: Text("Whoops!"),
-                                  content: Text(
-                                    "Please allow camera permissions to scan a bin.",
-                                  ),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text("Ok"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    )
-                                  ],
-                                ));
-                      }
-                    },
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Scan a bin",
-                        style: TextStyle(color: Colors.teal),
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => _nearbyBinsBloc,
           ),
+          BlocProvider(
+            create: (context) => _homeTabBloc,
+          ),
+          BlocProvider(
+            create: (context) => _taggedBinsBloc,
+          )
+        ],
+        child: SafeArea(
+          child: Scaffold(body: _buildNormalHome()),
         ),
       ),
     );
@@ -330,16 +128,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           body: MultiBlocListener(
             listeners: [
               BlocListener(
-                bloc: _homeTabBloc,
+                cubit: _homeTabBloc,
                 listener: (context, state) async {
-                  logger.info(state);
                   if (state is HomeTabNearbyState) {
                     _cardSlideController.reverse();
                     _backController.reverse();
-                    //_mapClosestBinController.forward();
+                    _pointsCardController.forward();
                   } else if (state is HomeTabAddBinState) {
                     _cardSlideController.reverse();
                     _mapClosestBinController.reverse();
+                    _pointsCardController.reverse();
                     _backController.forward();
                     await showMaterialModalBottomSheet(
                         context: context,
@@ -359,20 +157,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     setState(() {
                       _currentSelectedBottomNav = 0;
                     });
-                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.PersonalHomeTab));
+                    _pointsCardController.forward();
                   } else if (state is HomeTabMeState) {
                     _mapClosestBinController.reverse();
                     _cardSlideController.forward();
-                  } else if (state is ScanScreenState) {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => ScanScreen()));
+                    _pointsCardController.reverse();
+                  } else if (state is HomeTabTrophiesState) {
+                    _mapClosestBinController.reverse();
+                    _cardSlideController.reverse();
+                    _pointsCardController.reverse();
+                  } else if (state is HomeTabRedeemState) {
+                    _mapClosestBinController.reverse();
+                    _cardSlideController.reverse();
+                    _pointsCardController.reverse();
                   } else {
                     _cardSlideController.reverse();
+                    _pointsCardController.forward();
                   }
                 },
               ),
               BlocListener(
-                bloc: _nearbyBinsBloc,
+                cubit: _nearbyBinsBloc,
                 listener: (context, state) async {
                   if (state is SelectedBinState) {
                     if (_mapClosestBinController.isCompleted) {
@@ -383,7 +188,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     setState(() {
                       _currentSelectedBin = state.bin;
                     });
-                    logger.info("Nearby: ${state}");
                     await _mapClosestBinController.forward();
                   }
                 },
@@ -393,6 +197,74 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               alignment: Alignment.bottomCenter,
               children: <Widget>[
                 NearbyTab(),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: SlideTransition(
+                      position: Tween<Offset>(
+                              begin: Offset(0.0, -1.0), end: Offset(0.0, 0.0))
+                          .animate(CurvedAnimation(
+                              curve: Curves.ease,
+                              parent: _pointsCardController)),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.0))),
+                        child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BlocBuilder<AuthBloc, AuthState>(
+                                  buildWhen: (oldState, newState) {
+                                    return newState is SignedInState;
+                                  },
+                                  builder: (context, state) {
+                                    if (state is SignedInState) {
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Hi, ${state.user.name.split(" ").first}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline5,
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Text("Your Ekva Balance: ",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .subtitle1),
+                                              Text(
+                                                "${state.user.points} points.",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .subtitle1
+                                                    .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      );
+                                    } else {
+                                      return Text(
+                                        "Hi,",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline6,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            )),
+                      )),
+                ),
                 SlideTransition(
                   position: Tween<Offset>(
                           begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
@@ -424,9 +296,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.NearbyTab));
                     break;
                   case 1:
-                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.RedeemTab));
                     break;
                   case 2:
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.AddBinTab));
+                    break;
+                  case 3:
+                    _homeTabBloc.add(SwitchTabEvent(HomeTabs.TrophiesTab));
+                    break;
+                  case 4:
                     _homeTabBloc.add(SwitchTabEvent(HomeTabs.MeTab));
                     break;
                 }
@@ -435,20 +313,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               inactiveColor: Colors.black54,
               items: [
                 TitledNavigationBarItem(title: 'Map', icon: Icons.map),
+                TitledNavigationBarItem(
+                    title: 'Rewards', icon: Icons.card_giftcard),
                 TitledNavigationBarItem(title: 'Add Bin', icon: Icons.add),
                 TitledNavigationBarItem(
-                    title: 'My Bins', icon: Icons.account_circle),
+                    title: 'Champs', icon: Icons.insert_chart),
+                TitledNavigationBarItem(
+                    title: 'Me', icon: Icons.account_circle),
               ]),
-          // floatingActionButton: FloatingActionButton(
-          //   child: Icon(
-          //     Icons.add,
-          //     color: Colors.white,
-          //   ),
-          //   onPressed: () {
-          //     Navigator.of(context)
-          //         .push(MaterialPageRoute(builder: (context) => ScanScreen()));
-          //   },
-          // ),
         ),
       ),
     );
@@ -564,3 +436,82 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 }
+
+// Future<void> _upload() async {
+//   logger.info("Uploading bin ");
+//   Position position = await Geolocator()
+//       .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+//   double x = 0.0001;
+//   for (int i = 1; i < 100; i++) {
+//     x += 0.001;
+//     logger.info(i);
+//     TaggedBin bin = TaggedBin(
+//         id: "we",
+//         binName: "Test Bin: $i",
+//         imageSrc:
+//             "https://firebasestorage.googleapis.com/v0/b/citycollection-38b54.appspot.com/o/findmybin%2F1JSRl3xuKcdmRqP4R5RSzhUTMPF2%2F2020-08-26T22%3A42%3A44.554108.jpg?alt=media&token=435c51fa-e40a-4622-a847-a99f689e6f73",
+//         isNew: true,
+//         locationLan: position.latitude + (new Random().nextDouble() * 0.1),
+//         locationLon: position.longitude + (new Random().nextDouble() * 0.1),
+//         pointsEarned: 0,
+//         active: true,
+//         reportStrikes: 0,
+//         taggedTime: DateTime.now().millisecondsSinceEpoch,
+//         userId: "1JSRl3xuKcdmRqP4R5RSzhUTMPF2");
+//     TaggedBin bin2 = TaggedBin(
+//         id: "we",
+//         binName: "Test Bin: $i+1",
+//         imageSrc:
+//             "https://firebasestorage.googleapis.com/v0/b/citycollection-38b54.appspot.com/o/findmybin%2F1JSRl3xuKcdmRqP4R5RSzhUTMPF2%2F2020-08-26T22%3A42%3A44.554108.jpg?alt=media&token=435c51fa-e40a-4622-a847-a99f689e6f73",
+//         isNew: true,
+//         locationLan: position.latitude - (new Random().nextDouble() * 0.1),
+//         locationLon: position.longitude + (new Random().nextDouble() * 0.1),
+//         pointsEarned: 0,
+//         active: true,
+//         reportStrikes: 0,
+//         taggedTime: DateTime.now().millisecondsSinceEpoch,
+//         userId: "1JSRl3xuKcdmRqP4R5RSzhUTMPF2");
+//     TaggedBin bin3 = TaggedBin(
+//         id: "we",
+//         binName: "Test Bin: $i",
+//         imageSrc:
+//             "https://firebasestorage.googleapis.com/v0/b/citycollection-38b54.appspot.com/o/findmybin%2F1JSRl3xuKcdmRqP4R5RSzhUTMPF2%2F2020-08-26T22%3A42%3A44.554108.jpg?alt=media&token=435c51fa-e40a-4622-a847-a99f689e6f73",
+//         isNew: true,
+//         locationLan: position.latitude + (new Random().nextDouble() * 1),
+//         locationLon: position.longitude + (new Random().nextDouble() * 1),
+//         pointsEarned: 0,
+//         active: true,
+//         reportStrikes: 0,
+//         taggedTime: DateTime.now().millisecondsSinceEpoch,
+//         userId: "1JSRl3xuKcdmRqP4R5RSzhUTMPF2");
+//     TaggedBin bin4 = TaggedBin(
+//         id: "we",
+//         binName: "Test Bin: $i+1",
+//         imageSrc:
+//             "https://firebasestorage.googleapis.com/v0/b/citycollection-38b54.appspot.com/o/findmybin%2F1JSRl3xuKcdmRqP4R5RSzhUTMPF2%2F2020-08-26T22%3A42%3A44.554108.jpg?alt=media&token=435c51fa-e40a-4622-a847-a99f689e6f73",
+//         isNew: true,
+//         locationLan: position.latitude - (new Random().nextDouble() * 1),
+//         locationLon: position.longitude + (new Random().nextDouble() * 1),
+//         pointsEarned: 0,
+//         active: true,
+//         reportStrikes: 0,
+//         taggedTime: DateTime.now().millisecondsSinceEpoch,
+//         userId: "1JSRl3xuKcdmRqP4R5RSzhUTMPF2");
+//     Map<String, dynamic> data = bin.toJson();
+//     data.remove("id");
+//     data.addAll({"userName": "Avinath"});
+//     await Firestore.instance.collection("taggedBins").add(data);
+//     Map<String, dynamic> data2 = bin2.toJson();
+//     data.addAll({"userName": "Bruna"});
+//     data2.remove("id");
+//     await Firestore.instance.collection("taggedBins").add(data2);
+//     Map<String, dynamic> data3 = bin3.toJson();
+//     data.remove("id");
+//     data.addAll({"userName": "Avinath"});
+//     await Firestore.instance.collection("taggedBins").add(data3);
+//     Map<String, dynamic> data4 = bin4.toJson();
+//     data.addAll({"userName": "Bruna"});
+//     data2.remove("id");
+//     await Firestore.instance.collection("taggedBins").add(data4);
+//   }
+// }
