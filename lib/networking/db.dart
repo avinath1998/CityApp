@@ -3,7 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:citycollection/exceptions/DataFetchException.dart';
+import 'package:citycollection/exceptions/DataUploadException.dart';
 import 'package:citycollection/exceptions/NoUserFoundException.dart';
+import 'package:citycollection/models/bin_disposal.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/models/scan_winnings.dart';
@@ -11,6 +13,7 @@ import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/image.dart';
 import 'package:logging/logging.dart';
 
@@ -26,6 +29,9 @@ abstract class DB {
   Future<String> uploadBinImageData(CurrentUser user, File image);
   Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
   Future<void> createUser(String email, String name, String uid, DateTime dob);
+
+  Future<BinDisposal> saveBinDisposal(
+      TaggedBin bin, File wasteImage, File binImage, CurrentUser user);
 }
 
 class FirebaseDB extends DB {
@@ -225,6 +231,46 @@ class FirebaseDB extends DB {
       "address": null,
       "dob": dob.toIso8601String()
     });
+  }
+
+  @override
+  Future<BinDisposal> saveBinDisposal(
+      TaggedBin bin, File wasteImage, File binImage, CurrentUser user) async {
+    final StorageReference storageBinReference = FirebaseStorage()
+        .ref()
+        .child("binDisposal")
+        .child(user.id)
+        .child("bin")
+        .child(DateTime.now().toIso8601String() + ".jpg");
+    final StorageReference storageWasteReference = FirebaseStorage()
+        .ref()
+        .child("binDisposal")
+        .child(user.id)
+        .child("waste")
+        .child(DateTime.now().toIso8601String() + ".jpg");
+    String wasteSrc = await _uploadImage(wasteImage, storageWasteReference);
+    String binSrc = await _uploadImage(binImage, storageBinReference);
+    BinDisposal disposal = BinDisposal(
+      binId: bin.id,
+      userId: user.id,
+      binImageSrc: binSrc,
+      wasteImageSrc: wasteSrc,
+      status: BinDisposalStatus.pending,
+    );
+    await Firestore.instance.collection("binDisposals").add(disposal.toJson());
+    return disposal;
+  }
+
+  Future<String> _uploadImage(
+      File image, StorageReference storageReference) async {
+    final StorageUploadTask uploadTask =
+        storageReference.putData(image.readAsBytesSync());
+    await uploadTask.onComplete;
+    if (uploadTask.isSuccessful) {
+      return await storageReference.getDownloadURL();
+    } else {
+      throw DataUploadException("Image not uploaded", StackTrace.current);
+    }
   }
 }
 

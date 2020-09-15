@@ -30,7 +30,7 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    //BlocProvider.of<AuthBloc>(context).add(CheckIfSignedInEvent());
+    BlocProvider.of<AuthBloc>(context).add(CheckIfSignedInEvent());
   }
 
   @override

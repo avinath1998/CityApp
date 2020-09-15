@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
+import 'package:citycollection/blocs/bin_disposal/bin_disposal_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
@@ -8,6 +11,8 @@ import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/models/live_bin_setting.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
+import 'package:citycollection/screens/take_picture_screen.dart';
 import 'package:citycollection/screens/home_tabs/schedule_tab.dart';
 import 'package:citycollection/screens/scan_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +30,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 import '../routes/modal_popup_route.dart';
+import 'got_trash_screen.dart';
 import 'home_tabs/home_tab.dart';
 import 'home_tabs/me_tab.dart';
 import 'home_tabs/nearby_tab.dart';
@@ -109,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           BlocProvider(
             create: (context) => _taggedBinsBloc,
-          )
+          ),
         ],
         child: SafeArea(
           child: Scaffold(body: _buildNormalHome()),
@@ -330,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SlideTransition(
       position: Tween<Offset>(begin: Offset(0.0, 1.0), end: Offset(0.0, -0.02))
           .animate(CurvedAnimation(
-              curve: Curves.ease, parent: _mapClosestBinController)),
+              curve: Curves.fastOutSlowIn, parent: _mapClosestBinController)),
       child: Container(
         margin: const EdgeInsets.all(10.0),
         child: Card(
@@ -401,9 +407,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             textAlign: TextAlign.end,
                           ),
                           Text(
-                            _currentSelectedBin != null
-                                ? "Submitted by: Avinath"
-                                : "",
+                            _currentSelectedBin != null ? "by: Avinath" : "",
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.black,
@@ -420,9 +424,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20.0))),
                               color: CityColors.primary_teal,
-                              child: Text("Go",
+                              child: Text("Got Trash?",
                                   style: TextStyle(color: Colors.white)),
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(
+                                    GotTrashScreen.routeName,
+                                    arguments: {
+                                      "taggedBin": _currentSelectedBin
+                                    });
+                              },
                             ),
                           )
                         ],

@@ -63,8 +63,8 @@ dev_dependencies:
   freezed:
   flutter_launcher_icons: "^0.7.3"
 
-dependency_overrides:
-  analyzer: '0.39.14'
+# dependency_overrides:
+#   analyzer: '0.39.14'
 
 flutter_icons:
   android: "launcher_icon"

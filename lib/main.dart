@@ -1,9 +1,12 @@
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/networking/db.dart';
+import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
+import 'package:citycollection/screens/got_trash_screen.dart';
 import 'package:citycollection/screens/home_screen.dart';
 import 'package:citycollection/screens/login_screen.dart';
 import 'package:citycollection/screens/registration_screen.dart';
 import 'package:citycollection/screens/root_page.dart';
+import 'package:citycollection/screens/take_picture_screen.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_preview/device_preview.dart';
@@ -16,12 +19,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 
 import 'blocs/auth/auth_bloc.dart';
+import 'blocs/bin_disposal/bin_disposal_bloc.dart';
 import 'models/tagged_bin.dart';
 import 'networking/data_repository.dart';
 
 void main() {
+  FirebaseDB db = FirebaseDB();
+  GetIt.instance.registerSingleton<DataRepository>(DataRepository(db));
   GetIt.instance
-      .registerSingleton<DataRepository>(DataRepository(FirebaseDB()));
+      .registerSingleton<BinDisposalRepository>(BinDisposalRepository(db));
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.loggerName} ${record.message}');
@@ -35,26 +41,29 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>(
-        create: (context) => AuthBloc(FirebaseAuthService()),
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>(
+            create: (context) => AuthBloc(FirebaseAuthService()),
+          ),
+          BlocProvider<BinDisposalBloc>(
+            create: (context) =>
+                BinDisposalBloc(GetIt.instance<BinDisposalRepository>()),
+          ),
+        ],
         child: MaterialApp(
           builder: DevicePreview.appBuilder,
           locale: DevicePreview.of(context).locale,
           title: 'CityApp',
           initialRoute: LoginScreen.routeName,
-          routes: {
-            LoginScreen.routeName: (context) => LoginScreen(),
-            RegistrationScreen.routeName: (context) => RegistrationScreen(),
-            HomeScreen.routeName: (context) => HomeScreen(),
-          },
           onGenerateRoute: (settings) {
             switch (settings.name) {
               case LoginScreen.routeName:
                 final Map<String, dynamic> map = settings.arguments;
                 return MaterialPageRoute(builder: (context) {
                   return LoginScreen(
-                    isWaiting: map["isWaiting"],
-                    errorMsg: map["errorMsg"],
+                    isWaiting: map != null ? map["isWaiting"] : false,
+                    errorMsg: map != null ? map["errorMsg"] : null,
                   );
                 });
               case RegistrationScreen.routeName:
@@ -64,6 +73,27 @@ class MyApp extends StatelessWidget {
               case HomeScreen.routeName:
                 return MaterialPageRoute(builder: (context) {
                   return HomeScreen();
+                });
+              case TakePictureScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  final Map<String, dynamic> map = settings.arguments;
+                  return TakePictureScreen(
+                    message: map["message"],
+                  );
+                });
+              case TakePictureScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  final Map<String, dynamic> map = settings.arguments;
+                  return TakePictureScreen(
+                    message: map["message"],
+                  );
+                });
+              case GotTrashScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  final Map<String, dynamic> map = settings.arguments;
+                  return GotTrashScreen(
+                    selectedBin: map["taggedBin"],
+                  );
                 });
             }
           },
@@ -80,6 +110,7 @@ class MyApp extends StatelessWidget {
               appBarTheme: AppBarTheme(
                   color: Colors.white,
                   iconTheme: IconThemeData(color: Colors.black)),
+              buttonColor: CityColors.primary_teal,
               buttonTheme: ButtonThemeData(
                   textTheme: ButtonTextTheme.primary,
                   shape: RoundedRectangleBorder(
