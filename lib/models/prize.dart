@@ -21,9 +21,14 @@ abstract class Prize with _$Prize {
 }
 
 enum PrizeRedemptionStatus {
+  @JsonValue("delivered")
   delivered,
+  @JsonValue("notEnoughPoints")
   notEnoughPoints,
+  @JsonValue("couponCodesFinished")
   couponCodesFinished,
+  @JsonValue("disallowed")
   disallowed,
+  @JsonValue("waiting")
   waiting
 }

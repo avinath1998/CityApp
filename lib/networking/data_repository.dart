@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:citycollection/exceptions/DataFetchException.dart';
-import 'package:citycollection/exceptions/DataUploadException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
+import 'package:citycollection/exceptions/data_upload_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/models/scan_winnings.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/db.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/image.dart';
 import 'package:logging/logging.dart';
 
@@ -44,8 +45,10 @@ class DataRepository {
       Prize prize, CurrentUser user) async {
     try {
       return await db.redeemPrize(prize, user);
-    } catch (e) {
-      throw DataFetchException(e.toString());
+    } on PlatformException catch (e, stk) {
+      logger.severe(e.toString());
+      logger.severe(stk);
+      throw DataFetchException(e.message);
     }
   }
 
@@ -70,7 +73,6 @@ class DataRepository {
       _binStreamSubscription =
           _binStreamController.stream.listen((TaggedBin bin) {
         if (_cachedBins.contains(bin)) {
-          logger.info("Bin: ${bin.id} already exists in cache");
         } else {
           bool contained = false;
           _cachedBins.forEach((oldBin) {
@@ -82,7 +84,6 @@ class DataRepository {
           });
           if (!contained) _cachedBins.add(bin);
         }
-        logger.info("Bin Cache: ${_cachedBins.length}");
         onBinsChanged(_cachedBins);
       });
       return _cachedBins;
@@ -121,6 +122,17 @@ class DataRepository {
       logger.severe("Error uploading disposal data");
       logger.severe(stacktrace);
       throw DataUploadException(e, stacktrace);
+    }
+  }
+
+  Future<void> updateTaggedBin(CurrentUser user, TaggedBin bin) async {
+    try {
+      await db.updateTaggedBin(bin, user);
+    } on PlatformException catch (e, stacktrace) {
+      logger.severe("Error uploading disposal data");
+      logger.info(e.message);
+      logger.severe(stacktrace);
+      throw DataUploadException(e.message, stacktrace);
     }
   }
 

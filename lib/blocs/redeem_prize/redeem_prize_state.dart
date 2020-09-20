@@ -12,9 +12,8 @@ class PrizeRedeemedSuccessState extends RedeemPrizeState {
 }
 
 class PrizeRedeemedFailedState extends RedeemPrizeState {
-  final String errorMsg;
-
-  PrizeRedeemedFailedState(this.errorMsg);
+  final PrizeRedemptionStatus status;
+  PrizeRedeemedFailedState(this.status);
 }
 
 class PrizeRedeemedWaitingState extends RedeemPrizeState {}

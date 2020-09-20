@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logging/logging.dart';
 
 import 'home_screen.dart';
 import 'large_loading_screen.dart';
@@ -19,6 +20,7 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+  final Logger logger = Logger("Root Page State");
   @override
   void initState() {
     super.initState();
@@ -37,12 +39,12 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, AuthState state) {
+        logger.info(state);
         if (state is SignedInState) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              HomeScreen.routeName, ModalRoute.withName(LoginScreen.routeName));
+          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         } else if (state is SignedOutState) {
-          Navigator.of(context)
-              .popUntil(ModalRoute.withName(LoginScreen.routeName));
+          Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName,
+              ModalRoute.withName(LoginScreen.routeName));
         } else if (state is SignInFailedState) {
           Navigator.of(context)
               .popUntil(ModalRoute.withName(LoginScreen.routeName));

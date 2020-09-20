@@ -1,11 +1,14 @@
+import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/networking/db.dart';
 import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
 import 'package:citycollection/screens/got_trash_screen.dart';
 import 'package:citycollection/screens/home_screen.dart';
 import 'package:citycollection/screens/login_screen.dart';
+import 'package:citycollection/screens/redemptions_screen.dart';
 import 'package:citycollection/screens/registration_screen.dart';
 import 'package:citycollection/screens/root_page.dart';
+import 'package:citycollection/screens/see_tagged_bins_screen.dart';
 import 'package:citycollection/screens/take_picture_screen.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,17 +47,21 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(FirebaseAuthService()),
+            create: (context) => AuthBloc(
+                FirebaseAuthService(), GetIt.instance<DataRepository>()),
           ),
           BlocProvider<BinDisposalBloc>(
             create: (context) =>
                 BinDisposalBloc(GetIt.instance<BinDisposalRepository>()),
           ),
+          BlocProvider<TaggedBinsBloc>(
+              create: (context) =>
+                  TaggedBinsBloc(GetIt.instance<DataRepository>()))
         ],
         child: MaterialApp(
           builder: DevicePreview.appBuilder,
           locale: DevicePreview.of(context).locale,
-          title: 'CityApp',
+          title: 'Ekva',
           initialRoute: LoginScreen.routeName,
           onGenerateRoute: (settings) {
             switch (settings.name) {
@@ -95,6 +102,14 @@ class MyApp extends StatelessWidget {
                     selectedBin: map["taggedBin"],
                   );
                 });
+              case SeeTaggedBinsScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  return SeeTaggedBinsScreen();
+                });
+              case RedemptionsScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  return RedemptionsScreen();
+                });
             }
           },
           theme: ThemeData(
@@ -102,13 +117,22 @@ class MyApp extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)))),
               primarySwatch: CityColors.primary_teal,
+              primaryColor: Colors.white,
               accentColor: CityColors.primary_teal,
               backgroundColor: Colors.white,
               scaffoldBackgroundColor: Colors.white,
               cardColor: Colors.white,
               errorColor: Colors.redAccent,
+              iconTheme: IconThemeData(color: CityColors.primary_teal),
+              accentTextTheme:
+                  GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
+                      .copyWith(
+                          button: GoogleFonts.poppins(
+                              color: CityColors.primary_teal)),
               appBarTheme: AppBarTheme(
                   color: Colors.white,
+                  textTheme:
+                      GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
                   iconTheme: IconThemeData(color: Colors.black)),
               buttonColor: CityColors.primary_teal,
               buttonTheme: ButtonThemeData(
@@ -116,33 +140,8 @@ class MyApp extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
                   buttonColor: CityColors.primary_teal),
-              textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context)
-                  .textTheme
-                  .copyWith(
-                    button: Theme.of(context).textTheme.button.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.w600),
-                    bodyText1: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        .copyWith(color: Colors.black),
-                    subtitle1: Theme.of(context).textTheme.subtitle1.copyWith(
-                        color: CityColors.primary_teal,
-                        fontWeight: FontWeight.bold),
-                    subtitle2: Theme.of(context).textTheme.subtitle2.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    headline1: Theme.of(context).textTheme.headline1.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    headline2: Theme.of(context).textTheme.headline2.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    headline3: Theme.of(context).textTheme.headline3.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    headline4: Theme.of(context).textTheme.headline4.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    headline5: Theme.of(context).textTheme.headline5.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                    headline6: Theme.of(context).textTheme.headline6.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ))),
+              textTheme:
+                  GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)),
           home: RootPage(),
         ));
   }

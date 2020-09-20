@@ -13,6 +13,12 @@ class FetchTaggedBinsEvent extends TaggedBinsEvent {
   FetchTaggedBinsEvent(this.user);
 }
 
+class EditTaggedBinEvent extends TaggedBinsEvent {
+  final CurrentUser user;
+  final TaggedBin bin;
+  EditTaggedBinEvent(this.user, this.bin);
+}
+
 class UploadTaggedBinEvent extends TaggedBinsEvent {
   final CurrentUser user;
   final TaggedBin bin;

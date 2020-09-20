@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:citycollection/exceptions/DataFetchException.dart';
-import 'package:citycollection/exceptions/DataUploadException.dart';
-import 'package:citycollection/exceptions/NoUserFoundException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
+import 'package:citycollection/exceptions/data_upload_exception.dart';
+import 'package:citycollection/exceptions/no_user_found_exception.dart';
 import 'package:citycollection/models/bin_disposal.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
+import 'package:citycollection/models/redemption.dart';
 import 'package:citycollection/models/scan_winnings.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/models/user.dart';
@@ -29,9 +30,9 @@ abstract class DB {
   Future<String> uploadBinImageData(CurrentUser user, File image);
   Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
   Future<void> createUser(String email, String name, String uid, DateTime dob);
-
   Future<BinDisposal> saveBinDisposal(
       TaggedBin bin, File wasteImage, File binImage, CurrentUser user);
+  Future<void> updateTaggedBin(TaggedBin bin, CurrentUser user);
 }
 
 class FirebaseDB extends DB {
@@ -74,22 +75,26 @@ class FirebaseDB extends DB {
   Future<PrizeRedemptionStatus> redeemPrize(
       Prize prize, CurrentUser user) async {
     CurrentUser fetchedUser = await fetchCurrentUser(user.id);
+    Redemption redemption = Redemption(
+      userId: user.id,
+      cost: prize.cost,
+      desc: prize.desc,
+      prizeId: prize.id,
+      image: prize.image,
+      redeemTime: DateTime.now(),
+      status: PrizeRedemptionStatus.waiting,
+      title: prize.name,
+    );
+    Map<String, dynamic> map = redemption.toJson();
+    map.remove("id");
     if (fetchedUser.points >= prize.cost) {
-      DocumentReference ref =
-          await Firestore.instance.collection("redemptions").add({
-        "cost": prize.cost,
-        "desc": prize.desc,
-        "status": "WAITING",
-        "title": prize.name,
-        "userId": user.id,
-      });
+      await Firestore.instance
+          .collection("redemptions")
+          .add(map); //should be indivudual calls later bro!
       await Firestore.instance
           .collection("users")
           .document(user.id)
-          .collection("redemptions")
-          .add(
-        {"redemptionPath": ref, "status": "WAITING"},
-      );
+          .updateData({"points": fetchedUser.points - prize.cost});
       return PrizeRedemptionStatus.waiting;
     } else {
       print(
@@ -201,6 +206,18 @@ class FirebaseDB extends DB {
   }
 
   @override
+  Future<void> updateTaggedBin(TaggedBin bin, CurrentUser user) async {
+    logger.info("Saving Tagged bin");
+    Map<String, dynamic> data = bin.toJson();
+    data.remove("id");
+
+    await Firestore.instance
+        .collection("taggedBins")
+        .document(bin.id)
+        .updateData(data);
+  }
+
+  @override
   Future<String> uploadBinImageData(CurrentUser user, File image) async {
     final StorageReference storageReference = FirebaseStorage()
         .ref()
@@ -258,6 +275,7 @@ class FirebaseDB extends DB {
       status: BinDisposalStatus.pending,
     );
     await Firestore.instance.collection("binDisposals").add(disposal.toJson());
+
     return disposal;
   }
 

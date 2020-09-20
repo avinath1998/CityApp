@@ -52,7 +52,6 @@ class _TakePictureTabState extends State<TakePictureTab>
   }
 
   void _initBinUpload(File image) async {
-    logger.info("Shwing ");
     String binName = await showDialog<String>(
         context: context,
         barrierDismissible: false,
@@ -63,9 +62,11 @@ class _TakePictureTabState extends State<TakePictureTab>
             title: Text("Name your bin"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Enter a name for your bin.",
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
                 Form(
                   key: _globalKey,
@@ -87,6 +88,12 @@ class _TakePictureTabState extends State<TakePictureTab>
             ),
             actions: <Widget>[
               FlatButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
                 child: Text("Done"),
                 onPressed: () {
                   if (_globalKey.currentState.validate()) {
@@ -99,22 +106,26 @@ class _TakePictureTabState extends State<TakePictureTab>
           );
           //camera tab
         });
-    TaggedBin bin = TaggedBin(
-        userId: BlocProvider.of<AuthBloc>(context).currentUser.id,
-        isNew: true,
-        active: true,
-        binName: binName,
-        locationLan: 7.004453,
-        locationLon: 79.913834,
-        reportStrikes: 0,
-        taggedTime: DateTime.now().millisecondsSinceEpoch,
-        pointsEarned: 0);
-    BlocProvider.of<TaggedBinsBloc>(context).add(UploadTaggedBinEvent(
-        bin, image, BlocProvider.of<AuthBloc>(context).currentUser));
+    if (binName != null) {
+      TaggedBin bin = TaggedBin(
+          userId: BlocProvider.of<AuthBloc>(context).currentUser.id,
+          isNew: true,
+          active: true,
+          binName: binName,
+          locationLan: 7.004453,
+          locationLon: 79.913834,
+          reportStrikes: 0,
+          taggedTime: DateTime.now().millisecondsSinceEpoch,
+          pointsEarned: 0);
+      BlocProvider.of<TaggedBinsBloc>(context).add(UploadTaggedBinEvent(
+          bin, image, BlocProvider.of<AuthBloc>(context).currentUser));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -130,7 +141,7 @@ class _TakePictureTabState extends State<TakePictureTab>
           child: CustomScrollView(
             controller: widget.scrollController,
             slivers: <Widget>[
-              SliverToBoxAdapter(
+              SliverFillRemaining(
                 child: MultiBlocListener(
                   listeners: [
                     BlocListener<TakePictureBloc, TakePictureState>(
@@ -175,272 +186,295 @@ class _TakePictureTabState extends State<TakePictureTab>
                     )
                   ],
                   child: _cameraController != null
-                      ? Column(
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                AspectRatio(
+                      ? Container(
+                          color: Colors.blue,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Transform.scale(
+                                scale: _cameraController.value.aspectRatio /
+                                    deviceRatio,
+                                child: AspectRatio(
                                   aspectRatio:
                                       _cameraController.value.aspectRatio,
                                   child: CameraPreview(_cameraController),
                                 ),
-                                Center(
-                                  child: AnimatedSize(
-                                    vsync: this,
-                                    duration: Duration(milliseconds: 500),
-                                    curve: Curves.bounceOut,
-                                    alignment: Alignment.center,
-                                    child: _currentImageTaken != null
-                                        ? Image.file(
-                                            _currentImageTaken,
-                                            frameBuilder: (context, child,
-                                                frame, wasSyncholoaded) {
-                                              return Container(
-                                                key: GlobalKey(
-                                                    debugLabel: "initialImage"),
-                                                margin:
-                                                    const EdgeInsets.all(30.0),
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                30.0))),
-                                                child: ClipRRect(
-                                                    child: child,
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                30.0))),
-                                              );
-                                            },
-                                          )
-                                        : Container(
-                                            color: Colors.transparent,
-                                            key: GlobalKey(
-                                                debugLabel: "initialImage"),
-                                            height: 30,
-                                            width: 30,
-                                          ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    height: 30.0,
-                                  ),
-                                  LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      if (_isBinImageUploading) {
-                                        return CircularProgressIndicator();
-                                      } else if (_isBinUploaded) {
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              "Sent for review, your bin will be live soon!",
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 15.0),
-                                            ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            RaisedButton(
-                                              shape: RoundedRectangleBorder(
+                              ),
+                              Center(
+                                child: AnimatedSize(
+                                  vsync: this,
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.bounceOut,
+                                  alignment: Alignment.center,
+                                  child: _currentImageTaken != null
+                                      ? Image.file(
+                                          _currentImageTaken,
+                                          frameBuilder: (context, child, frame,
+                                              wasSyncholoaded) {
+                                            return Container(
+                                              key: GlobalKey(
+                                                  debugLabel: "initialImage"),
+                                              margin:
+                                                  const EdgeInsets.all(30.0),
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.black,
                                                   borderRadius:
                                                       BorderRadius.all(
                                                           Radius.circular(
-                                                              20.0))),
-                                              child: Text(
-                                                "Done",
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                              color: CityColors.primary_teal,
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      } else {
-                                        return AnimatedSize(
-                                          vsync: this,
-                                          duration: Duration(milliseconds: 500),
-                                          curve: Curves.bounceOut,
-                                          alignment: Alignment.center,
-                                          child: _currentImageTaken == null
-                                              ? Column(
-                                                  key: GlobalKey(
-                                                      debugLabel:
-                                                          "columnTakePicture"),
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Text(
-                                                      "Take a picture of the garbage bin.",
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline6,
-                                                    ),
-                                                    SizedBox(height: 15),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        _bloc.add(
-                                                            InitPictureTakeEvent());
-                                                      },
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10.0),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          color: CityColors
-                                                              .primary_teal,
-                                                        ),
-                                                        child: Icon(
-                                                            Icons.camera,
-                                                            color: Colors.white,
-                                                            size: 40.0),
-                                                      ),
-                                                    )
-                                                  ],
-                                                )
-                                              : Column(
-                                                  key: GlobalKey(
-                                                      debugLabel:
-                                                          "columnContiue"),
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Text(
-                                                      "Continue?",
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline6,
-                                                    ),
-                                                    SizedBox(height: 10),
-                                                    Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        FlatButton(
-                                                            shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            20.0))),
-                                                            child: Text(
-                                                              "Retake",
-                                                              style: TextStyle(
-                                                                  color: CityColors
-                                                                      .primary_teal),
-                                                            ),
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                _currentImageTaken =
-                                                                    null;
-                                                              });
-                                                            },
-                                                            color:
-                                                                Colors.white),
-                                                        SizedBox(
-                                                          width: 10.0,
-                                                        ),
-                                                        RaisedButton(
-                                                          shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius
-                                                                  .all(Radius
-                                                                      .circular(
-                                                                          20.0))),
-                                                          child: Text(
-                                                            "Continue",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white),
-                                                          ),
-                                                          color: CityColors
-                                                              .primary_teal,
-                                                          onPressed: () {
-                                                            _initBinUpload(
-                                                                _currentImageTaken);
-                                                          },
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  // _isBinUploaded
-                                  //     ? Text(
-                                  //         "Uploaded, your bin is under review.")
-                                  //     : Container(),
-                                  // _isBinUploaded
-                                  //     ? RaisedButton(
-                                  //         onPressed: () {
-                                  //           Navigator.of(context).pop();
-                                  //         },
-                                  //         color: CityColors.primary_teal,
-                                  //         shape: RoundedRectangleBorder(
-                                  //             borderRadius: BorderRadius.all(
-                                  //                 Radius.circular(20.0))),
-                                  //         child: Text(
-                                  //           "Done",
-                                  //           style:
-                                  //               TextStyle(color: Colors.white),
-                                  //         ),
-                                  //       )
-                                  //     : Container(),
-                                  // _isBinUploaded
-                                  //     ? Container()
-                                  //     : _isBinImageUploading
-                                  //         ? CircularProgressIndicator()
-                                  //         : InkWell(
-                                  //             onTap: () {
-                                  //               _bloc.add(
-                                  //                   InitPictureTakeEvent());
-                                  //             },
-                                  //             child: Container(
-                                  //               padding:
-                                  //                   const EdgeInsets.all(10.0),
-                                  //               decoration: BoxDecoration(
-                                  //                 shape: BoxShape.circle,
-                                  //                 color:
-                                  //                     CityColors.primary_teal,
-                                  //               ),
-                                  //               child: Icon(Icons.camera,
-                                  //                   color: Colors.white,
-                                  //                   size: 40.0),
-                                  //             ),
-                                  //           )
-                                ],
+                                                              30.0))),
+                                              child: ClipRRect(
+                                                  child: child,
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(
+                                                              30.0))),
+                                            );
+                                          },
+                                        )
+                                      : Container(
+                                          color: Colors.transparent,
+                                          key: GlobalKey(
+                                              debugLabel: "initialImage"),
+                                          height: 30,
+                                          width: 30,
+                                        ),
+                                ),
                               ),
-                            )
-                          ],
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  margin: const EdgeInsets.all(20.0),
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30.0))),
+                                    color: Colors.black38,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20.0, horizontal: 20.0),
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          if (_isBinImageUploading) {
+                                            return CircularProgressIndicator();
+                                          } else if (_isBinUploaded) {
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Text("Sent for review.",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline6
+                                                        .copyWith(
+                                                            color:
+                                                                Colors.white)),
+                                                Text(
+                                                    "Your bin will be live once our team\napproves it.",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyText1
+                                                        .copyWith(
+                                                            color:
+                                                                Colors.white)),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                RaisedButton(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  20.0))),
+                                                  child: Text(
+                                                    "Done",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  color:
+                                                      CityColors.primary_teal,
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          } else {
+                                            return Center(
+                                              child: AnimatedSize(
+                                                vsync: this,
+                                                duration:
+                                                    Duration(milliseconds: 500),
+                                                curve: Curves.bounceOut,
+                                                alignment: Alignment.center,
+                                                child: _currentImageTaken ==
+                                                        null
+                                                    ? Container(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          key: GlobalKey(
+                                                              debugLabel:
+                                                                  "columnTakePicture"),
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            Text(
+                                                              "Tag a bin and put it on the map!",
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .headline6
+                                                                  .copyWith(
+                                                                      color: Colors
+                                                                          .white),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .start,
+                                                            ),
+                                                            Text(
+                                                              "Firstly, take a picture of it.",
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .subtitle2
+                                                                  .copyWith(
+                                                                      color: Colors
+                                                                          .white),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .start,
+                                                            ),
+                                                            SizedBox(
+                                                                height: 15),
+                                                            Align(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: InkWell(
+                                                                onTap: () {
+                                                                  _bloc.add(
+                                                                      InitPictureTakeEvent());
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          10.0),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: CityColors
+                                                                        .primary_teal,
+                                                                  ),
+                                                                  child: Icon(
+                                                                      Icons
+                                                                          .camera,
+                                                                      color: Colors
+                                                                          .white,
+                                                                      size:
+                                                                          40.0),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )
+                                                    : Center(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            Text(
+                                                              "Continue?",
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .headline6
+                                                                  .copyWith(
+                                                                      color: Colors
+                                                                          .white),
+                                                            ),
+                                                            SizedBox(
+                                                                height: 10),
+                                                            Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                FlatButton(
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(
+                                                                                20.0))),
+                                                                    child: Text(
+                                                                      "Retake",
+                                                                    ),
+                                                                    onPressed:
+                                                                        () {
+                                                                      setState(
+                                                                          () {
+                                                                        _currentImageTaken =
+                                                                            null;
+                                                                      });
+                                                                    },
+                                                                    color: Colors
+                                                                        .white),
+                                                                SizedBox(
+                                                                  width: 10.0,
+                                                                ),
+                                                                RaisedButton(
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(20.0))),
+                                                                  child: Text(
+                                                                    "Continue",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                  color: CityColors
+                                                                      .primary_teal,
+                                                                  onPressed:
+                                                                      () {
+                                                                    _initBinUpload(
+                                                                        _currentImageTaken);
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         )
                       : Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: Center(child: CircularProgressIndicator()),
                         ),
                 ),
-              )
+              ),
             ],
           ),
         ),

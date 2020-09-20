@@ -40,7 +40,7 @@ class _GotTrashScreenState extends State<GotTrashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: Text("Got Trash?"),
+          title: Text("Got Trash?", style: TextStyle(color: Colors.black)),
           automaticallyImplyLeading: true,
         ),
         body: Center(
@@ -57,11 +57,21 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                     _isLoading = false;
                   });
                   showDialog(
-                      context: context,
-                      child: AlertDialog(
-                        content:
-                            Text("An error has occured saving bin disposals"),
-                      ));
+                    context: context,
+                    child: AlertDialog(
+                      content: Text(
+                          "An error has occured saving your disposal, try agan."),
+                      actions: [
+                        RaisedButton(
+                          child: Text("Ok"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ),
+                  );
                 },
                 binDisposalSaved: (BinDisposal disposal) {
                   setState(() {
@@ -140,14 +150,6 @@ class _GotTrashScreenState extends State<GotTrashScreen>
             SizedBox(
               height: 10.0,
             ),
-            Text(
-              "Your disposal is now under review.",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.subtitle1,
-            ),
-            SizedBox(
-              height: 10.0,
-            ),
             Container(
               padding: const EdgeInsets.all(25),
               decoration: BoxDecoration(
@@ -157,6 +159,14 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                 color: Colors.white,
                 size: 20,
               ),
+            ),
+            SizedBox(
+              height: 10.0,
+            ),
+            Text(
+              "Your disposal is now under review.",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.subtitle1,
             ),
             SizedBox(
               height: 10.0,

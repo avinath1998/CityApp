@@ -52,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   NearbyBinsBloc _nearbyBinsBloc;
   int _currentSelectedBottomNav = 0;
   AnimationController _cardSlideController;
+  AnimationController _rewardsCardSlideController;
+
   AnimationController _pointsCardController;
 
   AnimationController _backController;
@@ -59,15 +61,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> _radiusAnimation;
   ScrollController _scrollController;
   TaggedBin _currentSelectedBin;
-  TaggedBinsBloc _taggedBinsBloc;
 
   @override
   void initState() {
     super.initState();
     _homeTabBloc = HomeTabBloc();
-    _taggedBinsBloc = TaggedBinsBloc(GetIt.instance<DataRepository>());
+
     _nearbyBinsBloc =
         NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
+    _rewardsCardSlideController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
     _cardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _backController = AnimationController(
@@ -96,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _backController.dispose();
     _cardSlideController.dispose();
     _nearbyBinsBloc.close();
+    _rewardsCardSlideController.dispose();
     _pointsCardController.dispose();
   }
 
@@ -112,9 +116,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           BlocProvider(
             create: (context) => _homeTabBloc,
-          ),
-          BlocProvider(
-            create: (context) => _taggedBinsBloc,
           ),
         ],
         child: SafeArea(
@@ -139,9 +140,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   if (state is HomeTabNearbyState) {
                     _cardSlideController.reverse();
                     _backController.reverse();
+                    _rewardsCardSlideController.reverse();
                     _pointsCardController.forward();
                   } else if (state is HomeTabAddBinState) {
                     _cardSlideController.reverse();
+                    _rewardsCardSlideController.reverse();
                     _mapClosestBinController.reverse();
                     _pointsCardController.reverse();
                     _backController.forward();
@@ -152,11 +155,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         enableDrag: true,
                         backgroundColor: Colors.transparent,
                         builder: (context, scrollController) {
-                          return BlocProvider.value(
-                            value: _taggedBinsBloc,
-                            child: TakePictureTab(
-                              scrollController: scrollController,
-                            ),
+                          return TakePictureTab(
+                            scrollController: scrollController,
                           );
                         });
                     _backController.reverse();
@@ -168,14 +168,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _mapClosestBinController.reverse();
                     _cardSlideController.forward();
                     _pointsCardController.reverse();
+                    _rewardsCardSlideController.reverse();
                   } else if (state is HomeTabTrophiesState) {
                     _mapClosestBinController.reverse();
                     _cardSlideController.reverse();
                     _pointsCardController.reverse();
+                    _rewardsCardSlideController.reverse();
                   } else if (state is HomeTabRedeemState) {
                     _mapClosestBinController.reverse();
                     _cardSlideController.reverse();
                     _pointsCardController.reverse();
+                    _rewardsCardSlideController.forward();
                   } else {
                     _cardSlideController.reverse();
                     _pointsCardController.forward();
@@ -186,12 +189,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 cubit: _nearbyBinsBloc,
                 listener: (context, state) async {
                   if (state is SelectedBinState) {
-                    if (_mapClosestBinController.isCompleted) {
-                      await _mapClosestBinController.reverse();
-                      await _cardSlideController.reverse();
-                      await _backController.reverse();
-                    }
+                    await _mapClosestBinController.reverse();
+                    await _cardSlideController.reverse();
+                    await _backController.reverse();
+                    await _rewardsCardSlideController.reverse();
                     setState(() {
+                      _currentSelectedBottomNav = 0;
+
                       _currentSelectedBin = state.bin;
                     });
                     await _mapClosestBinController.forward();
@@ -281,6 +285,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     initialChildSize: 0.20,
                     builder: (context, scrollController) {
                       return HomeTab(
+                        scrollController: scrollController,
+                      );
+                    },
+                  ),
+                ),
+                SlideTransition(
+                  position: Tween<Offset>(
+                          begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
+                      .animate(CurvedAnimation(
+                          curve: Curves.ease,
+                          parent: _rewardsCardSlideController)),
+                  child: DraggableScrollableSheet(
+                    minChildSize: 0.17,
+                    initialChildSize: 0.20,
+                    builder: (context, scrollController) {
+                      return RedeemTab(
                         scrollController: scrollController,
                       );
                     },

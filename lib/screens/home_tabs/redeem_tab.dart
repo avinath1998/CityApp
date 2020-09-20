@@ -3,17 +3,25 @@ import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/blocs/redeem_prize/redeem_prize_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/dialogs/redeem_dialog.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/widgets/button_error_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logging/logging.dart';
+
+import '../redemptions_screen.dart';
 
 class RedeemTab extends StatefulWidget {
+  final ScrollController scrollController;
+
+  const RedeemTab({Key key, this.scrollController}) : super(key: key);
   @override
   _RedeemTabState createState() => _RedeemTabState();
 }
@@ -22,54 +30,86 @@ class _RedeemTabState extends State<RedeemTab> {
   final RedeemBloc _redeemBloc = RedeemBloc();
   final RedeemPrizeBloc _prizeRedeemBloc = RedeemPrizeBloc();
   ScrollController _scrollController;
+  CurrentUser _currentUser;
+  bool _isLoading = false;
+  String _loadingUserError;
+  final Logger logger = Logger("RedeemTabState");
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController(
-        initialScrollOffset:
-            GetIt.instance<DataRepository>().redeemPageScrollPosition);
+    _scrollController = widget.scrollController;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _redeemBloc.add(FetchPrizesEvent());
-    });
-    _scrollController.addListener(() {
-      GetIt.instance<DataRepository>().redeemPageScrollPosition =
-          _scrollController.offset;
+      BlocProvider.of<AuthBloc>(context).add(
+          LoadUserEvent(BlocProvider.of<AuthBloc>(context).currentUser, false));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Container(
-        color: Colors.white,
-        child: BlocProvider(
-            create: (context) => _redeemBloc,
-            child: BlocBuilder<RedeemBloc, RedeemState>(
-              builder: (context, state) {
-                if (state is RedeemPrizesFetchedState) {
-                  return _buildList(state.prizes);
-                } else if (state is RedeemPrizesWaitingState) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: CityColors.primary_green,
-                    ),
-                  );
-                } else if (state is RedeemLoadingFailedState) {
-                  return Center(
-                    child: Text("Oops, an error has occured, try again later."),
-                  );
-                } else if (state is RedeemInitial) {
-                  if (state.prizes.length == 0) {
-                    return Center(
-                        child: CircularProgressIndicator(
-                      backgroundColor: CityColors.primary_green,
-                    ));
-                  } else
-                    return _buildList(state.prizes);
-                }
-              },
-            )),
+    return Material(
+      color: Colors.transparent,
+      elevation: 5,
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
+        child: Container(
+          color: Colors.white,
+          child: BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthUpdatedState) {
+                setState(() {
+                  _currentUser = state.user;
+                });
+              } else if (state is AuthUpdateFailedState) {
+                setState(() {
+                  _loadingUserError = "An error has occured, try again";
+                });
+              }
+            },
+            child: LayoutBuilder(builder: (context, constraints) {
+              if (_loadingUserError != null) {
+                ButtonErrorRefresh(
+                  errorMsg: "An error has occured, try again",
+                  onRefreshTapped: () {
+                    logger.info("Refresh tapped");
+                  },
+                );
+              } else if (_currentUser == null) {
+                return Center(child: CircularProgressIndicator());
+              }
+              return BlocProvider(
+                  create: (context) => _redeemBloc,
+                  child: BlocBuilder<RedeemBloc, RedeemState>(
+                    builder: (context, state) {
+                      if (state is RedeemPrizesFetchedState) {
+                        return _buildList(state.prizes);
+                      } else if (state is RedeemPrizesWaitingState) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: CityColors.primary_green,
+                          ),
+                        );
+                      } else if (state is RedeemLoadingFailedState) {
+                        return Center(
+                          child: Text(
+                              "Oops, an error has occured, try again later."),
+                        );
+                      } else if (state is RedeemInitial) {
+                        if (state.prizes.length == 0) {
+                          return Center(
+                              child: CircularProgressIndicator(
+                            backgroundColor: CityColors.primary_green,
+                          ));
+                        } else
+                          return _buildList(state.prizes);
+                      }
+                    },
+                  ));
+            }),
+          ),
+        ),
       ),
     );
   }
@@ -78,9 +118,32 @@ class _RedeemTabState extends State<RedeemTab> {
     return CustomScrollView(
       controller: _scrollController,
       slivers: <Widget>[
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Icon(
+                    Icons.card_giftcard,
+                    color: Colors.white,
+                  ),
+                  decoration: BoxDecoration(
+                    color: CityColors.primary_teal,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         SliverAppBar(
           backgroundColor: Colors.white,
           snap: false,
+          automaticallyImplyLeading: false,
           pinned: true,
           floating: false,
           title: Column(
@@ -88,12 +151,9 @@ class _RedeemTabState extends State<RedeemTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                "CityPoints: " +
+                "Your CityPoints: " +
                     "${BlocProvider.of<AuthBloc>(context).currentUser.points}",
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    .copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headline5,
               )
             ],
           ),
@@ -107,39 +167,26 @@ class _RedeemTabState extends State<RedeemTab> {
                   color: Colors.black12,
                   offset: Offset(0.0, 0.0)),
             ]),
-            padding: const EdgeInsets.only(left: 10.0, top: 10.0),
-            child: Text(
-              "Cash",
-              style: Theme.of(context).textTheme.headline5,
-            ),
-          ),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: buildPrizeCard(prizes
-                        .where((i) => i.type == "cash")
-                        .toList()[
-                    index]), //change this to be more performant, it should'nt filter the entire list, cannot scale well
-              );
-            },
-                childCount:
-                    prizes.where((i) => i.type == "cash").toList().length),
-          ),
-        ),
-        SliverStickyHeader(
-          header: Container(
-            decoration: BoxDecoration(color: Colors.white, boxShadow: [
-              BoxShadow(
-                  blurRadius: 4,
-                  spreadRadius: 0.3,
-                  color: Colors.black12,
-                  offset: Offset(0.0, 0.0)),
-            ]),
-            padding: const EdgeInsets.only(left: 10.0, top: 10.0),
-            child: Text(
-              "Prizes",
-              style: Theme.of(context).textTheme.headline5,
+            padding: const EdgeInsets.only(left: 20.0, top: 10.0, right: 20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Prizes",
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context)
+                        .pushNamed(RedemptionsScreen.routeName);
+                  },
+                  child: Text(
+                    "See Your Redemptions",
+                    style: Theme.of(context).accentTextTheme.button,
+                  ),
+                ),
+              ],
             ),
           ),
           sliver: SliverList(
@@ -198,22 +245,18 @@ class _RedeemTabState extends State<RedeemTab> {
               children: <Widget>[
                 Text(
                   prize.name,
+                  style: Theme.of(context).textTheme.subtitle1,
                   textAlign: TextAlign.start,
-                  style: GoogleFonts.poppins(
-                      fontSize: 15.0, fontWeight: FontWeight.bold),
                 ),
                 Divider(),
                 Text(
                   prize.desc,
-                  style: GoogleFonts.poppins(
-                      fontSize: 13.0, fontWeight: FontWeight.normal),
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0),
                   child: Text(
-                    "${prize.cost} CityPoints",
-                    style: GoogleFonts.poppins(
-                        fontSize: 15.0, fontWeight: FontWeight.bold),
+                    "${prize.cost} Ekva Points",
                   ),
                 ),
                 BlocProvider.of<AuthBloc>(context).currentUser.points >=
@@ -222,20 +265,16 @@ class _RedeemTabState extends State<RedeemTab> {
                         alignment: Alignment.centerRight,
                         child: Padding(
                             padding: const EdgeInsets.only(top: 10.0),
-                            child: MaterialButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20.0))),
-                              color: CityColors.primary_green,
+                            child: RaisedButton(
                               onPressed: () {
                                 _showRedemptionConfirmation(
                                     prize,
                                     BlocProvider.of<AuthBloc>(context)
                                         .currentUser);
                               },
-                              child: Text(" Redeem",
-                                  style:
-                                      GoogleFonts.poppins(color: Colors.white)),
+                              child: Text(
+                                "Redeem",
+                              ),
                             )),
                       )
                     : Align(
@@ -243,10 +282,7 @@ class _RedeemTabState extends State<RedeemTab> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: Text(
-                            "Not Enough CityPoints",
-                            style: GoogleFonts.poppins(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500),
+                            "Not Enough Ekva Points",
                           ),
                         ),
                       ),
@@ -262,103 +298,17 @@ class _RedeemTabState extends State<RedeemTab> {
     Prize prize,
     CurrentUser user,
   ) {
-    final RedeemPrizeBloc _bloc = RedeemPrizeBloc();
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (context) {
-          return Dialog(
-            key: Key(prize.id),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20.0))),
-            child: Container(
-                padding: const EdgeInsets.all(20.0),
-                child:
-                    Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  CachedNetworkImage(
-                    imageUrl: prize.image,
-                    imageBuilder: (context, provider) {
-                      return Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                fit: BoxFit.cover, image: provider)),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      prize.name,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                          color: Colors.black,
-                          fontSize: 19.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      prize.desc,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                          color: Colors.black, fontSize: 13.0),
-                    ),
-                  ),
-                  BlocBuilder(
-                      cubit: _bloc,
-                      builder: (context, state) {
-                        if (state is RedeemPrizeInitial) {
-                          return MaterialButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0))),
-                            color: CityColors.primary_green,
-                            onPressed: () {
-                              _bloc.add(RedeemCityPrizeEvent(prize, user));
-                            },
-                            child: Text("Confirm Redemption",
-                                style:
-                                    GoogleFonts.poppins(color: Colors.white)),
-                          );
-                        } else if (state is PrizeRedeemedWaitingState) {
-                          return CircularProgressIndicator(
-                            backgroundColor: CityColors.primary_green,
-                          );
-                        } else if (state is PrizeRedeemedFailedState) {
-                          return Text(state.errorMsg,
-                              style: GoogleFonts.poppins(
-                                  color: Colors.black, fontSize: 15.0));
-                        } else if (state is PrizeRedeemedSuccessState) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 30.0,
-                                ),
-                                padding: const EdgeInsets.all(20.0),
-                                margin: const EdgeInsets.only(
-                                    bottom: 20.0, top: 10.0),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: CityColors.primary_green,
-                                ),
-                              ),
-                              Text(
-                                  "Redeem request sent, check back again to get the code.",
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                      color: Colors.black, fontSize: 15.0)),
-                            ],
-                          );
-                        }
-                      }),
-                ])),
+          return RedeemDialog(
+            prize: prize,
+            user: user,
+            onRedeemed: () {
+              BlocProvider.of<AuthBloc>(context).add(LoadUserEvent(
+                  BlocProvider.of<AuthBloc>(context).currentUser, true));
+            },
           );
         });
   }

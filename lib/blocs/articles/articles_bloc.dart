@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:citycollection/exceptions/DataFetchException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
 import 'package:citycollection/models/article.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:equatable/equatable.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:citycollection/exceptions/DataUploadException.dart';
+import 'package:citycollection/exceptions/data_upload_exception.dart';
 import 'package:citycollection/models/bin_disposal.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/tagged_bin.dart';

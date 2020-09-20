@@ -105,7 +105,7 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                     ? Align(
                         alignment: Alignment.topCenter,
                         child: Container(
-                          margin: const EdgeInsets.only(top: 50),
+                          margin: const EdgeInsets.only(top: 10),
                           child: Card(
                             child: Padding(
                               padding: const EdgeInsets.all(25.0),
@@ -170,7 +170,7 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.center,
                                       children: <Widget>[
                                         Text(
                                           "Take a picture",

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
-import 'package:citycollection/exceptions/DataFetchException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
 import 'package:citycollection/models/cityscan_qrcode.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/scan_winnings.dart';

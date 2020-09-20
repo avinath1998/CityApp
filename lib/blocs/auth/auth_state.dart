@@ -42,3 +42,9 @@ class AuthUpdatedState extends AuthState {
 
   AuthUpdatedState(this.user);
 }
+
+class AuthUpdateFailedState extends AuthState {
+  final Exception exception;
+
+  AuthUpdateFailedState(this.exception);
+}

@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:citycollection/exceptions/DataFetchException.dart';
-import 'package:citycollection/exceptions/NoUserFoundException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
+import 'package:citycollection/exceptions/no_user_found_exception.dart';
 import 'package:citycollection/exceptions/authentication_exceptions.dart';
 import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
+import 'package:citycollection/networking/data_repository.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -17,11 +18,12 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthService _authService;
+  final DataRepository _dataRepository;
   final String TAG = "AUTHBLOC: ";
   final Logger logger = Logger("AuthBloc");
   CurrentUser currentUser;
 
-  AuthBloc(this._authService) : super(AuthInitial());
+  AuthBloc(this._authService, this._dataRepository) : super(AuthInitial());
 
   void signIn(String email, String password) {
     add(SignInEvent(email, password));
@@ -40,6 +42,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } else if (event is RegisterUserEvent) {
       yield* _registerEmail(
           event.user.email, event.password, event.user.name, event.dob);
+    } else if (event is LoadUserEvent) {
+      yield* _loadCurrentUser(event.user.id, event.forceNetwork);
     }
   }
 
@@ -161,6 +165,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       logger.severe(e.toString());
       yield RegistrationFailedState(
           e.toString(), RegistrationException.generalAuth);
+    }
+  }
+
+  Stream<AuthState> _loadCurrentUser(
+      final String id, final bool forceNetwork) async* {
+    try {
+      if (forceNetwork || currentUser == null) {
+        logger.info("Loading current user from database");
+        currentUser = await _dataRepository.fetchCurrentUser(id);
+      }
+      yield AuthUpdatedState(currentUser);
+    } on DataFetchException catch (e) {
+      yield AuthUpdateFailedState(e);
     }
   }
 

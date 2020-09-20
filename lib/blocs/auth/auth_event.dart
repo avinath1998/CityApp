@@ -14,6 +14,12 @@ class SignOutEvent extends AuthEvent {}
 
 class CheckIfSignedInEvent extends AuthEvent {}
 
+class LoadUserEvent extends AuthEvent {
+  final CurrentUser user;
+  final bool forceNetwork;
+  LoadUserEvent(this.user, this.forceNetwork);
+}
+
 class RegisterUserEvent extends AuthEvent {
   final CurrentUser user;
   final String password;

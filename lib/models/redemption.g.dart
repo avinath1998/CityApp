@@ -14,10 +14,14 @@ _$_Redemption _$_$_RedemptionFromJson(Map<String, dynamic> json) {
     title: json['title'] as String,
     desc: json['desc'] as String,
     cost: json['cost'] as int,
-    redeemTime: json['redeemTime'] as String,
-    status: _$enumDecodeNullable(_$RedemptionStatusEnumMap, json['status']),
-    indexNumber: json['indexNumber'] as int,
-    declinedReason: json['declinedReason'] as String,
+    redeemTime: json['redeemTime'] == null
+        ? null
+        : DateTime.parse(json['redeemTime'] as String),
+    image: json['image'] as String,
+    status:
+        _$enumDecodeNullable(_$PrizeRedemptionStatusEnumMap, json['status']),
+    code: json['code'] as String,
+    message: json['message'] as String,
   );
 }
 
@@ -29,10 +33,11 @@ Map<String, dynamic> _$_$_RedemptionToJson(_$_Redemption instance) =>
       'title': instance.title,
       'desc': instance.desc,
       'cost': instance.cost,
-      'redeemTime': instance.redeemTime,
-      'status': _$RedemptionStatusEnumMap[instance.status],
-      'indexNumber': instance.indexNumber,
-      'declinedReason': instance.declinedReason,
+      'redeemTime': instance.redeemTime?.toIso8601String(),
+      'image': instance.image,
+      'status': _$PrizeRedemptionStatusEnumMap[instance.status],
+      'code': instance.code,
+      'message': instance.message,
     };
 
 T _$enumDecode<T>(
@@ -67,8 +72,10 @@ T _$enumDecodeNullable<T>(
   return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
 }
 
-const _$RedemptionStatusEnumMap = {
-  RedemptionStatus.awarded: 'awarded',
-  RedemptionStatus.declined: 'declined',
-  RedemptionStatus.waiting: 'waiting',
+const _$PrizeRedemptionStatusEnumMap = {
+  PrizeRedemptionStatus.delivered: 'delivered',
+  PrizeRedemptionStatus.notEnoughPoints: 'notEnoughPoints',
+  PrizeRedemptionStatus.couponCodesFinished: 'couponCodesFinished',
+  PrizeRedemptionStatus.disallowed: 'disallowed',
+  PrizeRedemptionStatus.waiting: 'waiting',
 };

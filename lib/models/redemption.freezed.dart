@@ -23,10 +23,11 @@ class _$RedemptionTearOff {
       String title,
       String desc,
       int cost,
-      String redeemTime,
-      RedemptionStatus status,
-      int indexNumber,
-      String declinedReason}) {
+      DateTime redeemTime,
+      String image,
+      PrizeRedemptionStatus status,
+      String code,
+      String message}) {
     return _Redemption(
       id: id,
       userId: userId,
@@ -35,9 +36,10 @@ class _$RedemptionTearOff {
       desc: desc,
       cost: cost,
       redeemTime: redeemTime,
+      image: image,
       status: status,
-      indexNumber: indexNumber,
-      declinedReason: declinedReason,
+      code: code,
+      message: message,
     );
   }
 }
@@ -52,10 +54,11 @@ mixin _$Redemption {
   String get title;
   String get desc;
   int get cost;
-  String get redeemTime;
-  RedemptionStatus get status;
-  int get indexNumber;
-  String get declinedReason;
+  DateTime get redeemTime;
+  String get image;
+  PrizeRedemptionStatus get status;
+  String get code;
+  String get message;
 
   Map<String, dynamic> toJson();
   $RedemptionCopyWith<Redemption> get copyWith;
@@ -72,10 +75,11 @@ abstract class $RedemptionCopyWith<$Res> {
       String title,
       String desc,
       int cost,
-      String redeemTime,
-      RedemptionStatus status,
-      int indexNumber,
-      String declinedReason});
+      DateTime redeemTime,
+      String image,
+      PrizeRedemptionStatus status,
+      String code,
+      String message});
 }
 
 class _$RedemptionCopyWithImpl<$Res> implements $RedemptionCopyWith<$Res> {
@@ -94,9 +98,10 @@ class _$RedemptionCopyWithImpl<$Res> implements $RedemptionCopyWith<$Res> {
     Object desc = freezed,
     Object cost = freezed,
     Object redeemTime = freezed,
+    Object image = freezed,
     Object status = freezed,
-    Object indexNumber = freezed,
-    Object declinedReason = freezed,
+    Object code = freezed,
+    Object message = freezed,
   }) {
     return _then(_value.copyWith(
       id: id == freezed ? _value.id : id as String,
@@ -106,13 +111,12 @@ class _$RedemptionCopyWithImpl<$Res> implements $RedemptionCopyWith<$Res> {
       desc: desc == freezed ? _value.desc : desc as String,
       cost: cost == freezed ? _value.cost : cost as int,
       redeemTime:
-          redeemTime == freezed ? _value.redeemTime : redeemTime as String,
-      status: status == freezed ? _value.status : status as RedemptionStatus,
-      indexNumber:
-          indexNumber == freezed ? _value.indexNumber : indexNumber as int,
-      declinedReason: declinedReason == freezed
-          ? _value.declinedReason
-          : declinedReason as String,
+          redeemTime == freezed ? _value.redeemTime : redeemTime as DateTime,
+      image: image == freezed ? _value.image : image as String,
+      status:
+          status == freezed ? _value.status : status as PrizeRedemptionStatus,
+      code: code == freezed ? _value.code : code as String,
+      message: message == freezed ? _value.message : message as String,
     ));
   }
 }
@@ -129,10 +133,11 @@ abstract class _$RedemptionCopyWith<$Res> implements $RedemptionCopyWith<$Res> {
       String title,
       String desc,
       int cost,
-      String redeemTime,
-      RedemptionStatus status,
-      int indexNumber,
-      String declinedReason});
+      DateTime redeemTime,
+      String image,
+      PrizeRedemptionStatus status,
+      String code,
+      String message});
 }
 
 class __$RedemptionCopyWithImpl<$Res> extends _$RedemptionCopyWithImpl<$Res>
@@ -153,9 +158,10 @@ class __$RedemptionCopyWithImpl<$Res> extends _$RedemptionCopyWithImpl<$Res>
     Object desc = freezed,
     Object cost = freezed,
     Object redeemTime = freezed,
+    Object image = freezed,
     Object status = freezed,
-    Object indexNumber = freezed,
-    Object declinedReason = freezed,
+    Object code = freezed,
+    Object message = freezed,
   }) {
     return _then(_Redemption(
       id: id == freezed ? _value.id : id as String,
@@ -165,13 +171,12 @@ class __$RedemptionCopyWithImpl<$Res> extends _$RedemptionCopyWithImpl<$Res>
       desc: desc == freezed ? _value.desc : desc as String,
       cost: cost == freezed ? _value.cost : cost as int,
       redeemTime:
-          redeemTime == freezed ? _value.redeemTime : redeemTime as String,
-      status: status == freezed ? _value.status : status as RedemptionStatus,
-      indexNumber:
-          indexNumber == freezed ? _value.indexNumber : indexNumber as int,
-      declinedReason: declinedReason == freezed
-          ? _value.declinedReason
-          : declinedReason as String,
+          redeemTime == freezed ? _value.redeemTime : redeemTime as DateTime,
+      image: image == freezed ? _value.image : image as String,
+      status:
+          status == freezed ? _value.status : status as PrizeRedemptionStatus,
+      code: code == freezed ? _value.code : code as String,
+      message: message == freezed ? _value.message : message as String,
     ));
   }
 }
@@ -186,9 +191,10 @@ class _$_Redemption implements _Redemption {
       this.desc,
       this.cost,
       this.redeemTime,
+      this.image,
       this.status,
-      this.indexNumber,
-      this.declinedReason});
+      this.code,
+      this.message});
 
   factory _$_Redemption.fromJson(Map<String, dynamic> json) =>
       _$_$_RedemptionFromJson(json);
@@ -206,17 +212,19 @@ class _$_Redemption implements _Redemption {
   @override
   final int cost;
   @override
-  final String redeemTime;
+  final DateTime redeemTime;
   @override
-  final RedemptionStatus status;
+  final String image;
   @override
-  final int indexNumber;
+  final PrizeRedemptionStatus status;
   @override
-  final String declinedReason;
+  final String code;
+  @override
+  final String message;
 
   @override
   String toString() {
-    return 'Redemption(id: $id, userId: $userId, prizeId: $prizeId, title: $title, desc: $desc, cost: $cost, redeemTime: $redeemTime, status: $status, indexNumber: $indexNumber, declinedReason: $declinedReason)';
+    return 'Redemption(id: $id, userId: $userId, prizeId: $prizeId, title: $title, desc: $desc, cost: $cost, redeemTime: $redeemTime, image: $image, status: $status, code: $code, message: $message)';
   }
 
   @override
@@ -239,14 +247,14 @@ class _$_Redemption implements _Redemption {
             (identical(other.redeemTime, redeemTime) ||
                 const DeepCollectionEquality()
                     .equals(other.redeemTime, redeemTime)) &&
+            (identical(other.image, image) ||
+                const DeepCollectionEquality().equals(other.image, image)) &&
             (identical(other.status, status) ||
                 const DeepCollectionEquality().equals(other.status, status)) &&
-            (identical(other.indexNumber, indexNumber) ||
-                const DeepCollectionEquality()
-                    .equals(other.indexNumber, indexNumber)) &&
-            (identical(other.declinedReason, declinedReason) ||
-                const DeepCollectionEquality()
-                    .equals(other.declinedReason, declinedReason)));
+            (identical(other.code, code) ||
+                const DeepCollectionEquality().equals(other.code, code)) &&
+            (identical(other.message, message) ||
+                const DeepCollectionEquality().equals(other.message, message)));
   }
 
   @override
@@ -259,9 +267,10 @@ class _$_Redemption implements _Redemption {
       const DeepCollectionEquality().hash(desc) ^
       const DeepCollectionEquality().hash(cost) ^
       const DeepCollectionEquality().hash(redeemTime) ^
+      const DeepCollectionEquality().hash(image) ^
       const DeepCollectionEquality().hash(status) ^
-      const DeepCollectionEquality().hash(indexNumber) ^
-      const DeepCollectionEquality().hash(declinedReason);
+      const DeepCollectionEquality().hash(code) ^
+      const DeepCollectionEquality().hash(message);
 
   @override
   _$RedemptionCopyWith<_Redemption> get copyWith =>
@@ -281,10 +290,11 @@ abstract class _Redemption implements Redemption {
       String title,
       String desc,
       int cost,
-      String redeemTime,
-      RedemptionStatus status,
-      int indexNumber,
-      String declinedReason}) = _$_Redemption;
+      DateTime redeemTime,
+      String image,
+      PrizeRedemptionStatus status,
+      String code,
+      String message}) = _$_Redemption;
 
   factory _Redemption.fromJson(Map<String, dynamic> json) =
       _$_Redemption.fromJson;
@@ -302,13 +312,15 @@ abstract class _Redemption implements Redemption {
   @override
   int get cost;
   @override
-  String get redeemTime;
+  DateTime get redeemTime;
   @override
-  RedemptionStatus get status;
+  String get image;
   @override
-  int get indexNumber;
+  PrizeRedemptionStatus get status;
   @override
-  String get declinedReason;
+  String get code;
+  @override
+  String get message;
   @override
   _$RedemptionCopyWith<_Redemption> get copyWith;
 }

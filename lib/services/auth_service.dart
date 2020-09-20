@@ -1,5 +1,5 @@
-import 'package:citycollection/exceptions/DataFetchException.dart';
-import 'package:citycollection/exceptions/NoUserFoundException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
+import 'package:citycollection/exceptions/no_user_found_exception.dart';
 import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/networking/data_repository.dart';

@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../redemptions_screen.dart';
+import '../see_tagged_bins_screen.dart';
 import 'me_tab.dart';
 
 class HomeTab extends StatefulWidget {
@@ -20,7 +22,6 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  List<String> testList = ["123", "23", "23", "431", "213"];
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -40,7 +41,7 @@ class _HomeTabState extends State<HomeTab> {
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Align(
                         alignment: Alignment.centerRight,
@@ -49,7 +50,7 @@ class _HomeTabState extends State<HomeTab> {
                           child: Container(
                             padding: const EdgeInsets.all(20.0),
                             child: Icon(
-                              Icons.arrow_upward,
+                              Icons.account_circle,
                               color: Colors.white,
                             ),
                             decoration: BoxDecoration(
@@ -59,89 +60,66 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                         ),
                       ),
-                      RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                              text: "Hi ",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline4
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                          // TextSpan(
-                          //     text: BlocProvider.of<AuthBloc>(
-                          //           context,
-                          //         ).currentUser.name.split(" ")[0] +
-                          //         ",",
-                          //     style: Theme.of(context)
-                          //         .textTheme
-                          //         .headline4
-                          //         .copyWith(fontWeight: FontWeight.bold)),
-                        ]),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: RichText(
+                          text: TextSpan(children: [
+                            TextSpan(
+                                text: "Hi ",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline4
+                                    .copyWith(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                                text: BlocProvider.of<AuthBloc>(
+                                      context,
+                                    ).currentUser.name.split(" ")[0] +
+                                    ",",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline4
+                                    .copyWith(fontWeight: FontWeight.bold)),
+                          ]),
+                        ),
                       ),
-                      Text(
-                        "here are your bins.",
-                        style: Theme.of(context).textTheme.headline5,
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Heres your information.",
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                        children: [
+                          RaisedButton(
+                            child: Text("See Trash Disposals"),
+                            onPressed: () {},
+                          ),
+                          FlatButton(
+                            child: Text("See Tagged Bins"),
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed(SeeTaggedBinsScreen.routeName);
+                            },
+                          ),
+                          FlatButton(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed(RedemptionsScreen.routeName);
+                            },
+                            child: Text(
+                              "See Your Redemptions",
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
-              StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection("taggedBins")
-                    .where("userId",
-                        isEqualTo:
-                            BlocProvider.of<AuthBloc>(context).currentUser.id)
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.none:
-                      return SliverToBoxAdapter(
-                        child: Center(
-                            child: Text("An error has occured, try again.")),
-                      );
-                      break;
-                    case ConnectionState.waiting:
-                      return SliverToBoxAdapter(
-                          child: Center(child: CircularProgressIndicator()));
-                      break;
-                    case ConnectionState.active:
-                      return SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          Map<String, dynamic> innerMap =
-                              snapshot.data.documents[index].data;
-                          innerMap["id"] =
-                              snapshot.data.documents[index].documentID;
-                          TaggedBin bin = TaggedBin.fromJson(innerMap);
-                          return Container(
-                            margin: const EdgeInsets.all(5),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(30.0))),
-                              child: Container(
-                                height: 200,
-                                width: MediaQuery.of(context).size.width,
-                                child: Center(child: Text(bin.binName)),
-                              ),
-                            ),
-                          );
-                        }, childCount: snapshot.data.documents.length),
-                      );
-
-                      break;
-                    case ConnectionState.done:
-                      return SliverToBoxAdapter(
-                        child: Center(
-                            child: Text("An error has occured, try again.")),
-                      );
-                      break;
-                    default:
-                      return SliverToBoxAdapter(
-                          child: Center(child: CircularProgressIndicator()));
-                  }
-                },
-              )
             ],
           ),
         ),

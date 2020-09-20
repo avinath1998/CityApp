@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
-import 'package:citycollection/exceptions/NoCameraFoundException.dart';
+import 'package:citycollection/exceptions/no_camera_found_exception.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';

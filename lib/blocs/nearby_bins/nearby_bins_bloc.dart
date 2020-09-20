@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:citycollection/exceptions/DataFetchException.dart';
-import 'package:citycollection/exceptions/LocationUpdateException.dart';
+import 'package:citycollection/exceptions/data_fetch_exception.dart';
+import 'package:citycollection/exceptions/location_update_exception.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/networking/data_repository.dart';
 import 'package:flutter/services.dart';
@@ -67,7 +67,6 @@ class NearbyBinsBloc extends Bloc<NearbyBinsEvent, NearbyBinsState> {
       List<TaggedBin> _initialTaggedBins =
           _dataRepository.openBinStream((List<TaggedBin> _newBins) {
         add(BinChangedEvent(_newBins));
-        logger.info("New bins updated");
       });
       yield BinsChangedState(_initialTaggedBins);
     } on DataFetchException catch (e, stacktrace) {
