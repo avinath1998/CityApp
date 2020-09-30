@@ -19,14 +19,22 @@ class _$BinDisposalTearOff {
   _BinDisposal call(
       {@required String binId,
       @required String userId,
+      @required String binName,
       @required String wasteImageSrc,
       @required String binImageSrc,
+      @required DateTime disposalTime,
+      String message,
+      int pointAmount,
       @required BinDisposalStatus status}) {
     return _BinDisposal(
       binId: binId,
       userId: userId,
+      binName: binName,
       wasteImageSrc: wasteImageSrc,
       binImageSrc: binImageSrc,
+      disposalTime: disposalTime,
+      message: message,
+      pointAmount: pointAmount,
       status: status,
     );
   }
@@ -38,8 +46,12 @@ const $BinDisposal = _$BinDisposalTearOff();
 mixin _$BinDisposal {
   String get binId;
   String get userId;
+  String get binName;
   String get wasteImageSrc;
   String get binImageSrc;
+  DateTime get disposalTime;
+  String get message;
+  int get pointAmount;
   BinDisposalStatus get status;
 
   Map<String, dynamic> toJson();
@@ -53,8 +65,12 @@ abstract class $BinDisposalCopyWith<$Res> {
   $Res call(
       {String binId,
       String userId,
+      String binName,
       String wasteImageSrc,
       String binImageSrc,
+      DateTime disposalTime,
+      String message,
+      int pointAmount,
       BinDisposalStatus status});
 }
 
@@ -69,18 +85,29 @@ class _$BinDisposalCopyWithImpl<$Res> implements $BinDisposalCopyWith<$Res> {
   $Res call({
     Object binId = freezed,
     Object userId = freezed,
+    Object binName = freezed,
     Object wasteImageSrc = freezed,
     Object binImageSrc = freezed,
+    Object disposalTime = freezed,
+    Object message = freezed,
+    Object pointAmount = freezed,
     Object status = freezed,
   }) {
     return _then(_value.copyWith(
       binId: binId == freezed ? _value.binId : binId as String,
       userId: userId == freezed ? _value.userId : userId as String,
+      binName: binName == freezed ? _value.binName : binName as String,
       wasteImageSrc: wasteImageSrc == freezed
           ? _value.wasteImageSrc
           : wasteImageSrc as String,
       binImageSrc:
           binImageSrc == freezed ? _value.binImageSrc : binImageSrc as String,
+      disposalTime: disposalTime == freezed
+          ? _value.disposalTime
+          : disposalTime as DateTime,
+      message: message == freezed ? _value.message : message as String,
+      pointAmount:
+          pointAmount == freezed ? _value.pointAmount : pointAmount as int,
       status: status == freezed ? _value.status : status as BinDisposalStatus,
     ));
   }
@@ -95,8 +122,12 @@ abstract class _$BinDisposalCopyWith<$Res>
   $Res call(
       {String binId,
       String userId,
+      String binName,
       String wasteImageSrc,
       String binImageSrc,
+      DateTime disposalTime,
+      String message,
+      int pointAmount,
       BinDisposalStatus status});
 }
 
@@ -113,18 +144,29 @@ class __$BinDisposalCopyWithImpl<$Res> extends _$BinDisposalCopyWithImpl<$Res>
   $Res call({
     Object binId = freezed,
     Object userId = freezed,
+    Object binName = freezed,
     Object wasteImageSrc = freezed,
     Object binImageSrc = freezed,
+    Object disposalTime = freezed,
+    Object message = freezed,
+    Object pointAmount = freezed,
     Object status = freezed,
   }) {
     return _then(_BinDisposal(
       binId: binId == freezed ? _value.binId : binId as String,
       userId: userId == freezed ? _value.userId : userId as String,
+      binName: binName == freezed ? _value.binName : binName as String,
       wasteImageSrc: wasteImageSrc == freezed
           ? _value.wasteImageSrc
           : wasteImageSrc as String,
       binImageSrc:
           binImageSrc == freezed ? _value.binImageSrc : binImageSrc as String,
+      disposalTime: disposalTime == freezed
+          ? _value.disposalTime
+          : disposalTime as DateTime,
+      message: message == freezed ? _value.message : message as String,
+      pointAmount:
+          pointAmount == freezed ? _value.pointAmount : pointAmount as int,
       status: status == freezed ? _value.status : status as BinDisposalStatus,
     ));
   }
@@ -135,13 +177,19 @@ class _$_BinDisposal with DiagnosticableTreeMixin implements _BinDisposal {
   _$_BinDisposal(
       {@required this.binId,
       @required this.userId,
+      @required this.binName,
       @required this.wasteImageSrc,
       @required this.binImageSrc,
+      @required this.disposalTime,
+      this.message,
+      this.pointAmount,
       @required this.status})
       : assert(binId != null),
         assert(userId != null),
+        assert(binName != null),
         assert(wasteImageSrc != null),
         assert(binImageSrc != null),
+        assert(disposalTime != null),
         assert(status != null);
 
   factory _$_BinDisposal.fromJson(Map<String, dynamic> json) =>
@@ -152,15 +200,23 @@ class _$_BinDisposal with DiagnosticableTreeMixin implements _BinDisposal {
   @override
   final String userId;
   @override
+  final String binName;
+  @override
   final String wasteImageSrc;
   @override
   final String binImageSrc;
+  @override
+  final DateTime disposalTime;
+  @override
+  final String message;
+  @override
+  final int pointAmount;
   @override
   final BinDisposalStatus status;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'BinDisposal(binId: $binId, userId: $userId, wasteImageSrc: $wasteImageSrc, binImageSrc: $binImageSrc, status: $status)';
+    return 'BinDisposal(binId: $binId, userId: $userId, binName: $binName, wasteImageSrc: $wasteImageSrc, binImageSrc: $binImageSrc, disposalTime: $disposalTime, message: $message, pointAmount: $pointAmount, status: $status)';
   }
 
   @override
@@ -170,8 +226,12 @@ class _$_BinDisposal with DiagnosticableTreeMixin implements _BinDisposal {
       ..add(DiagnosticsProperty('type', 'BinDisposal'))
       ..add(DiagnosticsProperty('binId', binId))
       ..add(DiagnosticsProperty('userId', userId))
+      ..add(DiagnosticsProperty('binName', binName))
       ..add(DiagnosticsProperty('wasteImageSrc', wasteImageSrc))
       ..add(DiagnosticsProperty('binImageSrc', binImageSrc))
+      ..add(DiagnosticsProperty('disposalTime', disposalTime))
+      ..add(DiagnosticsProperty('message', message))
+      ..add(DiagnosticsProperty('pointAmount', pointAmount))
       ..add(DiagnosticsProperty('status', status));
   }
 
@@ -183,12 +243,24 @@ class _$_BinDisposal with DiagnosticableTreeMixin implements _BinDisposal {
                 const DeepCollectionEquality().equals(other.binId, binId)) &&
             (identical(other.userId, userId) ||
                 const DeepCollectionEquality().equals(other.userId, userId)) &&
+            (identical(other.binName, binName) ||
+                const DeepCollectionEquality()
+                    .equals(other.binName, binName)) &&
             (identical(other.wasteImageSrc, wasteImageSrc) ||
                 const DeepCollectionEquality()
                     .equals(other.wasteImageSrc, wasteImageSrc)) &&
             (identical(other.binImageSrc, binImageSrc) ||
                 const DeepCollectionEquality()
                     .equals(other.binImageSrc, binImageSrc)) &&
+            (identical(other.disposalTime, disposalTime) ||
+                const DeepCollectionEquality()
+                    .equals(other.disposalTime, disposalTime)) &&
+            (identical(other.message, message) ||
+                const DeepCollectionEquality()
+                    .equals(other.message, message)) &&
+            (identical(other.pointAmount, pointAmount) ||
+                const DeepCollectionEquality()
+                    .equals(other.pointAmount, pointAmount)) &&
             (identical(other.status, status) ||
                 const DeepCollectionEquality().equals(other.status, status)));
   }
@@ -198,8 +270,12 @@ class _$_BinDisposal with DiagnosticableTreeMixin implements _BinDisposal {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(binId) ^
       const DeepCollectionEquality().hash(userId) ^
+      const DeepCollectionEquality().hash(binName) ^
       const DeepCollectionEquality().hash(wasteImageSrc) ^
       const DeepCollectionEquality().hash(binImageSrc) ^
+      const DeepCollectionEquality().hash(disposalTime) ^
+      const DeepCollectionEquality().hash(message) ^
+      const DeepCollectionEquality().hash(pointAmount) ^
       const DeepCollectionEquality().hash(status);
 
   @override
@@ -216,8 +292,12 @@ abstract class _BinDisposal implements BinDisposal {
   factory _BinDisposal(
       {@required String binId,
       @required String userId,
+      @required String binName,
       @required String wasteImageSrc,
       @required String binImageSrc,
+      @required DateTime disposalTime,
+      String message,
+      int pointAmount,
       @required BinDisposalStatus status}) = _$_BinDisposal;
 
   factory _BinDisposal.fromJson(Map<String, dynamic> json) =
@@ -228,9 +308,17 @@ abstract class _BinDisposal implements BinDisposal {
   @override
   String get userId;
   @override
+  String get binName;
+  @override
   String get wasteImageSrc;
   @override
   String get binImageSrc;
+  @override
+  DateTime get disposalTime;
+  @override
+  String get message;
+  @override
+  int get pointAmount;
   @override
   BinDisposalStatus get status;
   @override

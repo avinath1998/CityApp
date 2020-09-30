@@ -2,7 +2,7 @@ import 'package:citycollection/exceptions/data_fetch_exception.dart';
 import 'package:citycollection/exceptions/no_user_found_exception.dart';
 import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -37,7 +37,7 @@ class FirebaseAuthService implements AuthService {
     } else {
       print(TAG + " User has been Found. ${result.user.uid}");
     }
-    if (!result.user.isEmailVerified) {
+    if (!result.user.emailVerified) {
       throw UserNotVerifiedException("Not Verified");
     }
     try {
@@ -63,7 +63,7 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<CurrentUser> checkIfAlreadySignedIn() async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    User user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       print(TAG + " Current user not found, user is signed out");
       return null;
@@ -89,7 +89,7 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<CurrentUser> anonSignIn() async {
     logger.info("Anonymously Signing in");
-    AuthResult result = await FirebaseAuth.instance.signInAnonymously();
+    UserCredential result = await FirebaseAuth.instance.signInAnonymously();
     logger.info("User's phone number: ${result.user.phoneNumber}");
     CurrentUser currentUser;
     if (result != null) {
@@ -109,7 +109,7 @@ class FirebaseAuthService implements AuthService {
   Future<CurrentUser> register(
       String email, String password, String name, DateTime dob) async {
     logger.info("Registering");
-    AuthResult result = await FirebaseAuth.instance
+    UserCredential result = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password);
     await sendConfirmationEmail(result.user);
     CurrentUser user;

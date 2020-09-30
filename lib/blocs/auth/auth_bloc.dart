@@ -6,7 +6,7 @@ import 'package:citycollection/exceptions/no_user_found_exception.dart';
 import 'package:citycollection/exceptions/authentication_exceptions.dart';
 import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';

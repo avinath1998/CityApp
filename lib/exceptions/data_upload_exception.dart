@@ -1,10 +1,11 @@
 class DataUploadException implements Exception {
-  final String errorMsg;
-  final StackTrace stackTrace;
-  DataUploadException(this.errorMsg, this.stackTrace);
+  final String message;
+  final DataUploadExceptionCode code;
+
+  DataUploadException(this.message, this.code);
 
   @override
-  String toString() {
-    return "DATAFETCHEXCEPTION: " + errorMsg;
-  }
+  String toString() => 'DataUploadException(message: $message, code: $code)';
 }
+
+enum DataUploadExceptionCode { uploadFailed, uploadDenied }

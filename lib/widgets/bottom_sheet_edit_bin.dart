@@ -1,7 +1,7 @@
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/models/tagged_bin.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -19,19 +19,22 @@ class BottomSheetEditBin extends StatefulWidget {
 class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
   final Logger logger = Logger("BottomSheetEditBinState");
   TaggedBinsBloc _taggedBinsBloc;
-  TaggedBin _currentBin;
+  FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
-    _currentBin = widget.bin.copyWith();
+    _focusNode = FocusNode();
     _taggedBinsBloc = TaggedBinsBloc(GetIt.instance<DataRepository>());
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _focusNode.requestFocus();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Container(
+      height: MediaQuery.of(context).size.height - 100,
       margin: const EdgeInsets.only(top: 70.0),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -64,7 +67,7 @@ class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
                           style: Theme.of(context).textTheme.headline5,
                         ),
                         Text(
-                          "Your bin's name has been changed to ${_currentBin.binName}",
+                          "Your bin's name has been changed to ${widget.bin.binName}",
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.subtitle1,
                         ),
@@ -75,7 +78,7 @@ class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
                             RaisedButton(
                               child: Text("Ok"),
                               onPressed: () {
-                                Navigator.of(context).pop(_currentBin);
+                                Navigator.of(context).pop(widget.bin);
                               },
                             )
                           ],
@@ -96,11 +99,12 @@ class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
                         Text("Edit Your Bin",
                             style: Theme.of(context).textTheme.headline5),
                         Text(
-                          "Bin: ${_currentBin.binName}",
+                          "Bin: ${widget.bin.binName}",
                           style: Theme.of(context).textTheme.subtitle1,
                         ),
                         SizedBox(height: 15.0),
                         TextFormField(
+                          focusNode: _focusNode,
                           keyboardType: TextInputType.emailAddress,
                           style: Theme.of(context).textTheme.bodyText1,
                           initialValue: widget.bin.binName,
@@ -108,6 +112,8 @@ class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
                           validator: (val) {
                             if (val == "") {
                               return "Enter a valid email.";
+                            } else {
+                              return null;
                             }
                           },
                           onSaved: (val) {
@@ -130,7 +136,7 @@ class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
                                 _taggedBinsBloc.add(EditTaggedBinEvent(
                                     BlocProvider.of<AuthBloc>(context)
                                         .currentUser,
-                                    _currentBin));
+                                    widget.bin));
                               },
                             )
                           ],
@@ -142,6 +148,6 @@ class _BottomSheetEditBinState extends State<BottomSheetEditBin> {
               )),
         ),
       ),
-    ));
+    );
   }
 }

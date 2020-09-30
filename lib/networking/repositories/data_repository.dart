@@ -26,11 +26,7 @@ class DataRepository {
   double redeemPageScrollPosition = 0;
 
   Future<void> createUser(String email, String name, String uid, DateTime dob) {
-    try {
-      return db.createUser(email, name, uid, dob);
-    } catch (e, stk) {
-      throw DataUploadException(e.toString(), stk);
-    }
+    return db.createUser(email, name, uid, dob);
   }
 
   Future<CurrentUser> fetchCurrentUser(String id) {
@@ -102,38 +98,19 @@ class DataRepository {
   }
 
   Future<void> uploadWasteImage(CurrentUser user, Uint8List image) async {
-    try {
-      String ref = await db.uploadWasteImageData(user, image);
-      await db.saveDisposalData(user, ref);
-    } catch (e, stacktrace) {
-      logger.severe("Error uploading disposal data");
-      logger.severe(stacktrace);
-      throw DataUploadException(e, stacktrace);
-    }
+    String ref = await db.uploadWasteImageData(user, image);
+    await db.saveDisposalData(user, ref);
   }
 
   Future<void> uploadTaggedBin(
       CurrentUser user, TaggedBin bin, File image) async {
-    try {
-      String ref = await db.uploadBinImageData(user, image);
-      TaggedBin updatedBin = bin.copyWith(imageSrc: ref);
-      await db.saveTaggedBin(user, updatedBin);
-    } catch (e, stacktrace) {
-      logger.severe("Error uploading disposal data");
-      logger.severe(stacktrace);
-      throw DataUploadException(e, stacktrace);
-    }
+    String ref = await db.uploadBinImageData(user, image);
+    TaggedBin updatedBin = bin.copyWith(imageSrc: ref);
+    await db.saveTaggedBin(user, updatedBin);
   }
 
   Future<void> updateTaggedBin(CurrentUser user, TaggedBin bin) async {
-    try {
-      await db.updateTaggedBin(bin, user);
-    } on PlatformException catch (e, stacktrace) {
-      logger.severe("Error uploading disposal data");
-      logger.info(e.message);
-      logger.severe(stacktrace);
-      throw DataUploadException(e.message, stacktrace);
-    }
+    await db.updateTaggedBin(bin, user);
   }
 
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user) async {

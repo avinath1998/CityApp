@@ -10,8 +10,14 @@ _$_BinDisposal _$_$_BinDisposalFromJson(Map<String, dynamic> json) {
   return _$_BinDisposal(
     binId: json['binId'] as String,
     userId: json['userId'] as String,
+    binName: json['binName'] as String,
     wasteImageSrc: json['wasteImageSrc'] as String,
     binImageSrc: json['binImageSrc'] as String,
+    disposalTime: json['disposalTime'] == null
+        ? null
+        : DateTime.parse(json['disposalTime'] as String),
+    message: json['message'] as String,
+    pointAmount: json['pointAmount'] as int,
     status: _$enumDecodeNullable(_$BinDisposalStatusEnumMap, json['status']),
   );
 }
@@ -20,8 +26,12 @@ Map<String, dynamic> _$_$_BinDisposalToJson(_$_BinDisposal instance) =>
     <String, dynamic>{
       'binId': instance.binId,
       'userId': instance.userId,
+      'binName': instance.binName,
       'wasteImageSrc': instance.wasteImageSrc,
       'binImageSrc': instance.binImageSrc,
+      'disposalTime': instance.disposalTime?.toIso8601String(),
+      'message': instance.message,
+      'pointAmount': instance.pointAmount,
       'status': _$BinDisposalStatusEnumMap[instance.status],
     };
 

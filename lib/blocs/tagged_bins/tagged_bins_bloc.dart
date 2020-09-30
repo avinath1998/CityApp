@@ -6,7 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:citycollection/exceptions/data_upload_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/tagged_bin.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:logging/logging.dart';
 
@@ -39,7 +39,7 @@ class TaggedBinsBloc extends Bloc<TaggedBinsEvent, TaggedBinsState> {
       await _dataRepository.uploadTaggedBin(user, bin, image);
       yield UploadSucessTaggedBinState(bin);
     } on DataUploadException catch (e) {
-      yield UploadFailedTaggedBinState(e, e.errorMsg);
+      yield UploadFailedTaggedBinState(e, "");
     }
   }
 
@@ -51,7 +51,8 @@ class TaggedBinsBloc extends Bloc<TaggedBinsEvent, TaggedBinsState> {
       await _dataRepository.updateTaggedBin(user, bin);
       yield UploadSucessTaggedBinState(bin);
     } on DataUploadException catch (e) {
-      yield UploadFailedTaggedBinState(e, e.errorMsg);
+      logger.info(e.toString());
+      yield UploadFailedTaggedBinState(e, "");
     }
   }
 }

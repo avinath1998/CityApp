@@ -13,10 +13,6 @@ class BinDisposalRepository extends BaseRepository {
 
   Future<BinDisposal> saveBinDisposal(
       TaggedBin bin, File wasteImage, File binImage, CurrentUser user) async {
-    try {
-      return await db.saveBinDisposal(bin, wasteImage, binImage, user);
-    } catch (e, stk) {
-      throw DataUploadException(e.toString(), stk);
-    }
+    return await db.saveBinDisposal(bin, wasteImage, binImage, user);
   }
 }

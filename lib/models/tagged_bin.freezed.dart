@@ -23,10 +23,11 @@ class _$TaggedBinTearOff {
       String userId,
       bool active,
       bool isNew,
+      int disposalsMade,
       double locationLan,
       double locationLon,
       String userName,
-      int taggedTime,
+      DateTime taggedTime,
       int pointsEarned,
       int reportStrikes}) {
     return _TaggedBin(
@@ -36,6 +37,7 @@ class _$TaggedBinTearOff {
       userId: userId,
       active: active,
       isNew: isNew,
+      disposalsMade: disposalsMade,
       locationLan: locationLan,
       locationLon: locationLon,
       userName: userName,
@@ -56,10 +58,11 @@ mixin _$TaggedBin {
   String get userId;
   bool get active;
   bool get isNew;
+  int get disposalsMade;
   double get locationLan;
   double get locationLon;
   String get userName;
-  int get taggedTime;
+  DateTime get taggedTime;
   int get pointsEarned;
   int get reportStrikes;
 
@@ -77,10 +80,11 @@ abstract class $TaggedBinCopyWith<$Res> {
       String userId,
       bool active,
       bool isNew,
+      int disposalsMade,
       double locationLan,
       double locationLon,
       String userName,
-      int taggedTime,
+      DateTime taggedTime,
       int pointsEarned,
       int reportStrikes});
 }
@@ -100,6 +104,7 @@ class _$TaggedBinCopyWithImpl<$Res> implements $TaggedBinCopyWith<$Res> {
     Object userId = freezed,
     Object active = freezed,
     Object isNew = freezed,
+    Object disposalsMade = freezed,
     Object locationLan = freezed,
     Object locationLon = freezed,
     Object userName = freezed,
@@ -114,12 +119,16 @@ class _$TaggedBinCopyWithImpl<$Res> implements $TaggedBinCopyWith<$Res> {
       userId: userId == freezed ? _value.userId : userId as String,
       active: active == freezed ? _value.active : active as bool,
       isNew: isNew == freezed ? _value.isNew : isNew as bool,
+      disposalsMade: disposalsMade == freezed
+          ? _value.disposalsMade
+          : disposalsMade as int,
       locationLan:
           locationLan == freezed ? _value.locationLan : locationLan as double,
       locationLon:
           locationLon == freezed ? _value.locationLon : locationLon as double,
       userName: userName == freezed ? _value.userName : userName as String,
-      taggedTime: taggedTime == freezed ? _value.taggedTime : taggedTime as int,
+      taggedTime:
+          taggedTime == freezed ? _value.taggedTime : taggedTime as DateTime,
       pointsEarned:
           pointsEarned == freezed ? _value.pointsEarned : pointsEarned as int,
       reportStrikes: reportStrikes == freezed
@@ -141,10 +150,11 @@ abstract class _$TaggedBinCopyWith<$Res> implements $TaggedBinCopyWith<$Res> {
       String userId,
       bool active,
       bool isNew,
+      int disposalsMade,
       double locationLan,
       double locationLon,
       String userName,
-      int taggedTime,
+      DateTime taggedTime,
       int pointsEarned,
       int reportStrikes});
 }
@@ -165,6 +175,7 @@ class __$TaggedBinCopyWithImpl<$Res> extends _$TaggedBinCopyWithImpl<$Res>
     Object userId = freezed,
     Object active = freezed,
     Object isNew = freezed,
+    Object disposalsMade = freezed,
     Object locationLan = freezed,
     Object locationLon = freezed,
     Object userName = freezed,
@@ -179,12 +190,16 @@ class __$TaggedBinCopyWithImpl<$Res> extends _$TaggedBinCopyWithImpl<$Res>
       userId: userId == freezed ? _value.userId : userId as String,
       active: active == freezed ? _value.active : active as bool,
       isNew: isNew == freezed ? _value.isNew : isNew as bool,
+      disposalsMade: disposalsMade == freezed
+          ? _value.disposalsMade
+          : disposalsMade as int,
       locationLan:
           locationLan == freezed ? _value.locationLan : locationLan as double,
       locationLon:
           locationLon == freezed ? _value.locationLon : locationLon as double,
       userName: userName == freezed ? _value.userName : userName as String,
-      taggedTime: taggedTime == freezed ? _value.taggedTime : taggedTime as int,
+      taggedTime:
+          taggedTime == freezed ? _value.taggedTime : taggedTime as DateTime,
       pointsEarned:
           pointsEarned == freezed ? _value.pointsEarned : pointsEarned as int,
       reportStrikes: reportStrikes == freezed
@@ -203,6 +218,7 @@ class _$_TaggedBin implements _TaggedBin {
       this.userId,
       this.active,
       this.isNew,
+      this.disposalsMade,
       this.locationLan,
       this.locationLon,
       this.userName,
@@ -226,13 +242,15 @@ class _$_TaggedBin implements _TaggedBin {
   @override
   final bool isNew;
   @override
+  final int disposalsMade;
+  @override
   final double locationLan;
   @override
   final double locationLon;
   @override
   final String userName;
   @override
-  final int taggedTime;
+  final DateTime taggedTime;
   @override
   final int pointsEarned;
   @override
@@ -240,7 +258,7 @@ class _$_TaggedBin implements _TaggedBin {
 
   @override
   String toString() {
-    return 'TaggedBin(id: $id, binName: $binName, imageSrc: $imageSrc, userId: $userId, active: $active, isNew: $isNew, locationLan: $locationLan, locationLon: $locationLon, userName: $userName, taggedTime: $taggedTime, pointsEarned: $pointsEarned, reportStrikes: $reportStrikes)';
+    return 'TaggedBin(id: $id, binName: $binName, imageSrc: $imageSrc, userId: $userId, active: $active, isNew: $isNew, disposalsMade: $disposalsMade, locationLan: $locationLan, locationLon: $locationLon, userName: $userName, taggedTime: $taggedTime, pointsEarned: $pointsEarned, reportStrikes: $reportStrikes)';
   }
 
   @override
@@ -261,6 +279,9 @@ class _$_TaggedBin implements _TaggedBin {
                 const DeepCollectionEquality().equals(other.active, active)) &&
             (identical(other.isNew, isNew) ||
                 const DeepCollectionEquality().equals(other.isNew, isNew)) &&
+            (identical(other.disposalsMade, disposalsMade) ||
+                const DeepCollectionEquality()
+                    .equals(other.disposalsMade, disposalsMade)) &&
             (identical(other.locationLan, locationLan) ||
                 const DeepCollectionEquality()
                     .equals(other.locationLan, locationLan)) &&
@@ -290,6 +311,7 @@ class _$_TaggedBin implements _TaggedBin {
       const DeepCollectionEquality().hash(userId) ^
       const DeepCollectionEquality().hash(active) ^
       const DeepCollectionEquality().hash(isNew) ^
+      const DeepCollectionEquality().hash(disposalsMade) ^
       const DeepCollectionEquality().hash(locationLan) ^
       const DeepCollectionEquality().hash(locationLon) ^
       const DeepCollectionEquality().hash(userName) ^
@@ -315,10 +337,11 @@ abstract class _TaggedBin implements TaggedBin {
       String userId,
       bool active,
       bool isNew,
+      int disposalsMade,
       double locationLan,
       double locationLon,
       String userName,
-      int taggedTime,
+      DateTime taggedTime,
       int pointsEarned,
       int reportStrikes}) = _$_TaggedBin;
 
@@ -338,13 +361,15 @@ abstract class _TaggedBin implements TaggedBin {
   @override
   bool get isNew;
   @override
+  int get disposalsMade;
+  @override
   double get locationLan;
   @override
   double get locationLon;
   @override
   String get userName;
   @override
-  int get taggedTime;
+  DateTime get taggedTime;
   @override
   int get pointsEarned;
   @override

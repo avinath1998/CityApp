@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';

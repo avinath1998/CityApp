@@ -1,8 +1,8 @@
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/exceptions/authentication_exceptions.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/networking/db.dart';
-import 'package:citycollection/screens/onboarding_screen.dart';
+import 'package:citycollection/screens/authentication/onboarding_screen.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +11,8 @@ import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 
 import 'home_screen.dart';
-import 'large_loading_screen.dart';
-import 'login_screen.dart';
+import 'general/large_loading_screen.dart';
+import 'authentication/login_screen.dart';
 
 class RootPage extends StatefulWidget {
   @override

@@ -41,7 +41,6 @@ class BinDisposalBloc extends Bloc<BinDisposalEvent, BinDisposalState> {
           bin, wasteImage, binImage, user);
       yield BinDisposalState.binDisposalSaved(disposal);
     } on DataUploadException catch (e) {
-      logger.severe(e.errorMsg);
       yield BinDisposalState.binDisposalFailedSaving(e);
     }
   }

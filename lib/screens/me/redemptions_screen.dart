@@ -67,13 +67,12 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
               return Scrollbar(
                 child: ListView.builder(
                   itemBuilder: (context, index) {
-                    Map<String, dynamic> map = snap.data.documents[index].data;
-                    map["id"] = snap.data.documents[index].documentID;
-                    Redemption redemption =
-                        Redemption.fromJson(snap.data.documents[index].data);
+                    Map<String, dynamic> map = snap.data.docs[index].data();
+                    map["id"] = snap.data.docs[index].id;
+                    Redemption redemption = Redemption.fromJson(map);
                     return _buildRedemptionCard(redemption);
                   },
-                  itemCount: snap.data.documents.length,
+                  itemCount: snap.data.docs.length,
                 ),
               );
               break;
@@ -90,7 +89,7 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
 
   Widget _buildRedemptionCard(Redemption redemption) {
     return Container(
-      margin: const EdgeInsets.all(10.0),
+      margin: const EdgeInsets.all(20.0),
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(
@@ -154,12 +153,12 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
                               children: [
                                 Text(
                                   redemption.title,
-                                  style: Theme.of(context).textTheme.headline6,
+                                  style: Theme.of(context).textTheme.subtitle1,
                                   textAlign: TextAlign.start,
                                 ),
                                 Text(
                                   "Cost: ${redemption.cost}",
-                                  style: Theme.of(context).textTheme.subtitle1,
+                                  style: Theme.of(context).textTheme.bodyText1,
                                   textAlign: TextAlign.start,
                                 ),
                                 Text(

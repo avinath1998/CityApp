@@ -6,7 +6,7 @@ import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/dialogs/redeem_dialog.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/widgets/button_error_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +16,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 
-import '../redemptions_screen.dart';
+import '../me/redemptions_screen.dart';
 
 class RedeemTab extends StatefulWidget {
   final ScrollController scrollController;
@@ -151,7 +151,7 @@ class _RedeemTabState extends State<RedeemTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                "Your CityPoints: " +
+                "Your Ekva Points: " +
                     "${BlocProvider.of<AuthBloc>(context).currentUser.points}",
                 style: Theme.of(context).textTheme.headline5,
               )

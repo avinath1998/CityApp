@@ -1,5 +1,4 @@
-import 'package:citycollection/screens/home_tabs/home_tab.dart';
-import 'package:citycollection/screens/home_tabs/me_tab.dart';
+import 'package:citycollection/screens/me/home_tab.dart';
 import 'package:flutter/material.dart';
 
 class ModalPopupRoute extends PopupRoute<ModalPopupRoute> {

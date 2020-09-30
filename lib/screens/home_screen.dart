@@ -10,11 +10,11 @@ import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/models/live_bin_setting.dart';
 import 'package:citycollection/models/tagged_bin.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
-import 'package:citycollection/screens/take_picture_screen.dart';
-import 'package:citycollection/screens/home_tabs/schedule_tab.dart';
-import 'package:citycollection/screens/scan_screen.dart';
+import 'package:citycollection/screens/add_bin/add_bin_widget.dart';
+import 'package:citycollection/screens/me/home_tab.dart';
+import 'package:citycollection/screens/general/take_picture_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,14 +30,13 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 import '../routes/modal_popup_route.dart';
-import 'got_trash_screen.dart';
-import 'home_tabs/home_tab.dart';
-import 'home_tabs/me_tab.dart';
-import 'home_tabs/nearby_tab.dart';
-import 'home_tabs/redeem_tab.dart';
-import 'home_tabs/take_picture_tab.dart';
+import 'got_trash/got_trash_screen.dart';
+import 'leaderboard/leaderboard_tab.dart';
+import 'map/nearby_widget.dart';
+import 'rewards/rewards_widget.dart';
 import 'dart:math';
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
+import 'package:citycollection/extensions/date_time_extension.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = "/home";
@@ -53,9 +52,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _currentSelectedBottomNav = 0;
   AnimationController _cardSlideController;
   AnimationController _rewardsCardSlideController;
-
+  AnimationController _leaderboardCardSlideController;
   AnimationController _pointsCardController;
-
   AnimationController _backController;
   AnimationController _mapClosestBinController;
   Animation<double> _radiusAnimation;
@@ -70,6 +68,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _nearbyBinsBloc =
         NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
     _rewardsCardSlideController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
+    _leaderboardCardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
     _cardSlideController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 400));
@@ -89,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _nearbyBinsBloc.add(InitializeCurrentLocationEvent());
       _nearbyBinsBloc.add(OpenBinStreamEvent());
+      _pointsCardController.forward();
     });
   }
 
@@ -98,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _scrollController.dispose();
     _backController.dispose();
     _cardSlideController.dispose();
+    _leaderboardCardSlideController.dispose();
     _nearbyBinsBloc.close();
     _rewardsCardSlideController.dispose();
     _pointsCardController.dispose();
@@ -141,11 +143,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _cardSlideController.reverse();
                     _backController.reverse();
                     _rewardsCardSlideController.reverse();
+                    _leaderboardCardSlideController.reverse();
                     _pointsCardController.forward();
                   } else if (state is HomeTabAddBinState) {
                     _cardSlideController.reverse();
                     _rewardsCardSlideController.reverse();
                     _mapClosestBinController.reverse();
+                    _leaderboardCardSlideController.reverse();
                     _pointsCardController.reverse();
                     _backController.forward();
                     await showMaterialModalBottomSheet(
@@ -166,6 +170,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _pointsCardController.forward();
                   } else if (state is HomeTabMeState) {
                     _mapClosestBinController.reverse();
+                    _leaderboardCardSlideController.reverse();
+
                     _cardSlideController.forward();
                     _pointsCardController.reverse();
                     _rewardsCardSlideController.reverse();
@@ -173,15 +179,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     _mapClosestBinController.reverse();
                     _cardSlideController.reverse();
                     _pointsCardController.reverse();
+                    _leaderboardCardSlideController.forward();
                     _rewardsCardSlideController.reverse();
                   } else if (state is HomeTabRedeemState) {
                     _mapClosestBinController.reverse();
                     _cardSlideController.reverse();
                     _pointsCardController.reverse();
+                    _leaderboardCardSlideController.reverse();
                     _rewardsCardSlideController.forward();
                   } else {
                     _cardSlideController.reverse();
                     _pointsCardController.forward();
+                    _leaderboardCardSlideController.reverse();
                   }
                 },
               ),
@@ -189,16 +198,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 cubit: _nearbyBinsBloc,
                 listener: (context, state) async {
                   if (state is SelectedBinState) {
-                    await _mapClosestBinController.reverse();
-                    await _cardSlideController.reverse();
-                    await _backController.reverse();
-                    await _rewardsCardSlideController.reverse();
+                    _mapClosestBinController.reverse();
+                    _cardSlideController.reverse();
+                    _backController.reverse();
+                    _rewardsCardSlideController.reverse();
+                    _pointsCardController.forward();
+                    _leaderboardCardSlideController.reverse();
                     setState(() {
                       _currentSelectedBottomNav = 0;
-
                       _currentSelectedBin = state.bin;
                     });
-                    await _mapClosestBinController.forward();
+                    _mapClosestBinController.forward();
                   }
                 },
               )
@@ -306,6 +316,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     },
                   ),
                 ),
+                SlideTransition(
+                  position: Tween<Offset>(
+                          begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
+                      .animate(CurvedAnimation(
+                          curve: Curves.ease,
+                          parent: _leaderboardCardSlideController)),
+                  child: DraggableScrollableSheet(
+                    minChildSize: 0.17,
+                    initialChildSize: 0.20,
+                    builder: (context, scrollController) {
+                      return LeaderboardTab(
+                        scrollController: scrollController,
+                      );
+                    },
+                  ),
+                ),
                 Container(
                     child: _buildBinCard(), alignment: Alignment.bottomCenter)
               ],
@@ -368,84 +394,74 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.all(Radius.circular(30.0)),
               ),
               width: MediaQuery.of(context).size.width,
+              height: 200,
               padding: const EdgeInsets.all(20),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          _currentSelectedBin != null
-                              ? Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: CachedNetworkImage(
-                                    imageUrl: _currentSelectedBin.imageSrc,
-                                    placeholder: (context, url) => Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                    imageBuilder: (context, imageprovider) {
-                                      return Container(
-                                        height: 140,
-                                        width: 160,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20.0)),
-                                          image: DecorationImage(
-                                            image: imageprovider,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      );
-                                    },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  _currentSelectedBin != null
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: CachedNetworkImage(
+                            imageUrl: _currentSelectedBin.imageSrc,
+                            placeholder: (context, url) => Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                            imageBuilder: (context, imageprovider) {
+                              return Container(
+                                height: 140,
+                                width: 160,
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20.0)),
+                                  image: DecorationImage(
+                                    image: imageprovider,
+                                    fit: BoxFit.cover,
                                   ),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      : Container(),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Text(
+                          _currentSelectedBin != null
+                              ? _currentSelectedBin.binName
+                              : "",
+                          style: Theme.of(context).textTheme.subtitle1,
+                          textAlign: TextAlign.start,
+                        ),
+                        Text(
+                          _currentSelectedBin != null ? "by: Avinath" : "",
+                          style: Theme.of(context).textTheme.subtitle1,
+                          textAlign: TextAlign.start,
+                        ),
+                        SizedBox(height: 10),
+                        if (_currentSelectedBin != null)
                           Text(
-                            _currentSelectedBin != null
-                                ? _currentSelectedBin.binName
-                                : "",
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.end,
+                            _currentSelectedBin.taggedTime
+                                        .toDaysAgo(DateTime.now()) >
+                                    0
+                                ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
+                                : "Added today",
+                            style: Theme.of(context).textTheme.bodyText2,
+                            textAlign: TextAlign.start,
                           ),
-                          Text(
-                            _currentSelectedBin != null ? "by: Avinath" : "",
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal),
-                            textAlign: TextAlign.end,
-                          ),
-                          SizedBox(
-                            height: 15.0,
-                          ),
-                          Align(
+                        SizedBox(height: 20),
+                        Expanded(
+                          child: Align(
                             alignment: Alignment.bottomRight,
                             child: RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20.0))),
-                              color: CityColors.primary_teal,
-                              child: Text("Got Trash?",
-                                  style: TextStyle(color: Colors.white)),
+                              child: Text("Got Trash?"),
                               onPressed: () {
                                 Navigator.of(context).pushNamed(
                                     GotTrashScreen.routeName,
@@ -454,13 +470,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     });
                               },
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
-                  ],
-                ),
-              ])),
+                  ),
+                ],
+              )),
         ),
       ),
     );

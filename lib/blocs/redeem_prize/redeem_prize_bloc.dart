@@ -6,7 +6,7 @@ import 'package:citycollection/exceptions/data_fetch_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/models/redemption.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 

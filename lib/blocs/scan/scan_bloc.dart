@@ -8,7 +8,7 @@ import 'package:citycollection/exceptions/data_fetch_exception.dart';
 import 'package:citycollection/models/cityscan_qrcode.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/scan_winnings.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';

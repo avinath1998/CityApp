@@ -170,7 +170,7 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                          CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
                                           "Take a picture",
@@ -205,8 +205,6 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                                                     child: InkWell(
                                                       splashColor: Colors.black,
                                                       onTap: () async {
-                                                        // Navigator.of(context)
-                                                        //     .pop(_image);
                                                         _cameraBloc.add(
                                                             CameraEvent
                                                                 .takePicture());

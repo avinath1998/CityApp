@@ -3,15 +3,17 @@ import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/tagged_bin.dart';
+import 'package:citycollection/screens/me/see_trash_disposals_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:citycollection/extensions/date_time_extension.dart';
 
-import '../redemptions_screen.dart';
-import '../see_tagged_bins_screen.dart';
-import 'me_tab.dart';
+import 'redemptions_screen.dart';
+import 'see_tagged_bins_screen.dart';
 
 class HomeTab extends StatefulWidget {
   final ScrollController scrollController;
@@ -22,6 +24,11 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -94,16 +101,23 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                       Column(
                         children: [
-                          RaisedButton(
-                            child: Text("See Trash Disposals"),
-                            onPressed: () {},
-                          ),
-                          FlatButton(
-                            child: Text("See Tagged Bins"),
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushNamed(SeeTaggedBinsScreen.routeName);
-                            },
+                          Row(
+                            children: [
+                              RaisedButton(
+                                child: Text("See Trash Disposals"),
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed(
+                                      SeeTrashDisposalsScreen.routeName);
+                                },
+                              ),
+                              FlatButton(
+                                child: Text("See Tagged Bins"),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed(SeeTaggedBinsScreen.routeName);
+                                },
+                              ),
+                            ],
                           ),
                           FlatButton(
                             onPressed: () {
@@ -116,6 +130,20 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                         ],
                       ),
+                      BlocBuilder<AuthBloc, AuthState>(
+                        buildWhen: (oldState, newState) {
+                          return newState is SignedInState;
+                        },
+                        builder: (context, state) {
+                          if (state is SignedInState) {
+                            return _buildForm(state.user);
+                          } else if (state is AuthUpdatedState) {
+                            return _buildForm(state.user);
+                          } else {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -123,6 +151,66 @@ class _HomeTabState extends State<HomeTab> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildForm(CurrentUser user) {
+    return Form(
+      child: Column(
+        children: [
+          TextFormField(
+            initialValue: user.name,
+            enabled: false,
+            decoration: InputDecoration(
+              hintText: "Name",
+              icon: Icon(Icons.account_circle),
+            ),
+            style: Theme.of(context).textTheme.bodyText1,
+            validator: (val) {
+              if (val == "") {
+                return "Enter a valid name.";
+              }
+            },
+            onSaved: (val) {},
+          ),
+          TextFormField(
+            initialValue: user.email,
+            enabled: false,
+            decoration: InputDecoration(
+              hintText: "Name",
+              icon: Icon(Icons.account_circle),
+            ),
+            style: Theme.of(context).textTheme.bodyText1,
+            validator: (val) {
+              if (val == "") {
+                return "Enter a valid name.";
+              }
+            },
+            onSaved: (val) {},
+          ),
+          TextFormField(
+            initialValue: user.dob.toDateString(),
+            enabled: false,
+            decoration: InputDecoration(
+                hintText: "Date of Birthday", icon: Icon(Icons.cake)),
+            style: Theme.of(context).textTheme.bodyText1,
+            validator: (val) {
+              if (val == "") {
+                return "Enter a valid name.";
+              }
+            },
+            onSaved: (val) {
+              // setState(() {
+              //   _values["name"] = val;
+              // });
+            },
+          ),
+          SizedBox(
+            height: 30.0,
+          ),
+          Text("More features coming soon.")
+        ],
       ),
     );
   }

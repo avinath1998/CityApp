@@ -6,7 +6,7 @@ import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/models/bin_disposal.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/screens/home_screen.dart';
-import 'package:citycollection/screens/take_picture_screen.dart';
+import 'package:citycollection/screens/general/take_picture_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -196,40 +196,48 @@ class _GotTrashScreenState extends State<GotTrashScreen>
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               "Got Trash?",
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.headline4,
             ),
-            Text(
-                "Throw it into ${widget.selectedBin.binName} to earn Ekva points!",
-                textAlign: TextAlign.center,
+            Text("Throw it into this bin to earn Ekva points!",
+                textAlign: TextAlign.start,
                 style: Theme.of(context).textTheme.subtitle1),
             SizedBox(
-              height: 20.0,
+              height: 20,
+            ),
+            Text("We only accept plastic items only!",
+                textAlign: TextAlign.start,
+                style: Theme.of(context).textTheme.subtitle1),
+            SizedBox(
+              height: 20,
             ),
             Text(
-              "1. Take a picture of your trash.",
-              textAlign: TextAlign.center,
+              "1. Take a picture of your trash (Plastics).",
               style: Theme.of(context).textTheme.bodyText1,
             ),
             Text(
               "2. Take a picture of the bin you selected:\n${widget.selectedBin.binName}.",
-              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyText1,
             ),
             Text(
               "3. Throw your trash into the bin.",
-              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyText1,
             ),
-            SizedBox(height: 20),
-            RaisedButton(
-              child: Text("Start"),
-              onPressed: () {
-                _tabController.animateTo(1);
-              },
+            SizedBox(
+              height: 20.0,
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: RaisedButton(
+                child: Text("Start"),
+                onPressed: () {
+                  _tabController.animateTo(1);
+                },
+              ),
             ),
           ],
         ),

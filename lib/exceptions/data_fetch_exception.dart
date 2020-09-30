@@ -4,7 +4,7 @@ class DataFetchException implements Exception {
   DataFetchException(this.errorMsg);
 
   @override
-  String toString() {
-    return "DATAFETCHEXCEPTION: " + errorMsg;
-  }
+  String toString() => 'DataFetchException(errorMsg: $errorMsg)';
 }
+
+enum DataFetchExceptionCode { uploadFailed, uploadDenied }

@@ -10,8 +10,12 @@ abstract class BinDisposal with _$BinDisposal {
   factory BinDisposal(
       {@required String binId,
       @required String userId,
+      @required String binName,
       @required String wasteImageSrc,
       @required String binImageSrc,
+      @required DateTime disposalTime,
+      String message,
+      int pointAmount,
       @required BinDisposalStatus status}) = _BinDisposal;
 
   factory BinDisposal.fromJson(Map<String, dynamic> json) =>

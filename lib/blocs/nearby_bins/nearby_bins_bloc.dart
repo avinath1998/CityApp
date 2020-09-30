@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:citycollection/exceptions/data_fetch_exception.dart';
 import 'package:citycollection/exceptions/location_update_exception.dart';
 import 'package:citycollection/models/tagged_bin.dart';
-import 'package:citycollection/networking/data_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:logging/logging.dart';

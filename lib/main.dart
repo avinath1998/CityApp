@@ -2,14 +2,15 @@ import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/networking/db.dart';
 import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
-import 'package:citycollection/screens/got_trash_screen.dart';
+import 'package:citycollection/screens/got_trash/got_trash_screen.dart';
 import 'package:citycollection/screens/home_screen.dart';
-import 'package:citycollection/screens/login_screen.dart';
-import 'package:citycollection/screens/redemptions_screen.dart';
-import 'package:citycollection/screens/registration_screen.dart';
+import 'package:citycollection/screens/authentication/login_screen.dart';
+import 'package:citycollection/screens/me/redemptions_screen.dart';
+import 'package:citycollection/screens/authentication/registration_screen.dart';
+import 'package:citycollection/screens/me/see_trash_disposals_screen.dart';
 import 'package:citycollection/screens/root_page.dart';
-import 'package:citycollection/screens/see_tagged_bins_screen.dart';
-import 'package:citycollection/screens/take_picture_screen.dart';
+import 'package:citycollection/screens/me/see_tagged_bins_screen.dart';
+import 'package:citycollection/screens/general/take_picture_screen.dart';
 import 'package:citycollection/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_preview/device_preview.dart';
@@ -24,10 +25,13 @@ import 'package:logging/logging.dart';
 import 'blocs/auth/auth_bloc.dart';
 import 'blocs/bin_disposal/bin_disposal_bloc.dart';
 import 'models/tagged_bin.dart';
-import 'networking/data_repository.dart';
+import 'networking/repositories/data_repository.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
   FirebaseDB db = FirebaseDB();
+  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseApp defaultApp = await Firebase.initializeApp();
   GetIt.instance.registerSingleton<DataRepository>(DataRepository(db));
   GetIt.instance
       .registerSingleton<BinDisposalRepository>(BinDisposalRepository(db));
@@ -35,10 +39,11 @@ void main() {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.loggerName} ${record.message}');
   });
-  runApp(DevicePreview(
-    enabled: false,
-    builder: (context) => MyApp(),
-  ));
+  // runApp(DevicePreview(
+  //   enabled: false,
+  //   builder: (context) => MyApp(),
+  // ));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -59,8 +64,8 @@ class MyApp extends StatelessWidget {
                   TaggedBinsBloc(GetIt.instance<DataRepository>()))
         ],
         child: MaterialApp(
-          builder: DevicePreview.appBuilder,
-          locale: DevicePreview.of(context).locale,
+          // builder: DevicePreview.appBuilder,
+          // locale: DevicePreview.of(context).locale,
           title: 'Ekva',
           initialRoute: LoginScreen.routeName,
           onGenerateRoute: (settings) {
@@ -88,13 +93,7 @@ class MyApp extends StatelessWidget {
                     message: map["message"],
                   );
                 });
-              case TakePictureScreen.routeName:
-                return MaterialPageRoute(builder: (context) {
-                  final Map<String, dynamic> map = settings.arguments;
-                  return TakePictureScreen(
-                    message: map["message"],
-                  );
-                });
+
               case GotTrashScreen.routeName:
                 return MaterialPageRoute(builder: (context) {
                   final Map<String, dynamic> map = settings.arguments;
@@ -110,6 +109,10 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (context) {
                   return RedemptionsScreen();
                 });
+              case SeeTrashDisposalsScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  return SeeTrashDisposalsScreen();
+                });
             }
           },
           theme: ThemeData(
@@ -117,7 +120,7 @@ class MyApp extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)))),
               primarySwatch: CityColors.primary_teal,
-              primaryColor: Colors.white,
+              primaryColor: CityColors.primary_teal,
               accentColor: CityColors.primary_teal,
               backgroundColor: Colors.white,
               scaffoldBackgroundColor: Colors.white,

@@ -5,7 +5,7 @@ import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/prize.dart';
 import 'package:citycollection/models/redemption.dart';
-import 'package:citycollection/screens/redemptions_screen.dart';
+import 'package:citycollection/screens/me/redemptions_screen.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -166,7 +166,7 @@ class _RedeemDialogState extends State<RedeemDialog> {
                               textAlign: TextAlign.center,
                             ),
                             Text(
-                              "Pending ",
+                              "Pending",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyText1
@@ -179,7 +179,7 @@ class _RedeemDialogState extends State<RedeemDialog> {
                           height: 10.0,
                         ),
                         Text(
-                          "Redemtion request sent, go to redemptions page to see its status.",
+                          "Redemtion request sent, go to redemptions page to see its status.\nSomeone from our team will approve it soon.",
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(

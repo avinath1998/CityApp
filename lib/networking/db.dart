@@ -25,7 +25,7 @@ abstract class DB {
   StreamController<TaggedBin> openBinStream();
   void closeBinStream();
   Future<String> uploadWasteImageData(CurrentUser user, Uint8List image);
-  void saveDisposalData(CurrentUser user, String ref);
+  Future<void> saveDisposalData(CurrentUser user, String ref);
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
   Future<String> uploadBinImageData(CurrentUser user, File image);
   Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
@@ -44,10 +44,10 @@ class FirebaseDB extends DB {
   @override
   Future<CurrentUser> fetchCurrentUser(String id) async {
     DocumentSnapshot doc =
-        await Firestore.instance.collection("users").document(id).get();
+        await FirebaseFirestore.instance.collection("users").doc(id).get();
     if (doc.exists) {
-      Map<String, dynamic> userData = doc.data;
-      userData.putIfAbsent("id", () => doc.documentID);
+      Map<String, dynamic> userData = doc.data();
+      userData.putIfAbsent("id", () => doc.id);
       CurrentUser user = CurrentUser.fromJson(userData);
       return user;
     } else {
@@ -57,14 +57,14 @@ class FirebaseDB extends DB {
 
   @override
   Future<List<Prize>> fetchPrizes() async {
-    QuerySnapshot snapshot = await Firestore.instance
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("prizes")
         .orderBy("cost")
-        .getDocuments();
+        .get();
     List<Prize> prizes = List();
-    snapshot.documents.forEach((dc) {
-      Map<String, dynamic> map = dc.data;
-      map["id"] = dc.documentID;
+    snapshot.docs.forEach((dc) {
+      Map<String, dynamic> map = dc.data();
+      map["id"] = dc.id;
       Prize prize = Prize.fromJson(map);
       prizes.add(prize);
     });
@@ -88,13 +88,13 @@ class FirebaseDB extends DB {
     Map<String, dynamic> map = redemption.toJson();
     map.remove("id");
     if (fetchedUser.points >= prize.cost) {
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection("redemptions")
           .add(map); //should be indivudual calls later bro!
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection("users")
-          .document(user.id)
-          .updateData({"points": fetchedUser.points - prize.cost});
+          .doc(user.id)
+          .update({"points": fetchedUser.points - prize.cost});
       return PrizeRedemptionStatus.waiting;
     } else {
       print(
@@ -107,13 +107,14 @@ class FirebaseDB extends DB {
   StreamController<TaggedBin> openBinStream() {
     _binStreamController = StreamController();
     logger.info("Opening bin stream");
-    _binStreamSub = Firestore.instance
+    _binStreamSub = FirebaseFirestore.instance
         .collection("taggedBins")
+        .where("active", isEqualTo: true)
         .snapshots()
         .listen((QuerySnapshot snap) {
-      snap.documentChanges.forEach((docChange) {
-        Map<String, dynamic> map = docChange.document.data;
-        map["id"] = docChange.document.documentID;
+      snap.docChanges.forEach((docChange) {
+        Map<String, dynamic> map = docChange.doc.data();
+        map["id"] = docChange.doc.id;
         TaggedBin bin = TaggedBin.fromJson(map);
         _binStreamController.add(bin);
       });
@@ -147,10 +148,11 @@ class FirebaseDB extends DB {
   }
 
   @override
-  void saveDisposalData(final CurrentUser user, final String photoSrc) async {
+  Future<void> saveDisposalData(
+      final CurrentUser user, final String photoSrc) async {
     logger.info("Saving Disposal data....");
     DocumentReference ref =
-        await Firestore.instance.collection("scanDisposals").add({
+        await FirebaseFirestore.instance.collection("scanDisposals").add({
       "photoSrc": photoSrc,
       "time": DateTime.now().millisecondsSinceEpoch,
       "userId": user.id
@@ -161,38 +163,38 @@ class FirebaseDB extends DB {
 
   @override
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user) async {
-    logger.info("Fetching Scan Winnings");
-    ScanWinnings scanWinnings;
-    Map<String, dynamic> map =
-        await Firestore.instance.runTransaction((Transaction tx) async {
-      QuerySnapshot snapshot = await Firestore.instance
-          .collection("scanWinnings")
-          .where("isActive", isEqualTo: true)
-          .orderBy("additionDate")
-          .getDocuments();
+    // logger.info("Fetching Scan Winnings");
+    // ScanWinnings scanWinnings;
+    // Map<String, dynamic> map =
+    //     await FirebaseFirestore.instance.runTransaction((Transaction tx) async {
+    //   QuerySnapshot snapshot = await FirebaseFirestore.instance
+    //       .collection("scanWinnings")
+    //       .where("isActive", isEqualTo: true)
+    //       .orderBy("additionDate")
+    //       .get();
 
-      if (snapshot.documents.length > 0) {
-        DocumentReference docRef = Firestore.instance
-            .collection("scanWinnings")
-            .document(snapshot.documents[0].documentID);
+    //   if (snapshot.docs.length > 0) {
+    //     DocumentReference docRef = FirebaseFirestore.instance
+    //         .collection("scanWinnings")
+    //         .doc(snapshot.docs[0].id);
 
-        DocumentSnapshot docSnap = await tx.get(docRef);
-        if (docSnap["isActive"]) {
-          await tx.update(
-              Firestore.instance
-                  .collection("scanWinnings")
-                  .document(snapshot.documents[0].documentID),
-              <String, dynamic>{'isActive': false, "claimedByUserId": user.id});
-          Map<String, dynamic> snapMap = docSnap.data;
-          snapMap["id"] = snapshot.documents[0].documentID;
-          scanWinnings = ScanWinnings.fromJson(snapMap)
-              .copyWith(claimedByUserId: user.id, isActive: false);
-        }
-      }
-    });
-    logger.info(map);
-    logger.info(scanWinnings);
-    return scanWinnings;
+    // DocumentSnapshot docSnap = await tx.get(docRef);
+    // if (docSnap.data()["isActive"]) {
+    //   await tx.update(
+    //       FirebaseFirestore.instance
+    //           .collection("scanWinnings")
+    //           .document(snapshot.documents[0].documentID),
+    //       <String, dynamic>{'isActive': false, "claimedByUserId": user.id});
+    //   Map<String, dynamic> snapMap = docSnap.data()();
+    //   snapMap["id"] = snapshot.documents[0].documentID;
+    //   scanWinnings = ScanWinnings.fromJson(snapMap)
+    //       .copyWith(claimedByUserId: user.id, isActive: false);
+    // }
+    //   }
+    // });
+    // logger.info(map);
+    // logger.info(scanWinnings);
+    // return scanWinnings;
   }
 
   @override
@@ -200,9 +202,16 @@ class FirebaseDB extends DB {
     logger.info("Saving Tagged bin");
     Map<String, dynamic> data = bin.toJson();
     data.remove("id");
-    DocumentReference ref =
-        await Firestore.instance.collection("taggedBins").add(data);
-    logger.info("Saved tagged bin information: ${ref.documentID}");
+    try {
+      DocumentReference ref =
+          await FirebaseFirestore.instance.collection("taggedBins").add(data);
+      logger.info("Saved tagged bin information: ${ref.id}");
+    } on FirebaseException catch (e, stk) {
+      logger.severe(e.message);
+      logger.severe(stk);
+      throw DataUploadException(
+          "Uploading failed", DataUploadExceptionCode.uploadFailed);
+    }
   }
 
   @override
@@ -210,37 +219,56 @@ class FirebaseDB extends DB {
     logger.info("Saving Tagged bin");
     Map<String, dynamic> data = bin.toJson();
     data.remove("id");
-
-    await Firestore.instance
-        .collection("taggedBins")
-        .document(bin.id)
-        .updateData(data);
+    try {
+      logger.info("Updating: ${bin.id}");
+      await FirebaseFirestore.instance
+          .collection("taggedBins")
+          .doc(bin.id)
+          .update(data);
+    } on FirebaseException catch (e, stk) {
+      logger.severe(e.message);
+      logger.severe(stk);
+      throw DataUploadException(
+          "Uploading failed", DataUploadExceptionCode.uploadFailed);
+    }
   }
 
   @override
   Future<String> uploadBinImageData(CurrentUser user, File image) async {
-    final StorageReference storageReference = FirebaseStorage()
-        .ref()
-        .child("findmybin")
-        .child(user.id)
-        .child(DateTime.now().toIso8601String() + ".jpg");
-    final StorageUploadTask uploadTask =
-        storageReference.putData(image.readAsBytesSync());
-    final StreamSubscription<StorageTaskEvent> streamSubscription =
-        uploadTask.events.listen((event) {
-      logger.info('EVENT ${event.type}');
-    });
-    await uploadTask.onComplete;
-    streamSubscription.cancel();
-    logger.info("Successfully saved file");
-    String downloadUrl = await storageReference.getDownloadURL();
-    return downloadUrl;
+    try {
+      final StorageReference storageReference = FirebaseStorage()
+          .ref()
+          .child("findmybin")
+          .child(user.id)
+          .child(DateTime.now().toIso8601String() + ".jpg");
+      final StorageUploadTask uploadTask =
+          storageReference.putData(image.readAsBytesSync());
+      final StreamSubscription<StorageTaskEvent> streamSubscription =
+          uploadTask.events.listen((event) {
+        logger.info('EVENT ${event.type}');
+      });
+      await uploadTask.onComplete;
+      streamSubscription.cancel();
+      if (uploadTask.isSuccessful) {
+        logger.info("Successfully saved file");
+        String downloadUrl = await storageReference.getDownloadURL();
+        return downloadUrl;
+      } else {
+        throw DataUploadException(
+            "Uploading failed", DataUploadExceptionCode.uploadFailed);
+      }
+    } on FirebaseException catch (e, stk) {
+      logger.severe(e.message);
+      logger.severe(stk);
+      throw DataUploadException(
+          "Uploading failed", DataUploadExceptionCode.uploadDenied);
+    }
   }
 
   @override
   Future<void> createUser(
       String email, String name, String uid, DateTime dob) async {
-    return await Firestore.instance.collection("users").document(uid).setData({
+    return await FirebaseFirestore.instance.collection("users").doc(uid).set({
       "email": email,
       "name": name,
       "points": 0,
@@ -265,18 +293,46 @@ class FirebaseDB extends DB {
         .child(user.id)
         .child("waste")
         .child(DateTime.now().toIso8601String() + ".jpg");
+
     String wasteSrc = await _uploadImage(wasteImage, storageWasteReference);
     String binSrc = await _uploadImage(binImage, storageBinReference);
     BinDisposal disposal = BinDisposal(
       binId: bin.id,
+      disposalTime: DateTime.now(),
       userId: user.id,
+      pointAmount: 0,
       binImageSrc: binSrc,
       wasteImageSrc: wasteSrc,
+      binName: bin.binName,
       status: BinDisposalStatus.pending,
     );
-    await Firestore.instance.collection("binDisposals").add(disposal.toJson());
-
-    return disposal;
+    await FirebaseFirestore.instance
+        .collection("binDisposals")
+        .add(disposal.toJson());
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot oldBinSnap = await FirebaseFirestore.instance
+            .collection("taggedBins")
+            .doc(bin.id)
+            .get();
+        if (oldBinSnap.exists) {
+          await FirebaseFirestore.instance
+              .collection("taggedBins")
+              .doc(bin.id)
+              .update(
+                  {"disposalsMade": oldBinSnap.data()["disposalsMade"] + 1});
+        } else {
+          throw FirebaseException(
+              message: "No bin found", plugin: "Firestore", code: "001");
+        }
+      });
+      return disposal;
+    } on FirebaseException catch (e, stk) {
+      logger.severe(e.message);
+      logger.severe(stk);
+      throw DataUploadException(
+          "Uploading failed", DataUploadExceptionCode.uploadFailed);
+    }
   }
 
   Future<String> _uploadImage(
@@ -287,12 +343,13 @@ class FirebaseDB extends DB {
     if (uploadTask.isSuccessful) {
       return await storageReference.getDownloadURL();
     } else {
-      throw DataUploadException("Image not uploaded", StackTrace.current);
+      throw DataUploadException(
+          "Uploading failed", DataUploadExceptionCode.uploadFailed);
     }
   }
 }
 
-// Firestore.instance.collection("prizes").add({
+// FirebaseFirestore.instance.collection("prizes").add({
 //   "name": "Dialog 250MB Data Card",
 //   "desc": "Dialog 250MB Data Card",
 //   "expirationDate": 1577817000000,
@@ -302,7 +359,7 @@ class FirebaseDB extends DB {
 //       "https://pbs.twimg.com/profile_images/1514269961/Axiata_Tanagram_400x400.jpg",
 //   "cost": 300
 // });
-// Firestore.instance.collection("prizes").add({
+// FirebaseFirestore.instance.collection("prizes").add({
 //   "name": "Mobitel 5000MB Data Card",
 //   "desc": "Mobitel 5000MB Data Card",
 //   "expirationDate": 1577817000000,
@@ -312,7 +369,7 @@ class FirebaseDB extends DB {
 //       "https://bizenglish.adaderana.lk/wp-content/uploads/MobitelLogo1.jpg",
 //   "cost": 300
 // });
-// Firestore.instance.collection("prizes").add({
+// FirebaseFirestore.instance.collection("prizes").add({
 //   "name": "Burger King Whopper Meal",
 //   "desc": "1 Burger King Whopper meal w/ drink and fries",
 //   "expirationDate": 1577817000000,

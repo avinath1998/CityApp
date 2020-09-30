@@ -13,10 +13,11 @@ abstract class TaggedBin with _$TaggedBin {
       String userId,
       bool active,
       bool isNew,
+      int disposalsMade,
       double locationLan,
       double locationLon,
       String userName,
-      int taggedTime,
+      DateTime taggedTime,
       int pointsEarned,
       int reportStrikes}) = _TaggedBin;
 
