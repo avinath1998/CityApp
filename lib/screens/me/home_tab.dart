@@ -3,6 +3,7 @@ import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/dialogs/ekva_alert_dialog.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/screens/me/see_trash_disposals_screen.dart';
@@ -73,19 +74,13 @@ class _HomeTabState extends State<HomeTab> {
                           text: TextSpan(children: [
                             TextSpan(
                                 text: "Hi ",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline4
-                                    .copyWith(fontWeight: FontWeight.bold)),
+                                style: Theme.of(context).textTheme.headline5),
                             TextSpan(
                                 text: BlocProvider.of<AuthBloc>(
                                       context,
                                     ).currentUser.name.split(" ")[0] +
                                     ",",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline4
-                                    .copyWith(fontWeight: FontWeight.bold)),
+                                style: Theme.of(context).textTheme.headline5),
                           ]),
                         ),
                       ),
@@ -111,7 +106,7 @@ class _HomeTabState extends State<HomeTab> {
                                 },
                               ),
                               FlatButton(
-                                child: Text("See Tagged Bins"),
+                                child: Text("See Added Bins"),
                                 onPressed: () {
                                   Navigator.of(context)
                                       .pushNamed(SeeTaggedBinsScreen.routeName);
@@ -174,6 +169,7 @@ class _HomeTabState extends State<HomeTab> {
             },
             onSaved: (val) {},
           ),
+          SizedBox(height: 10),
           TextFormField(
             initialValue: user.email,
             enabled: false,
@@ -189,6 +185,7 @@ class _HomeTabState extends State<HomeTab> {
             },
             onSaved: (val) {},
           ),
+          SizedBox(height: 10),
           TextFormField(
             initialValue: user.dob.toDateString(),
             enabled: false,
@@ -208,6 +205,34 @@ class _HomeTabState extends State<HomeTab> {
           ),
           SizedBox(
             height: 30.0,
+          ),
+          FlatButton(
+            child: Text("Sign out"),
+            onPressed: () {
+              //BlocProvider.of<AuthBloc>(context).add(SignOutEvent());
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("Sign out?"),
+                      content: Text("Are you sure you want to sign out?"),
+                      actions: [
+                        RaisedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              BlocProvider.of<AuthBloc>(context)
+                                  .add(SignOutEvent());
+                            },
+                            child: Text("Yes")),
+                        FlatButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("No")),
+                      ],
+                    );
+                  });
+            },
           ),
           Text("More features coming soon.")
         ],

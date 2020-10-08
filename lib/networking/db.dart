@@ -113,10 +113,27 @@ class FirebaseDB extends DB {
         .snapshots()
         .listen((QuerySnapshot snap) {
       snap.docChanges.forEach((docChange) {
-        Map<String, dynamic> map = docChange.doc.data();
-        map["id"] = docChange.doc.id;
-        TaggedBin bin = TaggedBin.fromJson(map);
-        _binStreamController.add(bin);
+        switch (docChange.type) {
+          case DocumentChangeType.added:
+            Map<String, dynamic> map = docChange.doc.data();
+            map["id"] = docChange.doc.id;
+            TaggedBin bin = TaggedBin.fromJson(map);
+            _binStreamController.add(bin);
+            break;
+          case DocumentChangeType.modified:
+            Map<String, dynamic> map = docChange.doc.data();
+            map["id"] = docChange.doc.id;
+            TaggedBin bin = TaggedBin.fromJson(map);
+            _binStreamController.add(bin);
+            break;
+          case DocumentChangeType.removed:
+            Map<String, dynamic> map = docChange.doc.data();
+            map["id"] = docChange.doc.id;
+            TaggedBin bin = TaggedBin.fromJson(map);
+            bin = bin.copyWith(active: false);
+            _binStreamController.add(bin);
+            break;
+        }
       });
     });
     return _binStreamController;

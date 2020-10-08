@@ -2,6 +2,7 @@ import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
 import 'package:citycollection/networking/db.dart';
 import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
+import 'package:citycollection/screens/authentication/forget_password_screen.dart';
 import 'package:citycollection/screens/got_trash/got_trash_screen.dart';
 import 'package:citycollection/screens/home_screen.dart';
 import 'package:citycollection/screens/authentication/login_screen.dart';
@@ -67,7 +68,7 @@ class MyApp extends StatelessWidget {
           // builder: DevicePreview.appBuilder,
           // locale: DevicePreview.of(context).locale,
           title: 'Ekva',
-          initialRoute: LoginScreen.routeName,
+          initialRoute: "/",
           onGenerateRoute: (settings) {
             switch (settings.name) {
               case LoginScreen.routeName:
@@ -81,6 +82,10 @@ class MyApp extends StatelessWidget {
               case RegistrationScreen.routeName:
                 return MaterialPageRoute(builder: (context) {
                   return RegistrationScreen();
+                });
+              case ForgetPasswordScreen.routeName:
+                return MaterialPageRoute(builder: (context) {
+                  return ForgetPasswordScreen();
                 });
               case HomeScreen.routeName:
                 return MaterialPageRoute(builder: (context) {
@@ -113,6 +118,10 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (context) {
                   return SeeTrashDisposalsScreen();
                 });
+              default:
+                return MaterialPageRoute(builder: (context) {
+                  return RootPage();
+                });
             }
           },
           theme: ThemeData(
@@ -122,11 +131,25 @@ class MyApp extends StatelessWidget {
               primarySwatch: CityColors.primary_teal,
               primaryColor: CityColors.primary_teal,
               accentColor: CityColors.primary_teal,
-              backgroundColor: Colors.white,
               scaffoldBackgroundColor: Colors.white,
               cardColor: Colors.white,
               errorColor: Colors.redAccent,
               iconTheme: IconThemeData(color: CityColors.primary_teal),
+              inputDecorationTheme: InputDecorationTheme(
+                  focusColor: Colors.transparent,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.transparent),
+                    borderRadius: const BorderRadius.all(
+                      const Radius.circular(10.0),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.transparent),
+                    borderRadius: const BorderRadius.all(
+                      const Radius.circular(10.0),
+                    ),
+                  ),
+                  filled: true),
               accentTextTheme:
                   GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
                       .copyWith(
@@ -145,7 +168,6 @@ class MyApp extends StatelessWidget {
                   buttonColor: CityColors.primary_teal),
               textTheme:
                   GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)),
-          home: RootPage(),
         ));
   }
 }

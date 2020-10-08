@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tabs.dart';
+import 'package:citycollection/blocs/location/location_bloc.dart';
 import 'package:citycollection/blocs/redeem/redeem_bloc.dart';
 import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/blocs/take_picture/take_picture_bloc.dart';
@@ -19,6 +20,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
 
 class TakePictureTab extends StatefulWidget {
   final ScrollController scrollController;
@@ -36,16 +39,22 @@ class _TakePictureTabState extends State<TakePictureTab>
   TabController _tabController;
   final GlobalKey<FormState> _formKey = GlobalKey();
   bool _isError = false;
+  LocationBloc _locBloc;
 
   @override
   void initState() {
     super.initState();
+    _locBloc = LocationBloc();
     _tabController = TabController(length: 5, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _locBloc.add(LocationEvent.loadLocationEvent());
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
+    _locBloc.close();
     _tabController.dispose();
   }
 
@@ -55,11 +64,30 @@ class _TakePictureTabState extends State<TakePictureTab>
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
           children: [
+            Row(
+              children: [
+                Icon(
+                  FontAwesomeIcons.recycle,
+                  size: 40,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Icon(
+                  FontAwesomeIcons.trashAlt,
+                  size: 40,
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
             Text(
               "Add a Bin.",
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headline5,
             ),
             Text(
                 "Want to add a bin to the map? Just follow the instructions below.",
@@ -85,11 +113,22 @@ class _TakePictureTabState extends State<TakePictureTab>
             ),
             Align(
               alignment: Alignment.center,
-              child: RaisedButton(
-                child: Text("Start"),
-                onPressed: () {
-                  _tabController.animateTo(1);
-                },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FlatButton(
+                    child: Text("Go Back"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text("Start"),
+                    onPressed: () {
+                      _tabController.animateTo(1);
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -227,7 +266,9 @@ class _TakePictureTabState extends State<TakePictureTab>
                         TakePictureScreen(
                           icon: Icon(FontAwesomeIcons.trash,
                               color: Colors.white, size: 40),
+                          iconTitle: "Trash Bin",
                           message: "Take a picture of the bin.",
+                          title: "Take a picture of the trash bin.",
                           onImageTaken: (file) {
                             _tabController.animateTo(2);
                             setState(() {
@@ -270,40 +311,34 @@ class _TakePictureTabState extends State<TakePictureTab>
                                       });
                                     },
                                   ),
-                                  SizedBox(height: 10),
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: RaisedButton(
-                                      child: Text("Save"),
-                                      onPressed: () {
-                                        if (_formKey.currentState.validate()) {
-                                          _formKey.currentState.save();
-                                          TaggedBin bin = TaggedBin(
-                                              userId: BlocProvider.of<AuthBloc>(
-                                                      context)
-                                                  .currentUser
-                                                  .id,
-                                              isNew: true,
-                                              active: false,
-                                              binName: _binName,
-                                              disposalsMade: 0,
-                                              locationLan: 7.004453,
-                                              locationLon: 79.913834,
-                                              reportStrikes: 0,
-                                              taggedTime: DateTime.now(),
-                                              pointsEarned: 0);
-                                          BlocProvider.of<TaggedBinsBloc>(
-                                                  context)
-                                              .add(UploadTaggedBinEvent(
-                                                  bin,
-                                                  _binImage,
-                                                  BlocProvider.of<AuthBloc>(
-                                                          context)
-                                                      .currentUser));
-                                        }
+                                  SizedBox(height: 15),
+                                  Center(
+                                    child: BlocBuilder<LocationBloc,
+                                        LocationState>(
+                                      cubit: _locBloc,
+                                      builder: (context, state) {
+                                        return state.when(initial: () {
+                                          return CircularProgressIndicator();
+                                        }, loadingLocationState: () {
+                                          return CircularProgressIndicator();
+                                        }, loadedLocationState:
+                                            (Position position,
+                                                List<Address> address) {
+                                          return _buildLocationEvent(
+                                              position, address);
+                                        }, failedLoadingLocationState: () {
+                                          return Text(
+                                              "Failed to get your location, try adding this bin again.");
+                                        }, locationDisabledState: () {
+                                          return Text(
+                                              "Turn on the apps location permission to proceed with adding a bin.");
+                                        }, locationDeniedState: () {
+                                          return Text(
+                                              "You denied the permission, we need to know where the bin is.");
+                                        });
                                       },
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -330,5 +365,45 @@ class _TakePictureTabState extends State<TakePictureTab>
             ),
           ),
         ));
+  }
+
+  Widget _buildLocationEvent(Position position, List<Address> addresses) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          "Bin Location: ",
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        Text(addresses[0].addressLine),
+        SizedBox(
+          height: 10,
+        ),
+        RaisedButton(
+          child: Text("Save"),
+          onPressed: () async {
+            if (_formKey.currentState.validate()) {
+              _formKey.currentState.save();
+              TaggedBin bin = TaggedBin(
+                  userId: BlocProvider.of<AuthBloc>(context).currentUser.id,
+                  isNew: true,
+                  active: false,
+                  binName: _binName,
+                  disposalsMade: 0,
+                  locationLan: position.latitude,
+                  locationLon: position.longitude,
+                  reportStrikes: 0,
+                  userName: BlocProvider.of<AuthBloc>(context).currentUser.name,
+                  taggedTime: DateTime.now(),
+                  pointsEarned: 0);
+              BlocProvider.of<TaggedBinsBloc>(context).add(UploadTaggedBinEvent(
+                  bin,
+                  _binImage,
+                  BlocProvider.of<AuthBloc>(context).currentUser));
+            }
+          },
+        ),
+      ],
+    );
   }
 }

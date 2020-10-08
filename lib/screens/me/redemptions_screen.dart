@@ -24,7 +24,7 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
         "My Redemptions",
       )),
       body: StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance
+        stream: FirebaseFirestore.instance
             .collection("redemptions")
             .where("userId",
                 isEqualTo: BlocProvider.of<AuthBloc>(context).currentUser.id)
@@ -54,6 +54,9 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
                         "You haven't made any redemptions yet.\n Earn Ekva Points to redeem a prize!",
                         textAlign: TextAlign.center,
                       )),
+                      SizedBox(
+                        height: 10,
+                      ),
                       RaisedButton(
                         child: Text("Go Back"),
                         onPressed: () {
@@ -89,7 +92,7 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
 
   Widget _buildRedemptionCard(Redemption redemption) {
     return Container(
-      margin: const EdgeInsets.all(20.0),
+      margin: const EdgeInsets.all(10.0),
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(

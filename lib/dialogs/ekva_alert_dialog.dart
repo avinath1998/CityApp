@@ -22,7 +22,7 @@ class _EkvaAlertDialogState extends State<EkvaAlertDialog> {
       ),
       content: Text(
         widget.message,
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.start,
         style: Theme.of(context).textTheme.bodyText1,
       ),
       actions: [

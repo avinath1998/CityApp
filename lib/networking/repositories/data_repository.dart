@@ -68,17 +68,19 @@ class DataRepository {
       _binStreamController = db.openBinStream();
       _binStreamSubscription =
           _binStreamController.stream.listen((TaggedBin bin) {
+        logger.info("Bin Retrieved: $bin");
         if (_cachedBins.contains(bin)) {
+          _cachedBins.remove(bin);
+          if (bin.active) {
+            _cachedBins.add(bin);
+          }
         } else {
-          bool contained = false;
-          _cachedBins.forEach((oldBin) {
-            if (oldBin.id == bin.id) {
-              _cachedBins.remove(oldBin);
-              _cachedBins.add(bin);
-              contained = true;
-            }
-          });
-          if (!contained) _cachedBins.add(bin);
+          _cachedBins.removeWhere((element) =>
+              element.id ==
+              bin.id); //just in case the bins status was changed to unactive
+          if (bin.active) {
+            _cachedBins.add(bin);
+          }
         }
         onBinsChanged(_cachedBins);
       });

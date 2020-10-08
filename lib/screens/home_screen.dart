@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        return false;
+        return true;
       },
       child: MultiBlocProvider(
         providers: [
@@ -384,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           .animate(CurvedAnimation(
               curve: Curves.fastOutSlowIn, parent: _mapClosestBinController)),
       child: Container(
-        margin: const EdgeInsets.all(10.0),
+        margin: const EdgeInsets.all(5.0),
         child: Card(
           color: Colors.white,
           shape: RoundedRectangleBorder(
@@ -393,88 +393,126 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(30.0)),
               ),
-              width: MediaQuery.of(context).size.width,
-              height: 200,
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  _currentSelectedBin != null
-                      ? Align(
-                          alignment: Alignment.centerLeft,
-                          child: CachedNetworkImage(
-                            imageUrl: _currentSelectedBin.imageSrc,
-                            placeholder: (context, url) => Padding(
-                              padding: const EdgeInsets.only(left: 10.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                            imageBuilder: (context, imageprovider) {
-                              return Container(
-                                height: 140,
-                                width: 160,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20.0)),
-                                  image: DecorationImage(
-                                    image: imageprovider,
-                                    fit: BoxFit.cover,
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: <Widget>[
+                      _currentSelectedBin != null
+                          ? Align(
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  CachedNetworkImage(
+                                    imageUrl: _currentSelectedBin.imageSrc,
+                                    placeholder: (context, url) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20.0),
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                    imageBuilder: (context, imageprovider) {
+                                      return Container(
+                                        height: 120,
+                                        width: 120,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20.0)),
+                                          image: DecorationImage(
+                                            image: imageprovider,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : Container(),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Text(
-                          _currentSelectedBin != null
-                              ? _currentSelectedBin.binName
-                              : "",
-                          style: Theme.of(context).textTheme.subtitle1,
-                          textAlign: TextAlign.start,
-                        ),
-                        Text(
-                          _currentSelectedBin != null ? "by: Avinath" : "",
-                          style: Theme.of(context).textTheme.subtitle1,
-                          textAlign: TextAlign.start,
-                        ),
-                        SizedBox(height: 10),
-                        if (_currentSelectedBin != null)
-                          Text(
-                            _currentSelectedBin.taggedTime
-                                        .toDaysAgo(DateTime.now()) >
-                                    0
-                                ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
-                                : "Added today",
-                            style: Theme.of(context).textTheme.bodyText2,
-                            textAlign: TextAlign.start,
-                          ),
-                        SizedBox(height: 20),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: RaisedButton(
-                              child: Text("Got Trash?"),
-                              onPressed: () {
-                                Navigator.of(context).pushNamed(
-                                    GotTrashScreen.routeName,
-                                    arguments: {
-                                      "taggedBin": _currentSelectedBin
-                                    });
-                              },
+                                ],
+                              ),
+                            )
+                          : Container(),
+                      SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Text(
+                              _currentSelectedBin != null
+                                  ? _currentSelectedBin.binName
+                                  : "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.subtitle1,
+                              textAlign: TextAlign.start,
                             ),
-                          ),
-                        )
-                      ],
-                    ),
+                            Text(
+                              _currentSelectedBin != null
+                                  ? "by: ${_currentSelectedBin.userName ?? ""}"
+                                  : "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: Theme.of(context).textTheme.bodyText2,
+                              textAlign: TextAlign.start,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            if (_currentSelectedBin != null)
+                              Text(
+                                _currentSelectedBin.taggedTime
+                                            .toDaysAgo(DateTime.now()) >
+                                        0
+                                    ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
+                                    : "Added today!",
+                                style: Theme.of(context).textTheme.bodyText1,
+                                textAlign: TextAlign.start,
+                              ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: RaisedButton(
+                                child: Text("Got Trash?"),
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed(
+                                      GotTrashScreen.routeName,
+                                      arguments: {
+                                        "taggedBin": _currentSelectedBin
+                                      });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Make sure to look around for the bin. \nIt may have moved a little. ",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                  // Row(
+                  //   mainAxisSize: MainAxisSize.min,
+                  //   children: [
+                  //     Text("Bin not there?"),
+                  //     FlatButton(
+                  //       child: Text("Report It"),
+                  //       onPressed: () {
+                  //         Navigator.of(context).pushNamed(
+                  //             GotTrashScreen.routeName,
+                  //             arguments: {"taggedBin": _currentSelectedBin});
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               )),
         ),

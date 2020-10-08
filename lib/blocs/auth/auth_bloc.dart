@@ -8,6 +8,7 @@ import 'package:citycollection/exceptions/user_not_verified_exception.dart';
 import 'package:citycollection/models/current_user.dart';
 import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/services/auth_service.dart';
+import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
@@ -44,6 +45,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           event.user.email, event.password, event.user.name, event.dob);
     } else if (event is LoadUserEvent) {
       yield* _loadCurrentUser(event.user.id, event.forceNetwork);
+    } else if (event is ForgetPasswordEvent) {
+      yield* _resetPasswordEvent(event.email);
+    }
+  }
+
+  Stream<AuthState> _resetPasswordEvent(String email) async* {
+    try {
+      yield ForgetPasswordSendingState();
+      await Future.delayed(Duration(seconds: 1));
+      await _authService.resetPassword(email);
+      yield ForgetPasswordSentState();
+    } on Exception catch (e) {
+      logger.severe(e.runtimeType);
+      yield ForgetPasswordFailedSendingState(
+          AuthenticationException.generalAuth);
     }
   }
 
@@ -76,7 +92,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       yield (SigningInWaitingState());
       currentUser = await _authService.signIn(email, password);
       if (currentUser == null) {
-        yield (SigningInWaitingState());
+        yield (SignInFailedState("An error occured signing in, try again",
+            AuthenticationException.userNotFound));
       } else {
         yield SignedInState(currentUser);
       }
@@ -92,30 +109,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on UserNotVerifiedException catch (ex) {
       yield SignInFailedState("Oops! An error has occured, try again.",
           AuthenticationException.userNotVerified);
-    } on PlatformException catch (error) {
-      logger.info(error.details);
+    } on FirebaseAuthException catch (error) {
       switch (error.code) {
-        case "ERROR_INVALID_EMAIL":
+        case "invalid-email":
           yield SignInFailedState("Oops! An error has occured, try again.",
               AuthenticationException.invalidEmail);
           break;
-        case "ERROR_WRONG_PASSWORD":
+        case "wrong-password":
           yield SignInFailedState("Oops! An error has occured, try again.",
               AuthenticationException.wrongPassword);
           break;
-        case "ERROR_USER_NOT_FOUND":
+        case "user-not-found":
           yield SignInFailedState("Oops! An error has occured, try again.",
               AuthenticationException.userNotFound);
           break;
-        case "ERROR_USER_DISABLED":
+        case "user-disabled":
           yield SignInFailedState("Oops! An error has occured, try again.",
               AuthenticationException.userDisabled);
           break;
-        case "ERROR_TOO_MANY_REQUESTS":
+        case "too-many-requests":
           yield SignInFailedState("Oops! An error has occured, try again.",
               AuthenticationException.tooManyRequests);
           break;
-        case "ERROR_OPERATION_NOT_ALLOWED":
+        case "operation-not-allowed":
           yield SignInFailedState("Oops! An error has occured, try again.",
               AuthenticationException.operationNotAllowed);
           break;
@@ -146,22 +162,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on DataFetchException catch (e) {
       yield RegistrationFailedState(
           e.errorMsg, RegistrationException.userNotSaved);
-    } on PlatformException catch (e) {
+    } on FirebaseAuthException catch (e) {
       switch (e.code) {
-        case "ERROR_WEAK_PASSWORD":
+        case "weak-password":
           yield RegistrationFailedState(
-              e.details, RegistrationException.errorWeakPassword);
+              e.message, RegistrationException.errorWeakPassword);
           break;
-        case "ERROR_INVALID_EMAIL":
+        case "invalid-email":
           yield RegistrationFailedState(
-              e.details, RegistrationException.invalidEmail);
+              e.message, RegistrationException.invalidEmail);
           break;
-        case "ERROR_EMAIL_ALREADY_IN_USE":
+        case "email-already-in-use":
           yield RegistrationFailedState(
-              e.details, RegistrationException.emailAreadyInUse);
+              e.message, RegistrationException.emailAreadyInUse);
           break;
       }
-    } catch (e) {
+    } catch (e, stk) {
+      logger.severe(stk);
       logger.severe(e.toString());
       yield RegistrationFailedState(
           e.toString(), RegistrationException.generalAuth);

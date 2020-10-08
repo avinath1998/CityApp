@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/bin_disposal/bin_disposal_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logging/logging.dart';
+import 'package:citycollection/extensions/date_time_extension.dart';
 
 class GotTrashScreen extends StatefulWidget {
   static const routeName = "/GotTrashScreen";
@@ -91,9 +93,12 @@ class _GotTrashScreenState extends State<GotTrashScreen>
             children: [
               _buildingStartingTab(context),
               TakePictureScreen(
-                icon:
-                    Icon(FontAwesomeIcons.trash, color: Colors.white, size: 40),
-                message: "Take a picture of the trash bin.",
+                icon: Icon(FontAwesomeIcons.trashAlt,
+                    color: Colors.white, size: 40),
+                message:
+                    "Take a picture of the trash bin you want to add to the map.",
+                title: "Take a picture of the bin.",
+                iconTitle: "Trash Bin",
                 onImageTaken: (file) {
                   _tabController.animateTo(2);
                   setState(() {
@@ -102,9 +107,11 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                 },
               ),
               TakePictureScreen(
-                  icon: Icon(FontAwesomeIcons.trash,
+                  icon: Icon(FontAwesomeIcons.wineBottle,
                       color: Colors.white, size: 40),
-                  message: "Take a picture of your trash.",
+                  message: "Take a picture of your plastic trash.",
+                  iconTitle: "Plastic Trash",
+                  title: "Take a picture of your trash.",
                   onImageTaken: (file) {
                     _tabController.animateTo(3);
                     setState(() {
@@ -118,15 +125,19 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                             BlocProvider.of<AuthBloc>(context).currentUser));
                   }),
               Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 10),
-                    Text("Saving your disposal...",
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.subtitle1),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 10),
+                      Text(
+                          "Throw trash into bin while your disposal is being saved...",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.subtitle1),
+                    ],
+                  ),
                 ),
               ),
               _buildSuccessTab(context)
@@ -199,9 +210,27 @@ class _GotTrashScreenState extends State<GotTrashScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Row(
+              children: [
+                Icon(
+                  FontAwesomeIcons.recycle,
+                  size: 40,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Icon(
+                  FontAwesomeIcons.wineBottle,
+                  size: 40,
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
             Text(
               "Got Trash?",
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headline5,
             ),
             Text("Throw it into this bin to earn Ekva points!",
                 textAlign: TextAlign.start,
@@ -220,9 +249,89 @@ class _GotTrashScreenState extends State<GotTrashScreen>
               style: Theme.of(context).textTheme.bodyText1,
             ),
             Text(
-              "2. Take a picture of the bin you selected:\n${widget.selectedBin.binName}.",
+              "2. Take a picture of the bin you selected:",
               style: Theme.of(context).textTheme.bodyText1,
             ),
+            SizedBox(height: 5),
+            Container(
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: widget.selectedBin.imageSrc,
+                                placeholder: (context, url) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                                imageBuilder: (context, imageprovider) {
+                                  return Container(
+                                    height: 90,
+                                    width: 90,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)),
+                                      image: DecorationImage(
+                                        image: imageprovider,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              Text(
+                                widget.selectedBin.binName,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.subtitle1,
+                                textAlign: TextAlign.start,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Added by:\n" + widget.selectedBin.userName,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                                style: Theme.of(context).textTheme.bodyText1,
+                                textAlign: TextAlign.start,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )),
+              ),
+            ),
+            SizedBox(height: 5),
             Text(
               "3. Throw your trash into the bin.",
               style: Theme.of(context).textTheme.bodyText1,

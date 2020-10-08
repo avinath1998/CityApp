@@ -26,3 +26,9 @@ class RegisterUserEvent extends AuthEvent {
   final DateTime dob;
   RegisterUserEvent(this.user, this.password, this.dob);
 }
+
+class ForgetPasswordEvent extends AuthEvent {
+  final String email;
+
+  ForgetPasswordEvent(this.email);
+}

@@ -21,6 +21,7 @@ class _SeeTrashDisposalsScreenState extends State<SeeTrashDisposalsScreen> {
         stream: FirebaseFirestore.instance
             .collection("binDisposals")
             .where("userId")
+            .orderBy("disposalTime", descending: true)
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snap) {
           switch (snap.connectionState) {
@@ -44,9 +45,23 @@ class _SeeTrashDisposalsScreenState extends State<SeeTrashDisposalsScreen> {
                   return Center(
                       child: Padding(
                     padding: const EdgeInsets.all(15.0),
-                    child: Text(
-                      "You haven't made a disposal, find an Ekva bin and make one!",
-                      textAlign: TextAlign.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "You haven't made a disposal, find an Ekva bin and make one!",
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        RaisedButton(
+                          child: Text("Go Back"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
                     ),
                   ));
                 }
@@ -145,17 +160,16 @@ class _SeeTrashDisposalsScreenState extends State<SeeTrashDisposalsScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 5),
                 Text(
-                  "Bin name: ${binDisposal.binName}",
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-                Text(
-                  "Disposal date: " + binDisposal.disposalTime.toDateString(),
+                  "Disposed on " + binDisposal.disposalTime.toDateString(),
                   style: Theme.of(context).textTheme.bodyText1,
                   textAlign: TextAlign.start,
                 ),
-                SizedBox(height: 10.0),
+                Text(
+                  "Bin name: ${binDisposal.binName}",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     switch (binDisposal.status) {
@@ -164,7 +178,7 @@ class _SeeTrashDisposalsScreenState extends State<SeeTrashDisposalsScreen> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
-                                .subtitle1
+                                .bodyText1
                                 .copyWith(color: Colors.orange));
                         break;
                       case BinDisposalStatus.approved:
@@ -188,8 +202,7 @@ class _SeeTrashDisposalsScreenState extends State<SeeTrashDisposalsScreen> {
                                   .bodyText1
                                   .copyWith(color: Colors.red),
                             ),
-                            SizedBox(height: 10),
-                            RaisedButton(
+                            FlatButton(
                               child: Text("See reason"),
                               onPressed: () {
                                 showDialog(

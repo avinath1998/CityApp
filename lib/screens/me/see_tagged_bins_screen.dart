@@ -25,7 +25,7 @@ class _SeeTaggedBinsScreenState extends State<SeeTaggedBinsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text("My Tagged Bins")),
+      appBar: AppBar(title: Text("My Bins")),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection("taggedBins")
@@ -50,6 +50,30 @@ class _SeeTaggedBinsScreenState extends State<SeeTaggedBinsScreen> {
                 return Center(
                     child: Text("An error has occured loading your bins."));
               } else if (snap.hasData) {
+                if (snap.data.docs.length == 0) {
+                  return Center(
+                      child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "You haven't added any bins yet!",
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        RaisedButton(
+                          child: Text("Go Back"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ),
+                  ));
+                }
                 return Scrollbar(
                   child: ListView.builder(
                     itemBuilder: (context, index) {

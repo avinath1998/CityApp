@@ -70,7 +70,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     List<CameraDescription> cameras = await availableCameras();
     if (cameras.length > 0) {
       CameraController _cameraController = CameraController(
-          cameras[0], ResolutionPreset.medium,
+          cameras[0], ResolutionPreset.low,
           enableAudio: false);
       await _cameraController.initialize();
       this._cameraController = _cameraController;

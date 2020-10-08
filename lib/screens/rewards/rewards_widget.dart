@@ -55,7 +55,7 @@ class _RedeemTabState extends State<RedeemTab> {
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
         child: Container(
-          color: Colors.white,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is AuthUpdatedState) {
@@ -206,90 +206,88 @@ class _RedeemTabState extends State<RedeemTab> {
   }
 
   Widget buildPrizeCard(Prize prize) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black12,
-                offset: Offset(1.0, 1.0),
-                blurRadius: 1.0,
-                spreadRadius: 1.0)
-          ],
+    return Card(
+      shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          CachedNetworkImage(
-            imageUrl: prize.image,
-            placeholder: (context, url) => CircularProgressIndicator(
-              backgroundColor: CityColors.primary_green,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.all(10.0),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(20.0))),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            CachedNetworkImage(
+              imageUrl: prize.image,
+              placeholder: (context, url) => CircularProgressIndicator(
+                backgroundColor: CityColors.primary_green,
+              ),
+              imageBuilder: (context, provider) {
+                return Container(
+                  width: 75,
+                  height: 75,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image:
+                          DecorationImage(fit: BoxFit.cover, image: provider)),
+                );
+              },
             ),
-            imageBuilder: (context, provider) {
-              return Container(
-                width: 75,
-                height: 75,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(fit: BoxFit.cover, image: provider)),
-              );
-            },
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width / 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  prize.name,
-                  style: Theme.of(context).textTheme.subtitle1,
-                  textAlign: TextAlign.start,
-                ),
-                Divider(),
-                Text(
-                  prize.desc,
-                  style: Theme.of(context).textTheme.bodyText1,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 5.0),
-                  child: Text(
-                    "${prize.cost} Ekva Points",
+            Container(
+              width: MediaQuery.of(context).size.width / 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    prize.name,
+                    style: Theme.of(context).textTheme.subtitle1,
+                    textAlign: TextAlign.start,
                   ),
-                ),
-                BlocProvider.of<AuthBloc>(context).currentUser.points >=
-                        prize.cost
-                    ? Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
+                  Divider(),
+                  Text(
+                    prize.desc,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: Text(
+                      "${prize.cost} Ekva Points",
+                    ),
+                  ),
+                  BlocProvider.of<AuthBloc>(context).currentUser.points >=
+                          prize.cost
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: RaisedButton(
+                                onPressed: () {
+                                  _showRedemptionConfirmation(
+                                      prize,
+                                      BlocProvider.of<AuthBloc>(context)
+                                          .currentUser);
+                                },
+                                child: Text(
+                                  "Redeem",
+                                ),
+                              )),
+                        )
+                      : Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
                             padding: const EdgeInsets.only(top: 10.0),
-                            child: RaisedButton(
-                              onPressed: () {
-                                _showRedemptionConfirmation(
-                                    prize,
-                                    BlocProvider.of<AuthBloc>(context)
-                                        .currentUser);
-                              },
-                              child: Text(
-                                "Redeem",
-                              ),
-                            )),
-                      )
-                    : Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Text(
-                            "Not Enough Ekva Points",
+                            child: Text(
+                              "Not Enough Ekva Points",
+                            ),
                           ),
                         ),
-                      ),
-              ],
-            ),
-          )
-        ],
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

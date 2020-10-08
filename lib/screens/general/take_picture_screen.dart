@@ -13,10 +13,18 @@ import 'package:logging/logging.dart';
 
 class TakePictureScreen extends StatefulWidget {
   final String message;
+  final String title;
+  final String iconTitle;
   static const routeName = "TakePictureScreen";
   final Function(File image) onImageTaken;
   final Icon icon;
-  const TakePictureScreen({Key key, this.message, this.onImageTaken, this.icon})
+  const TakePictureScreen(
+      {Key key,
+      this.message,
+      this.onImageTaken,
+      this.icon,
+      this.title,
+      this.iconTitle})
       : super(key: key);
   @override
   _TakePictureScreenState createState() => _TakePictureScreenState();
@@ -109,7 +117,22 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                           child: Card(
                             child: Padding(
                               padding: const EdgeInsets.all(25.0),
-                              child: widget.icon,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  widget.icon,
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  Text(
+                                    widget.iconTitle ?? "Picture",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline6
+                                        .copyWith(color: Colors.white),
+                                  )
+                                ],
+                              ),
                             ),
                             color: Colors.black12,
                             shape: RoundedRectangleBorder(
@@ -173,7 +196,7 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                          "Take a picture",
+                                          widget.title ?? "Take a picture",
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline6
@@ -187,7 +210,7 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                                               "Tap the button below.",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .subtitle2
+                                              .bodyText1
                                               .copyWith(color: Colors.white),
                                           textAlign: TextAlign.start,
                                         ),
