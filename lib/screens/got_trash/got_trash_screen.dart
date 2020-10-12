@@ -244,13 +244,31 @@ class _GotTrashScreenState extends State<GotTrashScreen>
             SizedBox(
               height: 20,
             ),
-            Text(
-              "1. Take a picture of your trash (Plastics).",
-              style: Theme.of(context).textTheme.bodyText1,
+            Row(
+              children: [
+                Text(
+                  "1. Take a ",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                Icon(Icons.camera_alt),
+                Text(
+                  " of the trash bin.",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+              ],
             ),
-            Text(
-              "2. Take a picture of the bin you selected:",
-              style: Theme.of(context).textTheme.bodyText1,
+            Row(
+              children: [
+                Text(
+                  "2. Take a ",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                Icon(Icons.camera_alt),
+                Text(
+                  " of your trash (plastic).",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+              ],
             ),
             SizedBox(height: 5),
             Container(
@@ -327,6 +345,11 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                             ],
                           ),
                         ),
+                        Image.asset(
+                          'assets/images/recycle_bin.png',
+                          height: 50,
+                          width: 50,
+                        )
                       ],
                     )),
               ),

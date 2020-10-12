@@ -145,6 +145,7 @@ class _RedeemTabState extends State<RedeemTab> {
           snap: false,
           automaticallyImplyLeading: false,
           pinned: true,
+          centerTitle: false,
           floating: false,
           title: Column(
             mainAxisSize: MainAxisSize.min,

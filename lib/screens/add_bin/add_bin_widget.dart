@@ -321,20 +321,79 @@ class _TakePictureTabState extends State<TakePictureTab>
                                           return CircularProgressIndicator();
                                         }, loadingLocationState: () {
                                           return CircularProgressIndicator();
+                                        }, locationServicesOffState: () {
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "Your location services are off, turn it on to add a bin.",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              RaisedButton(
+                                                onPressed: () {
+                                                  _locBloc.add(LocationEvent
+                                                      .loadLocationEvent());
+                                                },
+                                                child: Text("Check again"),
+                                              )
+                                            ],
+                                          );
                                         }, loadedLocationState:
                                             (Position position,
                                                 List<Address> address) {
                                           return _buildLocationEvent(
                                               position, address);
                                         }, failedLoadingLocationState: () {
-                                          return Text(
-                                              "Failed to get your location, try adding this bin again.");
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "Your location could not be retrieved.",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              RaisedButton(
+                                                onPressed: () {
+                                                  _locBloc.add(LocationEvent
+                                                      .loadLocationEvent());
+                                                },
+                                                child: Text("Check again"),
+                                              )
+                                            ],
+                                          );
                                         }, locationDisabledState: () {
-                                          return Text(
-                                              "Turn on the apps location permission to proceed with adding a bin.");
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "Your location is disabled, turn it on to add a bin.s",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              RaisedButton(
+                                                onPressed: () {
+                                                  _locBloc.add(LocationEvent
+                                                      .loadLocationEvent());
+                                                },
+                                                child: Text("Check again."),
+                                              )
+                                            ],
+                                          );
                                         }, locationDeniedState: () {
-                                          return Text(
-                                              "You denied the permission, we need to know where the bin is.");
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "You denied the location permission, we need to know where the bin is.",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              RaisedButton(
+                                                onPressed: () {
+                                                  _locBloc.add(LocationEvent
+                                                      .loadLocationEvent());
+                                                },
+                                                child: Text("Check again"),
+                                              )
+                                            ],
+                                          );
                                         });
                                       },
                                     ),
@@ -379,29 +438,46 @@ class _TakePictureTabState extends State<TakePictureTab>
         SizedBox(
           height: 10,
         ),
-        RaisedButton(
-          child: Text("Save"),
-          onPressed: () async {
-            if (_formKey.currentState.validate()) {
-              _formKey.currentState.save();
-              TaggedBin bin = TaggedBin(
-                  userId: BlocProvider.of<AuthBloc>(context).currentUser.id,
-                  isNew: true,
-                  active: false,
-                  binName: _binName,
-                  disposalsMade: 0,
-                  locationLan: position.latitude,
-                  locationLon: position.longitude,
-                  reportStrikes: 0,
-                  userName: BlocProvider.of<AuthBloc>(context).currentUser.name,
-                  taggedTime: DateTime.now(),
-                  pointsEarned: 0);
-              BlocProvider.of<TaggedBinsBloc>(context).add(UploadTaggedBinEvent(
-                  bin,
-                  _binImage,
-                  BlocProvider.of<AuthBloc>(context).currentUser));
-            }
-          },
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Wrong location?"),
+                FlatButton(
+                  onPressed: () {
+                    _locBloc.add(LocationEvent.loadLocationEvent());
+                  },
+                  child: Text("Get Location"),
+                ),
+              ],
+            ),
+            RaisedButton(
+              child: Text("Save"),
+              onPressed: () async {
+                if (_formKey.currentState.validate()) {
+                  _formKey.currentState.save();
+                  TaggedBin bin = TaggedBin(
+                      userId: BlocProvider.of<AuthBloc>(context).currentUser.id,
+                      isNew: true,
+                      active: false,
+                      binName: _binName,
+                      disposalsMade: 0,
+                      locationLan: position.latitude,
+                      locationLon: position.longitude,
+                      reportStrikes: 0,
+                      userName:
+                          BlocProvider.of<AuthBloc>(context).currentUser.name,
+                      taggedTime: DateTime.now(),
+                      pointsEarned: 0);
+                  BlocProvider.of<TaggedBinsBloc>(context).add(
+                      UploadTaggedBinEvent(bin, _binImage,
+                          BlocProvider.of<AuthBloc>(context).currentUser));
+                }
+              },
+            ),
+          ],
         ),
       ],
     );

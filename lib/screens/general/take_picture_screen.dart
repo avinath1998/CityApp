@@ -74,6 +74,7 @@ class _TakePictureScreenState extends State<TakePictureScreen>
                     barrierDismissible: false,
                     context: context,
                     child: EkvaAlertDialog(
+                      title: "Could not open your camera!",
                       message: "An error has occured, try again",
                       onOkPressed: () {
                         Navigator.of(context).pop();

@@ -11,4 +11,6 @@ abstract class LocationState with _$LocationState {
       _FailedLoaingLocationState;
   const factory LocationState.locationDisabledState() = _LocationDisabledState;
   const factory LocationState.locationDeniedState() = _LocationDeniedState;
+  const factory LocationState.locationServicesOffState() =
+      _LocationServicesOffState;
 }

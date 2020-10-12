@@ -275,6 +275,11 @@ class _$LocationStateTearOff {
   _LocationDeniedState locationDeniedState() {
     return const _LocationDeniedState();
   }
+
+// ignore: unused_element
+  _LocationServicesOffState locationServicesOffState() {
+    return const _LocationServicesOffState();
+  }
 }
 
 // ignore: unused_element
@@ -291,6 +296,7 @@ mixin _$LocationState {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   });
   @optionalTypeArgs
   Result maybeWhen<Result extends Object>({
@@ -300,6 +306,7 @@ mixin _$LocationState {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   });
   @optionalTypeArgs
@@ -311,6 +318,7 @@ mixin _$LocationState {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   });
   @optionalTypeArgs
   Result maybeMap<Result extends Object>({
@@ -320,6 +328,7 @@ mixin _$LocationState {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   });
 }
@@ -380,6 +389,7 @@ class _$_Initial implements _Initial {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -387,6 +397,7 @@ class _$_Initial implements _Initial {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return initial();
   }
 
@@ -399,6 +410,7 @@ class _$_Initial implements _Initial {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -418,6 +430,7 @@ class _$_Initial implements _Initial {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -425,6 +438,7 @@ class _$_Initial implements _Initial {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return initial(this);
   }
 
@@ -437,6 +451,7 @@ class _$_Initial implements _Initial {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -495,6 +510,7 @@ class _$_LoadingLocationState implements _LoadingLocationState {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -502,6 +518,7 @@ class _$_LoadingLocationState implements _LoadingLocationState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return loadingLocationState();
   }
 
@@ -514,6 +531,7 @@ class _$_LoadingLocationState implements _LoadingLocationState {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -533,6 +551,7 @@ class _$_LoadingLocationState implements _LoadingLocationState {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -540,6 +559,7 @@ class _$_LoadingLocationState implements _LoadingLocationState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return loadingLocationState(this);
   }
 
@@ -552,6 +572,7 @@ class _$_LoadingLocationState implements _LoadingLocationState {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -646,6 +667,7 @@ class _$_LoadedLocationState implements _LoadedLocationState {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -653,6 +675,7 @@ class _$_LoadedLocationState implements _LoadedLocationState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return loadedLocationState(position, addressname);
   }
 
@@ -665,6 +688,7 @@ class _$_LoadedLocationState implements _LoadedLocationState {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -684,6 +708,7 @@ class _$_LoadedLocationState implements _LoadedLocationState {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -691,6 +716,7 @@ class _$_LoadedLocationState implements _LoadedLocationState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return loadedLocationState(this);
   }
 
@@ -703,6 +729,7 @@ class _$_LoadedLocationState implements _LoadedLocationState {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -767,6 +794,7 @@ class _$_FailedLoaingLocationState implements _FailedLoaingLocationState {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -774,6 +802,7 @@ class _$_FailedLoaingLocationState implements _FailedLoaingLocationState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return failedLoadingLocationState();
   }
 
@@ -786,6 +815,7 @@ class _$_FailedLoaingLocationState implements _FailedLoaingLocationState {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -805,6 +835,7 @@ class _$_FailedLoaingLocationState implements _FailedLoaingLocationState {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -812,6 +843,7 @@ class _$_FailedLoaingLocationState implements _FailedLoaingLocationState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return failedLoadingLocationState(this);
   }
 
@@ -824,6 +856,7 @@ class _$_FailedLoaingLocationState implements _FailedLoaingLocationState {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -882,6 +915,7 @@ class _$_LocationDisabledState implements _LocationDisabledState {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -889,6 +923,7 @@ class _$_LocationDisabledState implements _LocationDisabledState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return locationDisabledState();
   }
 
@@ -901,6 +936,7 @@ class _$_LocationDisabledState implements _LocationDisabledState {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -920,6 +956,7 @@ class _$_LocationDisabledState implements _LocationDisabledState {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -927,6 +964,7 @@ class _$_LocationDisabledState implements _LocationDisabledState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return locationDisabledState(this);
   }
 
@@ -939,6 +977,7 @@ class _$_LocationDisabledState implements _LocationDisabledState {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -997,6 +1036,7 @@ class _$_LocationDeniedState implements _LocationDeniedState {
     @required Result failedLoadingLocationState(),
     @required Result locationDisabledState(),
     @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -1004,6 +1044,7 @@ class _$_LocationDeniedState implements _LocationDeniedState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return locationDeniedState();
   }
 
@@ -1016,6 +1057,7 @@ class _$_LocationDeniedState implements _LocationDeniedState {
     Result failedLoadingLocationState(),
     Result locationDisabledState(),
     Result locationDeniedState(),
+    Result locationServicesOffState(),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1035,6 +1077,7 @@ class _$_LocationDeniedState implements _LocationDeniedState {
         Result failedLoadingLocationState(_FailedLoaingLocationState value),
     @required Result locationDisabledState(_LocationDisabledState value),
     @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
   }) {
     assert(initial != null);
     assert(loadingLocationState != null);
@@ -1042,6 +1085,7 @@ class _$_LocationDeniedState implements _LocationDeniedState {
     assert(failedLoadingLocationState != null);
     assert(locationDisabledState != null);
     assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
     return locationDeniedState(this);
   }
 
@@ -1054,6 +1098,7 @@ class _$_LocationDeniedState implements _LocationDeniedState {
     Result failedLoadingLocationState(_FailedLoaingLocationState value),
     Result locationDisabledState(_LocationDisabledState value),
     Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
     @required Result orElse(),
   }) {
     assert(orElse != null);
@@ -1066,4 +1111,126 @@ class _$_LocationDeniedState implements _LocationDeniedState {
 
 abstract class _LocationDeniedState implements LocationState {
   const factory _LocationDeniedState() = _$_LocationDeniedState;
+}
+
+abstract class _$LocationServicesOffStateCopyWith<$Res> {
+  factory _$LocationServicesOffStateCopyWith(_LocationServicesOffState value,
+          $Res Function(_LocationServicesOffState) then) =
+      __$LocationServicesOffStateCopyWithImpl<$Res>;
+}
+
+class __$LocationServicesOffStateCopyWithImpl<$Res>
+    extends _$LocationStateCopyWithImpl<$Res>
+    implements _$LocationServicesOffStateCopyWith<$Res> {
+  __$LocationServicesOffStateCopyWithImpl(_LocationServicesOffState _value,
+      $Res Function(_LocationServicesOffState) _then)
+      : super(_value, (v) => _then(v as _LocationServicesOffState));
+
+  @override
+  _LocationServicesOffState get _value =>
+      super._value as _LocationServicesOffState;
+}
+
+class _$_LocationServicesOffState implements _LocationServicesOffState {
+  const _$_LocationServicesOffState();
+
+  @override
+  String toString() {
+    return 'LocationState.locationServicesOffState()';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) || (other is _LocationServicesOffState);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  Result when<Result extends Object>({
+    @required Result initial(),
+    @required Result loadingLocationState(),
+    @required
+        Result loadedLocationState(
+            Position position, List<Address> addressname),
+    @required Result failedLoadingLocationState(),
+    @required Result locationDisabledState(),
+    @required Result locationDeniedState(),
+    @required Result locationServicesOffState(),
+  }) {
+    assert(initial != null);
+    assert(loadingLocationState != null);
+    assert(loadedLocationState != null);
+    assert(failedLoadingLocationState != null);
+    assert(locationDisabledState != null);
+    assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
+    return locationServicesOffState();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeWhen<Result extends Object>({
+    Result initial(),
+    Result loadingLocationState(),
+    Result loadedLocationState(Position position, List<Address> addressname),
+    Result failedLoadingLocationState(),
+    Result locationDisabledState(),
+    Result locationDeniedState(),
+    Result locationServicesOffState(),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (locationServicesOffState != null) {
+      return locationServicesOffState();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  Result map<Result extends Object>({
+    @required Result initial(_Initial value),
+    @required Result loadingLocationState(_LoadingLocationState value),
+    @required Result loadedLocationState(_LoadedLocationState value),
+    @required
+        Result failedLoadingLocationState(_FailedLoaingLocationState value),
+    @required Result locationDisabledState(_LocationDisabledState value),
+    @required Result locationDeniedState(_LocationDeniedState value),
+    @required Result locationServicesOffState(_LocationServicesOffState value),
+  }) {
+    assert(initial != null);
+    assert(loadingLocationState != null);
+    assert(loadedLocationState != null);
+    assert(failedLoadingLocationState != null);
+    assert(locationDisabledState != null);
+    assert(locationDeniedState != null);
+    assert(locationServicesOffState != null);
+    return locationServicesOffState(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  Result maybeMap<Result extends Object>({
+    Result initial(_Initial value),
+    Result loadingLocationState(_LoadingLocationState value),
+    Result loadedLocationState(_LoadedLocationState value),
+    Result failedLoadingLocationState(_FailedLoaingLocationState value),
+    Result locationDisabledState(_LocationDisabledState value),
+    Result locationDeniedState(_LocationDeniedState value),
+    Result locationServicesOffState(_LocationServicesOffState value),
+    @required Result orElse(),
+  }) {
+    assert(orElse != null);
+    if (locationServicesOffState != null) {
+      return locationServicesOffState(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LocationServicesOffState implements LocationState {
+  const factory _LocationServicesOffState() = _$_LocationServicesOffState;
 }

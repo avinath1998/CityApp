@@ -6,5 +6,3 @@ class DataFetchException implements Exception {
   @override
   String toString() => 'DataFetchException(errorMsg: $errorMsg)';
 }
-
-enum DataFetchExceptionCode { uploadFailed, uploadDenied }

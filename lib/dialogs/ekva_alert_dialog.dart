@@ -29,7 +29,11 @@ class _EkvaAlertDialogState extends State<EkvaAlertDialog> {
         RaisedButton(
           child: Text("Ok"),
           onPressed: () {
-            widget.onOkPressed();
+            if (widget.onOkPressed != null) {
+              widget.onOkPressed();
+            } else {
+              Navigator.of(context).pop();
+            }
           },
         )
       ],

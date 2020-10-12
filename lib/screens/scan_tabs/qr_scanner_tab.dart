@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:loading/indicator/ball_grid_pulse_indicator.dart';
 import 'package:loading/indicator/line_scale_indicator.dart';
 import 'package:loading/loading.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+//import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QrScannerTab extends StatefulWidget {
   const QrScannerTab({
@@ -43,12 +43,12 @@ class _QrScannerTabState extends State<QrScannerTab> {
       child: !widget._hasQrCodeBeenFound
           ? Stack(
               children: <Widget>[
-                QRView(
-                  key: widget._qrKey,
-                  onQRViewCreated: (QRViewController controller) {
-                    widget._scanBloc.add(QRViewCreatedEvent(controller));
-                  },
-                ),
+                // QRView(
+                //   key: widget._qrKey,
+                //   onQRViewCreated: (QRViewController controller) {
+                //     widget._scanBloc.add(QRViewCreatedEvent(controller));
+                //   },
+                // ),
                 Container(
                   margin: const EdgeInsets.all(10.0),
                   child: Align(

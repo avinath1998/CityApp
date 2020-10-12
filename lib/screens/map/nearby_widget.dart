@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:citycollection/blocs/location/location_bloc.dart';
 import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
+import 'package:citycollection/dialogs/ekva_alert_dialog.dart';
 import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,9 +31,12 @@ class _NearbyTabState extends State<NearbyTab> {
   List<Marker> _binMarkers = <Marker>[];
   final Logger logger = Logger("NearbyTabState");
   BitmapDescriptor pinLocationIcon;
+  LocationBloc _locationBloc;
+  bool _showLoading = false;
 
   @override
   void initState() {
+    _locationBloc = LocationBloc();
     super.initState();
   }
 
@@ -43,6 +48,7 @@ class _NearbyTabState extends State<NearbyTab> {
 
   @override
   void dispose() {
+    _locationBloc.close();
     super.dispose();
   }
 
@@ -96,17 +102,257 @@ class _NearbyTabState extends State<NearbyTab> {
           }
         },
         child: Container(
-          child: GoogleMap(
-            zoomControlsEnabled: false,
-            mapType: MapType.normal,
-            myLocationButtonEnabled: true,
-            myLocationEnabled: true,
-            markers: Set<Marker>.of(_binMarkers),
-            initialCameraPosition: _kGooglePlex,
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-              _mapController = controller;
+          child: Stack(
+            children: [
+              BlocListener<LocationBloc, LocationState>(
+                cubit: _locationBloc,
+                listener: (conext, state) {
+                  state.when(
+                      initial: () {},
+                      loadingLocationState: () {
+                        if (!_showLoading) {
+                          setState(() {
+                            _showLoading = true;
+                          });
+                          showDialog(
+                              context: context,
+                              child: AlertDialog(
+                                  content: Container(
+                                height: 60,
+                                child: Row(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    Text("Finding bins near you.")
+                                  ],
+                                ),
+                              )));
+                        }
+                      },
+                      loadedLocationState: (position, addresses) {
+                        if (_showLoading) {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _showLoading = false;
+                          });
+                        }
+                        final p = CameraPosition(
+                            target:
+                                LatLng(position.latitude, position.longitude),
+                            zoom: 14.4746);
+                        _mapController
+                            .animateCamera(CameraUpdate.newCameraPosition(p));
+                      },
+                      failedLoadingLocationState: () {
+                        if (_showLoading) {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _showLoading = false;
+                          });
+                        }
+                        showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            child: EkvaAlertDialog(
+                              message:
+                                  "Could not get your lcoation, try again.",
+                              title: "Something went wrong...",
+                            ));
+                      },
+                      locationDisabledState: () {
+                        if (_showLoading) {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _showLoading = false;
+                          });
+                        }
+                        showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            child: EkvaAlertDialog(
+                              message:
+                                  "Your location permission is disabled, enable it and try again.",
+                              title: "Something went wrong...",
+                            ));
+                      },
+                      locationDeniedState: () {
+                        if (_showLoading) {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _showLoading = false;
+                          });
+                        }
+                        showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            child: EkvaAlertDialog(
+                              message:
+                                  "Your location permission is disabled, enable it and try again.",
+                              title: "Something went wrong...",
+                            ));
+                      },
+                      locationServicesOffState: () {
+                        if (_showLoading) {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _showLoading = false;
+                          });
+                        }
+                        showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            child: EkvaAlertDialog(
+                              message:
+                                  "Your location services, enable it and try again.",
+                              title: "Something went wrong...",
+                            ));
+                      });
+                },
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child: RaisedButton(
+                      onPressed: () {
+                        _locationBloc.add(LocationEvent.loadLocationEvent());
+                      },
+                      child: Icon(Icons.location_searching),
+                    ),
+                  ),
+                ),
+              ),
+              GoogleMap(
+                zoomControlsEnabled: false,
+                mapType: MapType.normal,
+                myLocationButtonEnabled: true,
+                myLocationEnabled: true,
+                markers: Set<Marker>.of(_binMarkers),
+                initialCameraPosition: _kGooglePlex,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                  _mapController = controller;
+                },
+              ),
+              NearbyButton(
+                onLocationFound: (position) {
+                  final p = CameraPosition(
+                      target: LatLng(position.latitude, position.longitude),
+                      zoom: 14.4746);
+                  _mapController
+                      .animateCamera(CameraUpdate.newCameraPosition(p));
+                },
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NearbyButton extends StatefulWidget {
+  final Function(Position position) onLocationFound;
+
+  const NearbyButton({Key key, this.onLocationFound}) : super(key: key);
+  @override
+  _NearbyButtonState createState() => _NearbyButtonState();
+}
+
+class _NearbyButtonState extends State<NearbyButton> {
+  bool _showLoading = false;
+  LocationBloc _locationBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _locationBloc = LocationBloc();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<LocationBloc, LocationState>(
+      cubit: _locationBloc,
+      listener: (conext, state) {
+        state.when(
+            initial: () {},
+            loadingLocationState: () {
+              setState(() {
+                _showLoading = true;
+              });
             },
+            loadedLocationState: (position, addresses) {
+              setState(() {
+                _showLoading = false;
+              });
+              widget.onLocationFound(position);
+            },
+            failedLoadingLocationState: () {
+              setState(() {
+                _showLoading = false;
+              });
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message: "Could not get your lcoation, try again.",
+                    title: "Something went wrong...",
+                  ));
+            },
+            locationDisabledState: () {
+              setState(() {
+                _showLoading = false;
+              });
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message:
+                        "Your location permission is disabled, enable it and try again.",
+                    title: "Something went wrong...",
+                  ));
+            },
+            locationDeniedState: () {
+              setState(() {
+                _showLoading = false;
+              });
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message:
+                        "Your location permission is disabled, enable it and try again.",
+                    title: "Something went wrong...",
+                  ));
+            },
+            locationServicesOffState: () {
+              setState(() {
+                _showLoading = false;
+              });
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message: "Your location services, enable it and try again.",
+                    title: "Something went wrong...",
+                  ));
+            });
+      },
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          child: RaisedButton(
+            onPressed: () {
+              _locationBloc.add(LocationEvent.loadLocationEvent());
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: _showLoading
+                  ? CircularProgressIndicator(backgroundColor: Colors.white)
+                  : Icon(Icons.location_searching),
+            ),
           ),
         ),
       ),

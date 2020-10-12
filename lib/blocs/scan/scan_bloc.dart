@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+//import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert';
 
 part 'scan_event.dart';
@@ -23,7 +23,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   final String _scanKey = "CityScanBin";
   final DataRepository _dataRepository;
   final Logger logger = Logger("ScanBloc");
-  QRViewController _controller;
+  //QRViewController _controller;
   StreamSubscription sub;
   CityScanQrCode currentCityScanQrCode;
 
@@ -59,33 +59,33 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     }
   }
 
-  Stream<ScanState> _initQRScanner(QRViewController controller) async* {
-    print("Initializing QR Code");
-    sub = controller.scannedDataStream.listen((scanData) async {
-      try {
-        final Map<String, dynamic> data = json.decode(scanData);
-        if (data.containsKey("type")) {
-          if (data["type"] == _scanKey) {
-            CityScanQrCode code =
-                CityScanQrCode.fromJson(json.decode(scanData));
-            currentCityScanQrCode = code;
-            add(QRCodeReceived(code));
-            sub.cancel();
-            controller.dispose();
-            return;
-          }
-        }
-        sub.cancel();
-        controller.dispose();
-        add(FailedQRCodeVerificationEvent(Exception("Invalid QR Code")));
-      } catch (e, stacktrace) {
-        logger.severe(e);
-        logger.severe(stacktrace);
-        sub.cancel();
-        controller.dispose();
-        add(FailedQRCodeVerificationEvent(e));
-      }
-    });
+  Stream<ScanState> _initQRScanner(controller) async* {
+    // print("Initializing QR Code");
+    // sub = controller.scannedDataStream.listen((scanData) async {
+    //   try {
+    //     final Map<String, dynamic> data = json.decode(scanData);
+    //     if (data.containsKey("type")) {
+    //       if (data["type"] == _scanKey) {
+    //         CityScanQrCode code =
+    //             CityScanQrCode.fromJson(json.decode(scanData));
+    //         currentCityScanQrCode = code;
+    //         add(QRCodeReceived(code));
+    //         sub.cancel();
+    //         controller.dispose();
+    //         return;
+    //       }
+    //     }
+    //     sub.cancel();
+    //     controller.dispose();
+    //     add(FailedQRCodeVerificationEvent(Exception("Invalid QR Code")));
+    //   } catch (e, stacktrace) {
+    //     logger.severe(e);
+    //     logger.severe(stacktrace);
+    //     sub.cancel();
+    //     controller.dispose();
+    //     add(FailedQRCodeVerificationEvent(e));
+    //   }
+    // });
   }
 
   Future<CameraController> _initCameraScanner() async {
@@ -149,7 +149,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
 
   @override
   Future<void> close() {
-    _controller?.dispose();
+    //_controller?.dispose();
     sub?.cancel();
 
     return super.close();

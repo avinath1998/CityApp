@@ -30,7 +30,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
   }
 
   Stream<CameraState> _dispose() async* {
-    _cameraController.dispose();
+    if (_cameraController != null) _cameraController.dispose();
     yield CameraState.disposed();
   }
 
@@ -42,9 +42,13 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     try {
       CameraController cameraController = await _initCameraScanner();
       yield CameraState.initialized(cameraController);
-    } on NoCameraFoundException catch (e) {
+    } on NoCameraFoundException catch (e, stk) {
+      logger.severe(e.errorMsg);
+      logger.severe(stk);
       yield CameraState.initializationFailed(e);
-    } on CameraException catch (e) {
+    } on CameraException catch (e, stk) {
+      logger.severe(e.description);
+      logger.severe(stk);
       yield CameraState.initializationFailed(e);
     }
   }

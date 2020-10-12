@@ -6,7 +6,7 @@ abstract class ScanEvent {}
 class ScannedEvent extends ScanEvent {}
 
 class QRViewCreatedEvent extends ScanEvent {
-  final QRViewController _controller;
+  final _controller;
   QRViewCreatedEvent(this._controller);
 }
 

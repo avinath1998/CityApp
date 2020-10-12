@@ -27,7 +27,6 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 import '../routes/modal_popup_route.dart';
 import 'got_trash/got_trash_screen.dart';
@@ -410,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     imageUrl: _currentSelectedBin.imageSrc,
                                     placeholder: (context, url) => Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 20.0),
+                                          horizontal: 40.0),
                                       child: CircularProgressIndicator(),
                                     ),
                                     imageBuilder: (context, imageprovider) {
