@@ -119,25 +119,44 @@ class _RedeemTabState extends State<RedeemTab> {
       controller: _scrollController,
       slivers: <Widget>[
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: InkWell(
-                onTap: () {},
-                child: Container(
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Icon(
-                    Icons.card_giftcard,
-                    color: Colors.white,
-                  ),
-                  decoration: BoxDecoration(
-                    color: CityColors.primary_teal,
-                    shape: BoxShape.circle,
+                  child: Column(
+                    children: [
+                      Icon(Icons.expand_less),
+                      Text(
+                        "Swipe up",
+                        style: Theme.of(context).textTheme.subtitle1,
+                      )
+                    ],
                   ),
                 ),
               ),
-            ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Icon(
+                        Icons.card_giftcard,
+                        color: Colors.white,
+                      ),
+                      decoration: BoxDecoration(
+                        color: CityColors.primary_teal,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         SliverAppBar(
@@ -222,9 +241,7 @@ class _RedeemTabState extends State<RedeemTab> {
           children: <Widget>[
             CachedNetworkImage(
               imageUrl: prize.image,
-              placeholder: (context, url) => CircularProgressIndicator(
-                backgroundColor: CityColors.primary_green,
-              ),
+              placeholder: (context, url) => CircularProgressIndicator(),
               imageBuilder: (context, provider) {
                 return Container(
                   width: 75,

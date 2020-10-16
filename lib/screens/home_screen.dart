@@ -28,6 +28,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logging/logging.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../routes/modal_popup_route.dart';
 import 'got_trash/got_trash_screen.dart';
 import 'leaderboard/leaderboard_tab.dart';
@@ -427,6 +428,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       );
                                     },
                                   ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.account_circle),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                        _currentSelectedBin != null
+                                            ? "by ${_currentSelectedBin.userName ?? ""}"
+                                            : "",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2,
+                                        textAlign: TextAlign.start,
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             )
@@ -438,51 +461,89 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.max,
                           children: <Widget>[
-                            Text(
-                              _currentSelectedBin != null
-                                  ? _currentSelectedBin.binName
-                                  : "",
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.subtitle1,
-                              textAlign: TextAlign.start,
-                            ),
-                            Text(
-                              _currentSelectedBin != null
-                                  ? "by: ${_currentSelectedBin.userName ?? ""}"
-                                  : "",
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: Theme.of(context).textTheme.bodyText2,
-                              textAlign: TextAlign.start,
+                            Row(
+                              children: [
+                                Icon(Icons.map),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    _currentSelectedBin != null
+                                        ? _currentSelectedBin.binName
+                                        : "",
+                                    style:
+                                        Theme.of(context).textTheme.bodyText2,
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ),
+                              ],
                             ),
                             SizedBox(
                               height: 5,
                             ),
                             if (_currentSelectedBin != null)
-                              Text(
-                                _currentSelectedBin.taggedTime
-                                            .toDaysAgo(DateTime.now()) >
-                                        0
-                                    ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
-                                    : "Added today!",
-                                style: Theme.of(context).textTheme.bodyText1,
-                                textAlign: TextAlign.start,
+                              Row(
+                                children: [
+                                  Icon(Icons.calendar_today),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    _currentSelectedBin.taggedTime
+                                                .toDaysAgo(DateTime.now()) >
+                                            0
+                                        ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
+                                        : "Added today!",
+                                    style:
+                                        Theme.of(context).textTheme.bodyText1,
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ],
                               ),
-                            SizedBox(
-                              height: 10,
-                            ),
                             Align(
                               alignment: Alignment.centerRight,
-                              child: RaisedButton(
-                                child: Text("Got Trash?"),
-                                onPressed: () {
-                                  Navigator.of(context).pushNamed(
-                                      GotTrashScreen.routeName,
-                                      arguments: {
-                                        "taggedBin": _currentSelectedBin
-                                      });
-                                },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Got Trash?",
+                                    style:
+                                        Theme.of(context).textTheme.subtitle2,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        RaisedButton(
+                                          child: Text("Get Points",
+                                              textAlign: TextAlign.center),
+                                          onPressed: () {
+                                            Navigator.of(context).pushNamed(
+                                                GotTrashScreen.routeName,
+                                                arguments: {
+                                                  "taggedBin":
+                                                      _currentSelectedBin
+                                                });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                child: FlatButton(
+                                    onPressed: () {
+                                      openMap(_currentSelectedBin.locationLan,
+                                          _currentSelectedBin.locationLon);
+                                    },
+                                    child: Text("Go to Bin")),
                               ),
                             ),
                           ],
@@ -490,14 +551,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Make sure to look around for the bin. \nIt may have moved a little. ",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyText2,
-                  ),
+
                   // Row(
                   //   mainAxisSize: MainAxisSize.min,
                   //   children: [
@@ -517,6 +571,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+}
+
+Future<void> openMap(double latitude, double longitude) async {
+  String googleUrl =
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+  if (await canLaunch(googleUrl)) {
+    await launch(googleUrl);
+  } else {
+    throw 'Could not open the map.';
   }
 }
 

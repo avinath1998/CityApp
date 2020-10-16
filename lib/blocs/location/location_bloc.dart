@@ -19,39 +19,40 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     LocationEvent event,
   ) async* {
     logger.info(event);
-    yield* event.when(
-        started: () {},
-        loadLocationEvent: () async* {
-          yield LocationState.loadingLocationState();
-          if (!await Geolocator().isLocationServiceEnabled()) {
-            yield LocationState.initial();
-            yield LocationState.locationServicesOffState();
-          }
-          GeolocationStatus status =
-              await Geolocator().checkGeolocationPermissionStatus();
-          logger.info("Geolocation Status");
-          logger.info(status);
-          if (status == GeolocationStatus.denied) {
-            yield LocationState.locationDeniedState();
-          } else if (status == GeolocationStatus.disabled ||
-              status == GeolocationStatus.restricted ||
-              status == GeolocationStatus.unknown) {
-            yield LocationState.locationDisabledState();
-          } else {
-            try {
-              Position position = await Geolocator()
-                  .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-              List<Address> addresses = await Geocoder.local
-                  .findAddressesFromCoordinates(
-                      Coordinates(position.latitude, position.longitude));
+    yield* event.when(started: () {
+      logger.info("Started location");
+      return;
+    }, loadLocationEvent: () async* {
+      logger.info("Loading location");
+      yield LocationState.loadingLocationState();
+      if (!await Geolocator().isLocationServiceEnabled()) {
+        yield LocationState.locationServicesOffState();
+      }
+      GeolocationStatus status =
+          await Geolocator().checkGeolocationPermissionStatus();
+      logger.info("Geolocation Status");
+      logger.info(status);
+      if (status == GeolocationStatus.denied) {
+        yield LocationState.locationDeniedState();
+      } else if (status == GeolocationStatus.disabled ||
+          status == GeolocationStatus.restricted ||
+          status == GeolocationStatus.unknown) {
+        yield LocationState.locationDisabledState();
+      } else {
+        try {
+          Position position = await Geolocator()
+              .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+          List<Address> addresses = await Geocoder.local
+              .findAddressesFromCoordinates(
+                  Coordinates(position.latitude, position.longitude));
 
-              yield LocationState.loadedLocationState(position, addresses);
-            } catch (e, stk) {
-              logger.severe(stk);
-              logger.severe(e);
-              yield LocationState.failedLoadingLocationState();
-            }
-          }
-        });
+          yield LocationState.loadedLocationState(position, addresses);
+        } catch (e, stk) {
+          logger.severe(stk);
+          logger.severe(e);
+          yield LocationState.failedLoadingLocationState();
+        }
+      }
+    });
   }
 }

@@ -89,7 +89,8 @@ class _NearbyTabState extends State<NearbyTab> {
                     icon: image,
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
-                    infoWindow: InfoWindow(title: taggedBin.binName),
+                    infoWindow: InfoWindow(
+                        title: "Find bin here:", snippet: taggedBin.binName),
                     onTap: () {
                       BlocProvider.of<NearbyBinsBloc>(context)
                           .add(SelectBinEvent(taggedBin));
@@ -263,11 +264,18 @@ class NearbyButton extends StatefulWidget {
 class _NearbyButtonState extends State<NearbyButton> {
   bool _showLoading = false;
   LocationBloc _locationBloc;
+  final Logger logger = Logger("NearbyButtonState");
 
   @override
   void initState() {
     super.initState();
     _locationBloc = LocationBloc();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _locationBloc.close();
   }
 
   @override
@@ -292,68 +300,69 @@ class _NearbyButtonState extends State<NearbyButton> {
               setState(() {
                 _showLoading = false;
               });
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  child: EkvaAlertDialog(
-                    message: "Could not get your lcoation, try again.",
-                    title: "Something went wrong...",
-                  ));
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     child: EkvaAlertDialog(
+              //       message: "Could not get your lcoation, try again.",
+              //       title: "Something went wrong...",
+              //     ));
             },
             locationDisabledState: () {
               setState(() {
                 _showLoading = false;
               });
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  child: EkvaAlertDialog(
-                    message:
-                        "Your location permission is disabled, enable it and try again.",
-                    title: "Something went wrong...",
-                  ));
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     child: EkvaAlertDialog(
+              //       message:
+              //           "Your location permission is disabled, enable it and try again.",
+              //       title: "Something went wrong...",
+              //     ));
             },
             locationDeniedState: () {
               setState(() {
                 _showLoading = false;
               });
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  child: EkvaAlertDialog(
-                    message:
-                        "Your location permission is disabled, enable it and try again.",
-                    title: "Something went wrong...",
-                  ));
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     child: EkvaAlertDialog(
+              //       message:
+              //           "Your location permission is disabled, enable it and try again.",
+              //       title: "Something went wrong...",
+              //     ));
             },
             locationServicesOffState: () {
               setState(() {
                 _showLoading = false;
               });
-              showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  child: EkvaAlertDialog(
-                    message: "Your location services, enable it and try again.",
-                    title: "Something went wrong...",
-                  ));
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     child: EkvaAlertDialog(
+              //       message:
+              //           "Your location services is disabled, enable it and try again.",
+              //       title: "Couldn't find bins...",
+              //     ));
             });
       },
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
-          child: RaisedButton(
-            onPressed: () {
-              _locationBloc.add(LocationEvent.loadLocationEvent());
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _showLoading
-                  ? CircularProgressIndicator(backgroundColor: Colors.white)
-                  : Icon(Icons.location_searching),
-            ),
-          ),
+          child: !_showLoading
+              ? RaisedButton(
+                  onPressed: () {
+                    _locationBloc.add(LocationEvent.loadLocationEvent());
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Icon(Icons.location_searching),
+                  ),
+                )
+              : CircularProgressIndicator(),
         ),
       ),
     );

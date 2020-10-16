@@ -96,17 +96,42 @@ class _TakePictureTabState extends State<TakePictureTab>
             SizedBox(
               height: 20,
             ),
-            Text(
-              "1. Take a picture of the bin.",
-              style: Theme.of(context).textTheme.bodyText1,
+            Row(
+              children: [
+                Text(
+                  "1. Take a ",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                Icon(Icons.camera_alt),
+                Text(
+                  " of the trash bin.",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+              ],
             ),
-            Text(
-              "2. Name the bin.",
-              style: Theme.of(context).textTheme.bodyText1,
+            Row(
+              children: [
+                Text(
+                  "2. Enter a nearby landmark",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Icon(Icons.explore),
+              ],
             ),
-            Text(
-              "3. Someone from our team will review and approve the bin.",
-              style: Theme.of(context).textTheme.bodyText1,
+            Row(
+              children: [
+                Text(
+                  "3. Thats it!",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Icon(Icons.check_circle),
+              ],
             ),
             SizedBox(
               height: 20.0,
@@ -285,24 +310,24 @@ class _TakePictureTabState extends State<TakePictureTab>
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Name the bin!",
+                                  Text("Precise location of the bin.",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5),
                                   Text(
-                                      "Make the bin your own and add a name to show on the map.",
+                                      "Enter instructions on how to to find the bin.\n(e.g. in the car park, behind the building)",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .subtitle1),
+                                          .bodyText1),
                                   SizedBox(height: 10),
                                   TextFormField(
                                     style:
                                         Theme.of(context).textTheme.bodyText1,
-                                    decoration:
-                                        InputDecoration(hintText: "Bin name"),
+                                    decoration: InputDecoration(
+                                        hintText: "Instructions"),
                                     validator: (val) {
                                       if (val == "") {
-                                        return "Enter a valid name.";
+                                        return "Enter further intructions.";
                                       }
                                     },
                                     onSaved: (val) {

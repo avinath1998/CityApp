@@ -4,10 +4,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/bin_disposal/bin_disposal_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/dialogs/ekva_alert_dialog.dart';
 import 'package:citycollection/models/bin_disposal.dart';
 import 'package:citycollection/models/tagged_bin.dart';
 import 'package:citycollection/screens/home_screen.dart';
 import 'package:citycollection/screens/general/take_picture_screen.dart';
+import 'package:citycollection/screens/me/see_trash_disposals_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -95,8 +97,7 @@ class _GotTrashScreenState extends State<GotTrashScreen>
               TakePictureScreen(
                 icon: Icon(FontAwesomeIcons.trashAlt,
                     color: Colors.white, size: 40),
-                message:
-                    "Take a picture of the trash bin you want to add to the map.",
+                message: "Take a picture of the trash bin.",
                 title: "Take a picture of the bin.",
                 iconTitle: "Trash Bin",
                 onImageTaken: (file) {
@@ -112,6 +113,17 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                   message: "Take a picture of your plastic trash.",
                   iconTitle: "Plastic Trash",
                   title: "Take a picture of your trash.",
+                  onCameraInitialized: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return EkvaAlertDialog(
+                            title: "Plastics only!",
+                            message:
+                                "Take 1 picture of your plastic trash, only plastics allowed.",
+                          );
+                        });
+                  },
                   onImageTaken: (file) {
                     _tabController.animateTo(3);
                     setState(() {
@@ -190,11 +202,23 @@ class _GotTrashScreenState extends State<GotTrashScreen>
             SizedBox(
               height: 10.0,
             ),
-            RaisedButton(
-              child: Text("Done"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FlatButton(
+                  child: Text("See Disposals"),
+                  onPressed: () {
+                    Navigator.of(context).pushReplacementNamed(
+                        SeeTrashDisposalsScreen.routeName);
+                  },
+                ),
+                RaisedButton(
+                  child: Text("Done"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             )
           ],
         ),
@@ -229,7 +253,7 @@ class _GotTrashScreenState extends State<GotTrashScreen>
               height: 15,
             ),
             Text(
-              "Got Trash?",
+              "Got Trash?\nEarn Ekva Points!",
               style: Theme.of(context).textTheme.headline5,
             ),
             Text("Throw it into this bin to earn Ekva points!",

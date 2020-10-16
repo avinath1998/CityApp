@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/dialogs/ekva_alert_dialog.dart';
 import 'package:citycollection/models/bin_disposal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:citycollection/extensions/date_time_extension.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SeeTrashDisposalsScreen extends StatefulWidget {
   static const routeName = "/seeTrashDisposalsScreen";
@@ -20,7 +22,8 @@ class _SeeTrashDisposalsScreenState extends State<SeeTrashDisposalsScreen> {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection("binDisposals")
-            .where("userId")
+            .where("userId",
+                isEqualTo: BlocProvider.of<AuthBloc>(context).currentUser.id)
             .orderBy("disposalTime", descending: true)
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snap) {

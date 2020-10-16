@@ -17,7 +17,7 @@ class _EkvaAlertDialogState extends State<EkvaAlertDialog> {
     return AlertDialog(
       title: Text(
         widget.title ?? "Alert",
-        style: Theme.of(context).textTheme.headline5,
+        style: Theme.of(context).textTheme.headline6,
         textAlign: TextAlign.start,
       ),
       content: Text(

@@ -51,22 +51,42 @@ class _HomeTabState extends State<HomeTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: InkWell(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Icon(
-                              Icons.account_circle,
-                              color: Colors.white,
-                            ),
-                            decoration: BoxDecoration(
-                              color: CityColors.primary_teal,
-                              shape: BoxShape.circle,
+                      Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: const EdgeInsets.all(0.0),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.expand_less),
+                                  Text(
+                                    "Swipe up",
+                                    style:
+                                        Theme.of(context).textTheme.subtitle1,
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: InkWell(
+                              onTap: () {},
+                              child: Container(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: CityColors.primary_teal,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       Align(
                         alignment: Alignment.centerLeft,

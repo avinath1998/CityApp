@@ -22,7 +22,7 @@ class PrizesLoadingSuccessState extends RedeemState {
 }
 
 class RedeemLoadingFailedState extends RedeemState {
-  final String errorMsg;
+  final Exception e;
 
-  RedeemLoadingFailedState(this.errorMsg);
+  RedeemLoadingFailedState(this.e);
 }

@@ -22,8 +22,14 @@ class RedeemBloc extends Bloc<RedeemEvent, RedeemState> {
       if (GetIt.instance<DataRepository>().cachedPrizes.length == 0) {
         yield RedeemPrizesWaitingState();
       }
-      List<Prize> prizes = await GetIt.instance<DataRepository>().fetchPrizes();
-      yield RedeemPrizesFetchedState(prizes);
+      try {
+        List<Prize> prizes =
+            await GetIt.instance<DataRepository>().fetchPrizes();
+        yield RedeemPrizesFetchedState(prizes);
+      } catch (e) {
+        print(e.toString());
+        yield RedeemLoadingFailedState(e);
+      }
     }
   }
 }

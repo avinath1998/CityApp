@@ -253,14 +253,51 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
-                                                  return EkvaAlertDialog(
-                                                    title: "Your Prize Code",
-                                                    message:
-                                                        "Your code is \n ${redemption.code}\n\n${redemption.message}",
-                                                    onOkPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
+                                                  return AlertDialog(
+                                                    title:
+                                                        Text("Your Prize Code"),
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                          "Prize Code:",
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .subtitle1,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        SelectableText(
+                                                          "${redemption.code}",
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyText2,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Text(
+                                                          "${redemption.message}",
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .subtitle1,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      RaisedButton(
+                                                        child: Text("Close"),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                      )
+                                                    ],
                                                   );
                                                 },
                                               );

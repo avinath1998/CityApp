@@ -17,11 +17,13 @@ class TakePictureScreen extends StatefulWidget {
   final String iconTitle;
   static const routeName = "TakePictureScreen";
   final Function(File image) onImageTaken;
+  final Function() onCameraInitialized;
   final Icon icon;
   const TakePictureScreen(
       {Key key,
       this.message,
       this.onImageTaken,
+      this.onCameraInitialized,
       this.icon,
       this.title,
       this.iconTitle})
@@ -65,6 +67,8 @@ class _TakePictureScreenState extends State<TakePictureScreen>
               initial: () {},
               disposed: () {},
               initialized: (CameraController controller) {
+                if (widget.onCameraInitialized != null)
+                  widget.onCameraInitialized();
                 setState(() {
                   _cameraController = controller;
                 });

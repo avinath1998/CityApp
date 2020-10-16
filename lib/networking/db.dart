@@ -59,7 +59,7 @@ class FirebaseDB extends DB {
   Future<List<Prize>> fetchPrizes() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("prizes")
-        .orderBy("cost")
+        .where('remaining', isGreaterThan: 0)
         .get();
     List<Prize> prizes = List();
     snapshot.docs.forEach((dc) {
@@ -68,6 +68,7 @@ class FirebaseDB extends DB {
       Prize prize = Prize.fromJson(map);
       prizes.add(prize);
     });
+    prizes.sort((p1, p2) => p1.cost.compareTo(p2.cost));
     return prizes;
   }
 
