@@ -51,7 +51,6 @@ Future<void> setup() async {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.loggerName} ${record.message}');
   });
-  PushNotificationsManager().init();
 }
 
 class MyApp extends StatelessWidget {

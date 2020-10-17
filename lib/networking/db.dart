@@ -33,6 +33,7 @@ abstract class DB {
   Future<BinDisposal> saveBinDisposal(
       TaggedBin bin, File wasteImage, File binImage, CurrentUser user);
   Future<void> updateTaggedBin(TaggedBin bin, CurrentUser user);
+  Future<void> updateFcmToken(CurrentUser currentUser, String fcm);
 }
 
 class FirebaseDB extends DB {
@@ -364,6 +365,14 @@ class FirebaseDB extends DB {
       throw DataUploadException(
           "Uploading failed", DataUploadExceptionCode.uploadFailed);
     }
+  }
+
+  @override
+  Future<void> updateFcmToken(CurrentUser currentUser, String fcm) async {
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(currentUser.id)
+        .update({"fcmToken": fcm});
   }
 }
 

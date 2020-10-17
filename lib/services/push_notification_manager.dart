@@ -7,9 +7,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:logging/logging.dart';
 
 class PushNotificationsManager {
-  PushNotificationsManager._({this.onInitialized});
+  PushNotificationsManager._();
 
-  factory PushNotificationsManager({Function onInitialized}) => _instance;
+  factory PushNotificationsManager() => _instance;
 
   static final PushNotificationsManager _instance =
       PushNotificationsManager._();
@@ -17,7 +17,6 @@ class PushNotificationsManager {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   bool _initialized = false;
-  final Function onInitialized;
   List<Function(BaseNotification map)> callbacks = List();
 
   final Logger logger = Logger("PushNotificationsManager");
@@ -29,47 +28,45 @@ class PushNotificationsManager {
     callbacks.clear();
   }
 
-  Future<void> init({bool askedOnce = false}) async {
+  Future<void> init({Function(String fcm) onInitialized}) async {
     if (!_initialized) {
-      if (await _firebaseMessaging.requestNotificationPermissions()) {
-        callbacks = List();
-        // For testing purposes print the Firebase Messaging token
-        String token = await _firebaseMessaging.getToken();
-        print("FirebaseMessaging token: $token");
-        _initialized = true;
-        _firebaseMessaging.configure(
-          onMessage: (Map<String, dynamic> message) async {
-            Map<String, dynamic> map = {};
-            logger.info(message);
-            map.addAll(Map.from(message["notification"]));
-            map.addAll(Map.from(message["data"]));
-            BaseNotification notif;
-            switch (message["data"]["type"]) {
-              case "prize":
-                notif = PrizeNotification.fromJson(map);
-                break;
-              case "disposal":
-                notif = DisposalNotification.fromJson(map);
-                break;
-              case "general":
-                notif = GeneralNotification.fromJson(map);
-                break;
-              case "addBin":
-                notif = AddBinNotification.fromJson(map);
-                break;
-            }
-            callbacks.forEach((element) {
-              element(notif);
-            });
-          },
-          onLaunch: (Map<String, dynamic> message) async {
-            print("onLaunch: $message");
-          },
-          onResume: (Map<String, dynamic> message) async {
-            print("onResume: $message");
-          },
-        );
-      }
+      await _firebaseMessaging.requestNotificationPermissions();
+      // For testing purposes print the Firebase Messaging token
+      String token = await _firebaseMessaging.getToken();
+      if (onInitialized != null) onInitialized(token);
+      _initialized = true;
+      _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+          Map<String, dynamic> map = {};
+          logger.info(message);
+          map.addAll(Map.from(message["notification"]));
+          map.addAll(Map.from(message["data"]));
+          BaseNotification notif;
+          switch (message["data"]["type"]) {
+            case "prize":
+              notif = PrizeNotification.fromJson(map);
+              break;
+            case "disposal":
+              notif = DisposalNotification.fromJson(map);
+              break;
+            case "general":
+              notif = GeneralNotification.fromJson(map);
+              break;
+            case "addBin":
+              notif = AddBinNotification.fromJson(map);
+              break;
+          }
+          callbacks.forEach((element) {
+            element(notif);
+          });
+        },
+        onLaunch: (Map<String, dynamic> message) async {
+          print("onLaunch: $message");
+        },
+        onResume: (Map<String, dynamic> message) async {
+          print("onResume: $message");
+        },
+      );
     }
   }
 }

@@ -102,6 +102,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _nearbyBinsBloc.add(OpenBinStreamEvent());
       _pointsCardController.forward();
     });
+    initPushNotifications();
+  }
+
+  void initPushNotifications() async {
+    await PushNotificationsManager().init(onInitialized: (fcm) {
+      GetIt.instance<DataRepository>()
+          .updateFcmToken(BlocProvider.of<AuthBloc>(context).currentUser, fcm);
+    });
     PushNotificationsManager().addCallback((notif) => _showNotification(notif));
   }
 
@@ -516,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Expanded(
                         flex: 3,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.max,
                           children: <Widget>[
@@ -532,14 +540,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         ? _currentSelectedBin.binName
                                         : "",
                                     style:
-                                        Theme.of(context).textTheme.bodyText2,
+                                        Theme.of(context).textTheme.subtitle1,
                                     textAlign: TextAlign.start,
                                   ),
                                 ),
                               ],
                             ),
                             SizedBox(
-                              height: 5,
+                              height: 15,
                             ),
                             if (_currentSelectedBin != null)
                               Row(

@@ -118,4 +118,8 @@ class DataRepository {
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user) async {
     return db.fetchScanWinnings(user);
   }
+
+  Future<void> updateFcmToken(CurrentUser currentUser, String fcm) async {
+    return db.updateFcmToken(currentUser, fcm);
+  }
 }
