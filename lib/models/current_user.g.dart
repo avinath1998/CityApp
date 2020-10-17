@@ -22,6 +22,7 @@ _$_CurrentUser _$_$_CurrentUserFromJson(Map<String, dynamic> json) {
     id: json['id'] as String,
     name: json['name'] as String,
     email: json['email'] as String,
+    fcmToken: json['fcmToken'] as String,
     phoneNumber: json['phoneNumber'] as String,
     password: json['password'] as String,
   );
@@ -37,6 +38,7 @@ Map<String, dynamic> _$_$_CurrentUserToJson(_$_CurrentUser instance) =>
       'id': instance.id,
       'name': instance.name,
       'email': instance.email,
+      'fcmToken': instance.fcmToken,
       'phoneNumber': instance.phoneNumber,
       'password': instance.password,
     };

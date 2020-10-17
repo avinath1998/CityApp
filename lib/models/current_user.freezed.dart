@@ -25,6 +25,7 @@ class _$CurrentUserTearOff {
       String id,
       String name,
       String email,
+      String fcmToken,
       String phoneNumber,
       String password}) {
     return _CurrentUser(
@@ -36,6 +37,7 @@ class _$CurrentUserTearOff {
       id: id,
       name: name,
       email: email,
+      fcmToken: fcmToken,
       phoneNumber: phoneNumber,
       password: password,
     );
@@ -54,6 +56,7 @@ mixin _$CurrentUser {
   String get id;
   String get name;
   String get email;
+  String get fcmToken;
   String get phoneNumber;
   String get password;
 
@@ -74,6 +77,7 @@ abstract class $CurrentUserCopyWith<$Res> {
       String id,
       String name,
       String email,
+      String fcmToken,
       String phoneNumber,
       String password});
 }
@@ -95,6 +99,7 @@ class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
     Object id = freezed,
     Object name = freezed,
     Object email = freezed,
+    Object fcmToken = freezed,
     Object phoneNumber = freezed,
     Object password = freezed,
   }) {
@@ -109,6 +114,7 @@ class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
       id: id == freezed ? _value.id : id as String,
       name: name == freezed ? _value.name : name as String,
       email: email == freezed ? _value.email : email as String,
+      fcmToken: fcmToken == freezed ? _value.fcmToken : fcmToken as String,
       phoneNumber:
           phoneNumber == freezed ? _value.phoneNumber : phoneNumber as String,
       password: password == freezed ? _value.password : password as String,
@@ -131,6 +137,7 @@ abstract class _$CurrentUserCopyWith<$Res>
       String id,
       String name,
       String email,
+      String fcmToken,
       String phoneNumber,
       String password});
 }
@@ -154,6 +161,7 @@ class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
     Object id = freezed,
     Object name = freezed,
     Object email = freezed,
+    Object fcmToken = freezed,
     Object phoneNumber = freezed,
     Object password = freezed,
   }) {
@@ -168,6 +176,7 @@ class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
       id: id == freezed ? _value.id : id as String,
       name: name == freezed ? _value.name : name as String,
       email: email == freezed ? _value.email : email as String,
+      fcmToken: fcmToken == freezed ? _value.fcmToken : fcmToken as String,
       phoneNumber:
           phoneNumber == freezed ? _value.phoneNumber : phoneNumber as String,
       password: password == freezed ? _value.password : password as String,
@@ -186,6 +195,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       this.id,
       this.name,
       this.email,
+      this.fcmToken,
       this.phoneNumber,
       this.password});
 
@@ -209,13 +219,15 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
   @override
   final String email;
   @override
+  final String fcmToken;
+  @override
   final String phoneNumber;
   @override
   final String password;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CurrentUser(address: $address, dob: $dob, points: $points, pickups: $pickups, redemptions: $redemptions, id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, password: $password)';
+    return 'CurrentUser(address: $address, dob: $dob, points: $points, pickups: $pickups, redemptions: $redemptions, id: $id, name: $name, email: $email, fcmToken: $fcmToken, phoneNumber: $phoneNumber, password: $password)';
   }
 
   @override
@@ -231,6 +243,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('email', email))
+      ..add(DiagnosticsProperty('fcmToken', fcmToken))
       ..add(DiagnosticsProperty('phoneNumber', phoneNumber))
       ..add(DiagnosticsProperty('password', password));
   }
@@ -258,6 +271,9 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
                 const DeepCollectionEquality().equals(other.name, name)) &&
             (identical(other.email, email) ||
                 const DeepCollectionEquality().equals(other.email, email)) &&
+            (identical(other.fcmToken, fcmToken) ||
+                const DeepCollectionEquality()
+                    .equals(other.fcmToken, fcmToken)) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 const DeepCollectionEquality()
                     .equals(other.phoneNumber, phoneNumber)) &&
@@ -277,6 +293,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       const DeepCollectionEquality().hash(id) ^
       const DeepCollectionEquality().hash(name) ^
       const DeepCollectionEquality().hash(email) ^
+      const DeepCollectionEquality().hash(fcmToken) ^
       const DeepCollectionEquality().hash(phoneNumber) ^
       const DeepCollectionEquality().hash(password);
 
@@ -300,6 +317,7 @@ abstract class _CurrentUser implements CurrentUser {
       String id,
       String name,
       String email,
+      String fcmToken,
       String phoneNumber,
       String password}) = _$_CurrentUser;
 
@@ -322,6 +340,8 @@ abstract class _CurrentUser implements CurrentUser {
   String get name;
   @override
   String get email;
+  @override
+  String get fcmToken;
   @override
   String get phoneNumber;
   @override

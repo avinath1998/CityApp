@@ -6,9 +6,10 @@
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
     <application
-        android:name="io.flutter.app.FlutterApplication"
+        android:name=".Application"
         android:label="Ekva"
         android:icon="@mipmap/launcher_icon">
+        
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyA-oGFP7FUpmLWCcMTjSXHKQdzJO-5Yd3k"/>
         <activity
@@ -35,6 +36,10 @@
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
               />
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

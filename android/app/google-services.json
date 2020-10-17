@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:911733827894:android:e1d8e8b6eb5d8598d7eb97",
+        "mobilesdk_app_id": "1:911733827894:android:95e8b758f73ec7bcd7eb97",
         "android_client_info": {
-          "package_name": "com.city.citycollection"
+          "package_name": "Com.avi"
         }
       },
       "oauth_client": [
@@ -30,6 +30,57 @@
             {
               "client_id": "911733827894-b1m6q5srch2pc6n7fmpgb45c3sm9e0v8.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "911733827894-dl5olkln7ed099s9g2cppbi4ban9hkmj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.city.citycollection"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911733827894:android:e1d8e8b6eb5d8598d7eb97",
+        "android_client_info": {
+          "package_name": "com.city.citycollection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "911733827894-m3ke29hqambe6rvvldiebhfkt4ap2j7o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.city.citycollection",
+            "certificate_hash": "df9970cf2d37cd8c1ea871daad54bde5cab740b8"
+          }
+        },
+        {
+          "client_id": "911733827894-b1m6q5srch2pc6n7fmpgb45c3sm9e0v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkI_3F4AK9BCOTMf48F4HkE7Xf4KmQ6HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "911733827894-b1m6q5srch2pc6n7fmpgb45c3sm9e0v8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "911733827894-dl5olkln7ed099s9g2cppbi4ban9hkmj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.city.citycollection"
+              }
             }
           ]
         }

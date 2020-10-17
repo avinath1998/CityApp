@@ -120,7 +120,7 @@ class _GotTrashScreenState extends State<GotTrashScreen>
                           return EkvaAlertDialog(
                             title: "Plastics only!",
                             message:
-                                "Take 1 picture of your plastic trash, only plastics allowed.",
+                                "Take ONE pictuture of your plastic trash only!",
                           );
                         });
                   },

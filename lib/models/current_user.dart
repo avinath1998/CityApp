@@ -22,6 +22,7 @@ abstract class CurrentUser extends User with _$CurrentUser {
       String id,
       String name,
       String email,
+      String fcmToken,
       String phoneNumber,
       String password}) = _CurrentUser;
 

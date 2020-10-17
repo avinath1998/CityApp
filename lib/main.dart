@@ -13,6 +13,8 @@ import 'package:citycollection/screens/root_page.dart';
 import 'package:citycollection/screens/me/see_tagged_bins_screen.dart';
 import 'package:citycollection/screens/general/take_picture_screen.dart';
 import 'package:citycollection/services/auth_service.dart';
+import 'package:citycollection/services/push_notification_manager.dart';
+import 'package:citycollection/services/push_notification_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
@@ -30,21 +32,26 @@ import 'networking/repositories/data_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
+  await setup();
+  runApp(DevicePreview(
+    enabled: false,
+    builder: (context) => MyApp(),
+  ));
+  //runApp(MyApp());
+}
+
+Future<void> setup() async {
   FirebaseDB db = FirebaseDB();
-  WidgetsFlutterBinding.ensureInitialized();
-  FirebaseApp defaultApp = await Firebase.initializeApp();
   GetIt.instance.registerSingleton<DataRepository>(DataRepository(db));
   GetIt.instance
       .registerSingleton<BinDisposalRepository>(BinDisposalRepository(db));
+  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseApp defaultApp = await Firebase.initializeApp();
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.loggerName} ${record.message}');
   });
-  // runApp(DevicePreview(
-  //   enabled: false,
-  //   builder: (context) => MyApp(),
-  // ));
-  runApp(MyApp());
+  PushNotificationsManager().init();
 }
 
 class MyApp extends StatelessWidget {

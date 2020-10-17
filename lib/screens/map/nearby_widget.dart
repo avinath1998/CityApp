@@ -90,7 +90,8 @@ class _NearbyTabState extends State<NearbyTab> {
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
                     infoWindow: InfoWindow(
-                        title: "Find bin here:", snippet: taggedBin.binName),
+                      title: taggedBin.binName,
+                    ),
                     onTap: () {
                       BlocProvider.of<NearbyBinsBloc>(context)
                           .add(SelectBinEvent(taggedBin));
@@ -195,6 +196,8 @@ class _NearbyTabState extends State<NearbyTab> {
                             ));
                       },
                       locationServicesOffState: () {
+                        logger
+                            .info("Location Services are off, showing dialog");
                         if (_showLoading) {
                           Navigator.of(context).pop();
                           setState(() {

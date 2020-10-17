@@ -53,6 +53,8 @@ dependencies:
   flare_flutter: ^2.0.4
   url_launcher: ^5.5.0
   geocoder: ^0.2.1
+  firebase_messaging: ^7.0.3
+  flushbar: ^1.10.4
 
 
 

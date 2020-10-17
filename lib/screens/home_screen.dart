@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/auth/auth_bloc.dart';
 import 'package:citycollection/blocs/bin_disposal/bin_disposal_bloc.dart';
 import 'package:citycollection/blocs/home_tab/home_tab_bloc.dart';
@@ -8,14 +10,26 @@ import 'package:citycollection/blocs/home_tab/home_tabs.dart';
 import 'package:citycollection/blocs/nearby_bins/nearby_bins_bloc.dart';
 import 'package:citycollection/blocs/tagged_bins/tagged_bins_bloc.dart';
 import 'package:citycollection/configurations/city_colors.dart';
+import 'package:citycollection/extensions/date_time_extension.dart';
 import 'package:citycollection/models/live_bin_setting.dart';
+import 'package:citycollection/models/notifications/add_bin_notification/add_bin_notification.dart';
+import 'package:citycollection/models/notifications/base_notification.dart';
+import 'package:citycollection/models/notifications/disposal_notification/disposal_notification.dart';
+import 'package:citycollection/models/notifications/general_notification/general_notification.dart';
+import 'package:citycollection/models/notifications/prize_notification/prize_notification.dart';
 import 'package:citycollection/models/tagged_bin.dart';
-import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/networking/repositories/bin_disposal_repository.dart';
+import 'package:citycollection/networking/repositories/data_repository.dart';
 import 'package:citycollection/screens/add_bin/add_bin_widget.dart';
-import 'package:citycollection/screens/me/home_tab.dart';
 import 'package:citycollection/screens/general/take_picture_screen.dart';
+import 'package:citycollection/screens/me/home_tab.dart';
+import 'package:citycollection/screens/me/redemptions_screen.dart';
+import 'package:citycollection/screens/me/see_tagged_bins_screen.dart';
+import 'package:citycollection/screens/me/see_trash_disposals_screen.dart';
+import 'package:citycollection/screens/notifications/notification_utils.dart';
+import 'package:citycollection/services/push_notification_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -29,14 +43,12 @@ import 'package:logging/logging.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:titled_navigation_bar/titled_navigation_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../routes/modal_popup_route.dart';
 import 'got_trash/got_trash_screen.dart';
 import 'leaderboard/leaderboard_tab.dart';
 import 'map/nearby_widget.dart';
 import 'rewards/rewards_widget.dart';
-import 'dart:math';
-import 'package:citycollection/blocs/auth/auth_bloc.dart';
-import 'package:citycollection/extensions/date_time_extension.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = "/home";
@@ -64,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _homeTabBloc = HomeTabBloc();
-
     _nearbyBinsBloc =
         NearbyBinsBloc(GetIt.instance<DataRepository>(), Geolocator());
     _rewardsCardSlideController = AnimationController(
@@ -91,6 +102,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _nearbyBinsBloc.add(OpenBinStreamEvent());
       _pointsCardController.forward();
     });
+    PushNotificationsManager().addCallback((notif) => _showNotification(notif));
+  }
+
+  void _showNotification(BaseNotification notif) {
+    logger.info("Showing notification");
+    if (notif is GeneralNotification) {
+      showGeneralNotification(context: context, notif: notif);
+    } else if (notif is PrizeNotification) {
+      showPrizeNotification(
+          context: context,
+          notif: notif,
+          onSeeRedemptionsTapped: () {
+            Navigator.of(context).pushNamed(RedemptionsScreen.routeName);
+          });
+    } else if (notif is AddBinNotification) {
+      showBinNotification(
+          context: context,
+          notif: notif,
+          onSeeBinsTapped: () {
+            Navigator.of(context).pushNamed(SeeTaggedBinsScreen.routeName);
+          });
+    } else if (notif is DisposalNotification) {
+      showDisposalNotification(
+          context: context,
+          notif: notif,
+          onSeeDisposalsTapped: () {
+            Navigator.of(context).pushNamed(SeeTrashDisposalsScreen.routeName);
+          });
+    }
   }
 
   @override
@@ -400,62 +440,81 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Row(
                     children: <Widget>[
                       _currentSelectedBin != null
-                          ? Align(
-                              alignment: Alignment.centerLeft,
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  CachedNetworkImage(
-                                    imageUrl: _currentSelectedBin.imageSrc,
-                                    placeholder: (context, url) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 40.0),
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                    imageBuilder: (context, imageprovider) {
-                                      return Container(
-                                        height: 120,
-                                        width: 120,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20.0)),
-                                          image: DecorationImage(
-                                            image: imageprovider,
-                                            fit: BoxFit.cover,
+                          ? Expanded(
+                              flex: 2,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    CachedNetworkImage(
+                                      imageUrl: _currentSelectedBin.imageSrc,
+                                      placeholder: (context, url) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40.0),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                      imageBuilder: (context, imageprovider) {
+                                        return Container(
+                                          height: 120,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(20.0)),
+                                            image: DecorationImage(
+                                              image: imageprovider,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.account_circle),
-                                      SizedBox(
-                                        width: 5,
+                                        );
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Container(
+                                        child: FlatButton(
+                                            onPressed: () {
+                                              openMap(
+                                                  _currentSelectedBin
+                                                      .locationLan,
+                                                  _currentSelectedBin
+                                                      .locationLon);
+                                            },
+                                            child: Text("Go to Bin")),
                                       ),
-                                      Text(
-                                        _currentSelectedBin != null
-                                            ? "by ${_currentSelectedBin.userName ?? ""}"
-                                            : "",
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText2,
-                                        textAlign: TextAlign.start,
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                    // Row(
+                                    //   children: [
+                                    //     Icon(Icons.account_circle),
+                                    //     SizedBox(
+                                    //       width: 5,
+                                    //     ),
+                                    //     Text(
+                                    //       _currentSelectedBin != null
+                                    //           ? "by ${_currentSelectedBin.userName ?? ""}"
+                                    //           : "",
+                                    //       overflow: TextOverflow.ellipsis,
+                                    //       maxLines: 2,
+                                    //       style: Theme.of(context)
+                                    //           .textTheme
+                                    //           .bodyText2,
+                                    //       textAlign: TextAlign.start,
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                  ],
+                                ),
                               ),
                             )
                           : Container(),
-                      SizedBox(width: 15),
+                      SizedBox(
+                        width: 15,
+                      ),
                       Expanded(
+                        flex: 3,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,21 +548,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   SizedBox(
                                     width: 5,
                                   ),
-                                  Text(
-                                    _currentSelectedBin.taggedTime
-                                                .toDaysAgo(DateTime.now()) >
-                                            0
-                                        ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
-                                        : "Added today!",
-                                    style:
-                                        Theme.of(context).textTheme.bodyText1,
-                                    textAlign: TextAlign.start,
+                                  Expanded(
+                                    child: Text(
+                                      _currentSelectedBin.taggedTime
+                                                  .toDaysAgo(DateTime.now()) >
+                                              0
+                                          ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
+                                          : "Added today!",
+                                      style:
+                                          Theme.of(context).textTheme.bodyText1,
+                                      textAlign: TextAlign.start,
+                                    ),
                                   ),
                                 ],
                               ),
+                            SizedBox(
+                              height: 10,
+                            ),
                             Align(
-                              alignment: Alignment.centerRight,
-                              child: Row(
+                              alignment: Alignment.center,
+                              child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
@@ -514,36 +578,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   SizedBox(
                                     width: 10,
                                   ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        RaisedButton(
-                                          child: Text("Get Points",
-                                              textAlign: TextAlign.center),
-                                          onPressed: () {
-                                            Navigator.of(context).pushNamed(
-                                                GotTrashScreen.routeName,
-                                                arguments: {
-                                                  "taggedBin":
-                                                      _currentSelectedBin
-                                                });
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                                  RaisedButton(
+                                    child: Text("Get Points",
+                                        textAlign: TextAlign.center),
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed(
+                                          GotTrashScreen.routeName,
+                                          arguments: {
+                                            "taggedBin": _currentSelectedBin
+                                          });
+                                    },
                                   ),
                                 ],
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                child: FlatButton(
-                                    onPressed: () {
-                                      openMap(_currentSelectedBin.locationLan,
-                                          _currentSelectedBin.locationLon);
-                                    },
-                                    child: Text("Go to Bin")),
                               ),
                             ),
                           ],

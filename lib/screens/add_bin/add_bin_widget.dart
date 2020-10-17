@@ -492,8 +492,10 @@ class _TakePictureTabState extends State<TakePictureTab>
                       locationLan: position.latitude,
                       locationLon: position.longitude,
                       reportStrikes: 0,
-                      userName:
-                          BlocProvider.of<AuthBloc>(context).currentUser.name,
+                      userName: BlocProvider.of<AuthBloc>(context)
+                          .currentUser
+                          .name
+                          .split(" ")[0],
                       taggedTime: DateTime.now(),
                       pointsEarned: 0);
                   BlocProvider.of<TaggedBinsBloc>(context).add(
