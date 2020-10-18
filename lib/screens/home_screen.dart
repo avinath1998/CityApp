@@ -294,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Hi, ${state.user.name.split(" ").first}",
+                                            "Hi, ${state.user.firstName}",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5,
@@ -432,196 +432,171 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           .animate(CurvedAnimation(
               curve: Curves.fastOutSlowIn, parent: _mapClosestBinController)),
       child: Container(
+        height: 220,
         margin: const EdgeInsets.all(5.0),
         child: Card(
           color: Colors.white,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(30.0))),
-          child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(30.0)),
-              ),
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: <Widget>[
-                      _currentSelectedBin != null
-                          ? Expanded(
-                              flex: 2,
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl: _currentSelectedBin.imageSrc,
-                                      placeholder: (context, url) => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 40.0),
-                                        child: CircularProgressIndicator(),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                _currentSelectedBin != null
+                    ? Expanded(
+                        flex: 2,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: _currentSelectedBin.imageSrc,
+                                placeholder: (context, url) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                                imageBuilder: (context, imageprovider) {
+                                  return Container(
+                                    height: 120,
+                                    width: 120,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)),
+                                      image: DecorationImage(
+                                        image: imageprovider,
+                                        fit: BoxFit.cover,
                                       ),
-                                      imageBuilder: (context, imageprovider) {
-                                        return Container(
-                                          height: 120,
-                                          width: 120,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(20.0)),
-                                            image: DecorationImage(
-                                              image: imageprovider,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        );
+                                    ),
+                                  );
+                                },
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  child: FlatButton(
+                                      onPressed: () {
+                                        openMap(_currentSelectedBin.locationLan,
+                                            _currentSelectedBin.locationLon);
                                       },
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Container(
-                                        child: FlatButton(
-                                            onPressed: () {
-                                              openMap(
-                                                  _currentSelectedBin
-                                                      .locationLan,
-                                                  _currentSelectedBin
-                                                      .locationLon);
-                                            },
-                                            child: Text("Go to Bin")),
-                                      ),
-                                    ),
-                                    // Row(
-                                    //   children: [
-                                    //     Icon(Icons.account_circle),
-                                    //     SizedBox(
-                                    //       width: 5,
-                                    //     ),
-                                    //     Text(
-                                    //       _currentSelectedBin != null
-                                    //           ? "by ${_currentSelectedBin.userName ?? ""}"
-                                    //           : "",
-                                    //       overflow: TextOverflow.ellipsis,
-                                    //       maxLines: 2,
-                                    //       style: Theme.of(context)
-                                    //           .textTheme
-                                    //           .bodyText2,
-                                    //       textAlign: TextAlign.start,
-                                    //     ),
-                                    //   ],
-                                    // ),
-                                  ],
+                                      child: Text("Find Bin")),
                                 ),
                               ),
-                            )
-                          : Container(),
-                      SizedBox(
-                        width: 15,
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.map),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: Text(
+                              _currentSelectedBin != null
+                                  ? _currentSelectedBin.binName
+                                  : "",
+                              maxLines: 3,
+                              overflow: TextOverflow.fade,
+                              style: Theme.of(context).textTheme.bodyText1,
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ],
                       ),
-                      Expanded(
-                        flex: 3,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.account_circle),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: Text(
+                              _currentSelectedBin != null
+                                  ? "by " + _currentSelectedBin.userName
+                                  : "",
+                              maxLines: 3,
+                              overflow: TextOverflow.fade,
+                              style: Theme.of(context).textTheme.bodyText1,
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (_currentSelectedBin != null)
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Expanded(
+                              child: Text(
+                                _currentSelectedBin.taggedTime
+                                            .toDaysAgo(DateTime.now()) >
+                                        0
+                                    ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
+                                    : "Added today!",
+                                style: Theme.of(context).textTheme.bodyText1,
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                          ],
+                        ),
+                      Container(
+                        alignment: Alignment.center,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.max,
-                          children: <Widget>[
-                            Row(
-                              children: [
-                                Icon(Icons.map),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    _currentSelectedBin != null
-                                        ? _currentSelectedBin.binName
-                                        : "",
-                                    style:
-                                        Theme.of(context).textTheme.subtitle1,
-                                    textAlign: TextAlign.start,
-                                  ),
-                                ),
-                              ],
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Got Trash?",
+                              style: Theme.of(context).textTheme.subtitle2,
                             ),
                             SizedBox(
-                              height: 15,
+                              width: 10,
                             ),
-                            if (_currentSelectedBin != null)
-                              Row(
-                                children: [
-                                  Icon(Icons.calendar_today),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      _currentSelectedBin.taggedTime
-                                                  .toDaysAgo(DateTime.now()) >
-                                              0
-                                          ? "Added ${_currentSelectedBin.taggedTime.toDaysAgo(DateTime.now())} days ago."
-                                          : "Added today!",
-                                      style:
-                                          Theme.of(context).textTheme.bodyText1,
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "Got Trash?",
-                                    style:
-                                        Theme.of(context).textTheme.subtitle2,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  RaisedButton(
-                                    child: Text("Get Points",
-                                        textAlign: TextAlign.center),
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          GotTrashScreen.routeName,
-                                          arguments: {
-                                            "taggedBin": _currentSelectedBin
-                                          });
-                                    },
-                                  ),
-                                ],
-                              ),
+                            RaisedButton(
+                              child: Text("Get Points",
+                                  textAlign: TextAlign.center),
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(
+                                    GotTrashScreen.routeName,
+                                    arguments: {
+                                      "taggedBin": _currentSelectedBin
+                                    });
+                              },
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-
-                  // Row(
-                  //   mainAxisSize: MainAxisSize.min,
-                  //   children: [
-                  //     Text("Bin not there?"),
-                  //     FlatButton(
-                  //       child: Text("Report It"),
-                  //       onPressed: () {
-                  //         Navigator.of(context).pushNamed(
-                  //             GotTrashScreen.routeName,
-                  //             arguments: {"taggedBin": _currentSelectedBin});
-                  //       },
-                  //     ),
-                  //   ],
-                  // ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

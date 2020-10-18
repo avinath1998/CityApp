@@ -25,7 +25,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
       await Future.delayed(Duration(seconds: 1));
       if (!await Geolocator().isLocationServiceEnabled()) {
         logger.info("Location services are off");
-        yield LocationState.failedLoadingLocationState();
+        yield LocationState.locationDisabledState();
       } else {
         GeolocationStatus status =
             await Geolocator().checkGeolocationPermissionStatus();

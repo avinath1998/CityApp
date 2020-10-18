@@ -80,7 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               keyboardType: TextInputType.emailAddress,
                               style: Theme.of(context).textTheme.bodyText1,
-                              decoration: InputDecoration(hintText: "Email"),
+                              decoration: InputDecoration(
+                                  hintText: "Email", icon: Icon(Icons.email)),
                               //initialValue: "avinath.2016041@iit.ac.lk",
                               validator: (val) {
                                 if (val == "") {
@@ -97,7 +98,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 10,
                             ),
                             TextFormField(
-                              decoration: InputDecoration(hintText: "Password"),
+                              decoration: InputDecoration(
+                                  hintText: "Password", icon: Icon(Icons.lock)),
                               style: Theme.of(context).textTheme.bodyText1,
                               // initialValue: "password12",
                               obscureText: true,

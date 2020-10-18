@@ -30,220 +30,271 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         automaticallyImplyLeading: true,
       ),
       body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is RegistrationWaitingState) {
-            setState(() {
-              _errorMsg = null;
-              _isLoading = true;
-            });
-          } else if (state is RegistrationFailedState) {
-            String error = "An error has occured, try again";
-            switch (state.exception) {
-              case RegistrationException.userNotSaved:
-                break;
-              case RegistrationException.errorWeakPassword:
-                error = "That password is too weak, enter a stronger one";
-                break;
-              case RegistrationException.invalidEmail:
-                error = "That email is invalid!";
-                break;
-              case RegistrationException.emailAreadyInUse:
-                error = "That email is already registered!";
-                break;
-              case RegistrationException.generalAuth:
-                break;
+          listener: (context, state) {
+            if (state is RegistrationWaitingState) {
+              setState(() {
+                _errorMsg = null;
+                _isLoading = true;
+              });
+            } else if (state is RegistrationFailedState) {
+              String error = "An error has occured, try again";
+              switch (state.exception) {
+                case RegistrationException.userNotSaved:
+                  break;
+                case RegistrationException.errorWeakPassword:
+                  error = "That password is too weak, enter a stronger one";
+                  break;
+                case RegistrationException.invalidEmail:
+                  error = "That email is invalid!";
+                  break;
+                case RegistrationException.emailAreadyInUse:
+                  error = "That email is already registered!";
+                  break;
+                case RegistrationException.generalAuth:
+                  break;
+              }
+              setState(() {
+                _errorMsg = error;
+                _isLoading = false;
+              });
+            } else if (state is RegistrationSuccessfulState) {
+              setState(() {
+                _errorMsg = null;
+                _isDone = true;
+                _isLoading = false;
+              });
+              FocusScope.of(context).unfocus();
             }
-            setState(() {
-              _errorMsg = error;
-              _isLoading = false;
-            });
-          } else if (state is RegistrationSuccessfulState) {
-            setState(() {
-              _errorMsg = null;
-              _isDone = true;
-              _isLoading = false;
-            });
-            FocusScope.of(context).unfocus();
-          }
-        },
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "Register",
-                              style: Theme.of(context).textTheme.headline5,
-                            ),
-                            Text(
-                              "Register to start using Ekva",
-                              textAlign: TextAlign.start,
-                              style: Theme.of(context).textTheme.subtitle1,
-                            ),
-                          ],
+          },
+          child: SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Register",
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                              Text(
+                                "Register to start using Ekva",
+                                textAlign: TextAlign.start,
+                                style: Theme.of(context).textTheme.subtitle1,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      TextFormField(
-                        //initialValue: "Avinath Gunasekara",
-                        decoration: InputDecoration(hintText: "First Name"),
-                        style: Theme.of(context).textTheme.bodyText1,
-                        validator: (val) {
-                          if (val == "") {
-                            return "Enter a valid name.";
-                          }
-                        },
-                        onSaved: (val) {
-                          setState(() {
-                            _values["name"] = val;
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextFormField(
-                        // initialValue: "avinath.2016041@iit.ac.lk",
-                        decoration: InputDecoration(hintText: "E-mail"),
-                        style: Theme.of(context).textTheme.bodyText1,
-                        validator: (val) {
-                          if (val == "" ||
-                              !val.contains("@") ||
-                              !val.contains(".")) {
-                            return "Enter a valid email.";
-                          }
-                        },
-                        onSaved: (val) {
-                          setState(() {
-                            _values["email"] = val;
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextFormField(
-                        // initialValue: "password12",
-                        decoration: InputDecoration(
-                            hintText: "Password (Min 6 Characters)"),
-                        style: Theme.of(context).textTheme.bodyText1,
-                        obscureText: true,
-                        validator: (val) {
-                          if (val == "" || val.length < 6) {
-                            return "Enter a valid password.";
-                          }
-                        },
-                        onSaved: (val) {
-                          setState(() {
-                            _values["password"] = val;
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextFormField(
-                        // initialValue: "password12",
-                        decoration:
-                            InputDecoration(hintText: "Confirm Password"),
-                        style: Theme.of(context).textTheme.bodyText1,
-                        obscureText: true,
-                        validator: (val) {
-                          if (val == "" || val.length < 6) {
-                            return "Enter a valid password.";
-                          }
-                        },
-                        onSaved: (val) {
-                          setState(() {
-                            _values["conPassword"] = val;
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Text(
-                        _errorMsg ?? "",
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1
-                            .copyWith(color: Theme.of(context).errorColor),
-                      ),
-                      AnimatedSwitcher(
-                          duration: Duration(milliseconds: 100),
-                          child: _isLoading
-                              ? CircularProgressIndicator()
-                              : LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    if (!_isDone) {
-                                      return RaisedButton(
-                                        child: Text(
-                                          "Register",
-                                        ),
-                                        onPressed: () {
-                                          if (_formKey.currentState
-                                              .validate()) {
-                                            _formKey.currentState.save();
-                                            CurrentUser user = CurrentUser(
-                                                name: _values["name"],
-                                                email: _values["email"]);
-                                            logger.info(user);
-                                            BlocProvider.of<AuthBloc>(context)
-                                                .add(RegisterUserEvent(
-                                                    user,
-                                                    _values["password"],
-                                                    DateTime.now()));
-                                          }
-                                        },
-                                      );
-                                    } else {
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Registered, a confirmation link has been sent to your email.",
-                                            textAlign: TextAlign.center,
+                        SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          //initialValue: "Avinath Gunasekara",
+                          decoration: InputDecoration(
+                              hintText: "First Name",
+                              icon: Icon(Icons.account_circle)),
+                          style: Theme.of(context).textTheme.bodyText1,
+                          validator: (val) {
+                            if (val == "") {
+                              return "Enter a valid name.";
+                            }
+                          },
+                          onSaved: (val) {
+                            setState(() {
+                              _values["fName"] = val;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          //initialValue: "Avinath Gunasekara",
+                          decoration: InputDecoration(
+                              hintText: "Last Name",
+                              icon: Icon(Icons.account_circle)),
+
+                          style: Theme.of(context).textTheme.bodyText1,
+                          validator: (val) {
+                            if (val == "") {
+                              return "Enter a valid name.";
+                            }
+                          },
+                          onSaved: (val) {
+                            setState(() {
+                              _values["lName"] = val;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          // initialValue: "avinath.2016041@iit.ac.lk",
+                          decoration: InputDecoration(
+                              hintText: "E-mail", icon: Icon(Icons.email)),
+                          style: Theme.of(context).textTheme.bodyText1,
+                          validator: (val) {
+                            if (val == "" ||
+                                !val.contains("@") ||
+                                !val.contains(".")) {
+                              return "Enter a valid email.";
+                            }
+                          },
+                          onSaved: (val) {
+                            setState(() {
+                              _values["email"] = val;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          // initialValue: "password12",
+                          decoration: InputDecoration(
+                              hintText: "Password (Min 6 Characters)",
+                              icon: Icon(Icons.lock)),
+                          style: Theme.of(context).textTheme.bodyText1,
+                          obscureText: true,
+                          validator: (val) {
+                            if (val == "" || val.length < 6) {
+                              return "Enter a valid password.";
+                            }
+                          },
+                          onSaved: (val) {
+                            setState(() {
+                              _values["password"] = val;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          // initialValue: "password12",
+                          decoration: InputDecoration(
+                              hintText: "Confirm Password",
+                              icon: Icon(Icons.account_circle)),
+                          style: Theme.of(context).textTheme.bodyText1,
+                          obscureText: true,
+
+                          validator: (val) {
+                            if (val == "" || val.length < 6) {
+                              return "Enter a valid password.";
+                            }
+                          },
+                          onSaved: (val) {
+                            setState(() {
+                              _values["conPassword"] = val;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Text(
+                          _errorMsg ?? "",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1
+                              .copyWith(color: Theme.of(context).errorColor),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        AnimatedSwitcher(
+                            duration: Duration(milliseconds: 100),
+                            child: _isLoading
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(
+                                        width: 15,
+                                      ),
+                                      Text("Registering...")
+                                    ],
+                                  )
+                                : LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      if (!_isDone) {
+                                        return RaisedButton(
+                                          child: Text(
+                                            "Register",
                                           ),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                          FlatButton(
-                                            child: Text(
-                                              "Proceed To Login",
+                                          onPressed: () {
+                                            if (_formKey.currentState
+                                                .validate()) {
+                                              _formKey.currentState.save();
+                                              if (_values["conPassword"] ==
+                                                  _values["password"]) {
+                                                setState(() {
+                                                  _errorMsg = null;
+                                                });
+                                                CurrentUser user = CurrentUser(
+                                                    firstName: _values["fName"],
+                                                    lastName: _values["lName"],
+                                                    email: _values["email"]);
+                                                logger.info(user);
+                                                BlocProvider.of<AuthBloc>(
+                                                        context)
+                                                    .add(RegisterUserEvent(
+                                                        user,
+                                                        _values["password"],
+                                                        DateTime.now()));
+                                              } else {
+                                                setState(() {
+                                                  _errorMsg =
+                                                      "Passwords do not match!";
+                                                });
+                                              }
+                                            }
+                                          },
+                                        );
+                                      } else {
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Registered, a confirmation link has been sent to your email.",
                                               textAlign: TextAlign.center,
                                             ),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                  },
-                                )),
-                    ],
-                  ),
-                )),
-          ),
-        ),
-      ),
+                                            SizedBox(
+                                              height: 10.0,
+                                            ),
+                                            FlatButton(
+                                              child: Text(
+                                                "Proceed To Login",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                    },
+                                  )),
+                      ],
+                    )),
+              ),
+            ),
+          )),
     );
   }
 }

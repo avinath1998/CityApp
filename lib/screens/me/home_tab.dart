@@ -98,7 +98,7 @@ class _HomeTabState extends State<HomeTab> {
                             TextSpan(
                                 text: BlocProvider.of<AuthBloc>(
                                       context,
-                                    ).currentUser.name.split(" ")[0] +
+                                    ).currentUser.firstName +
                                     ",",
                                 style: Theme.of(context).textTheme.headline5),
                           ]),
@@ -117,16 +117,17 @@ class _HomeTabState extends State<HomeTab> {
                       Column(
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               RaisedButton(
-                                child: Text("See Trash Disposals"),
+                                child: Text("My Disposals"),
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(
                                       SeeTrashDisposalsScreen.routeName);
                                 },
                               ),
                               FlatButton(
-                                child: Text("See Added Bins"),
+                                child: Text("My Bins"),
                                 onPressed: () {
                                   Navigator.of(context)
                                       .pushNamed(SeeTaggedBinsScreen.routeName);
@@ -140,7 +141,7 @@ class _HomeTabState extends State<HomeTab> {
                                   .pushNamed(RedemptionsScreen.routeName);
                             },
                             child: Text(
-                              "See Your Redemptions",
+                              "My Prizes",
                             ),
                           ),
                         ],
@@ -175,7 +176,23 @@ class _HomeTabState extends State<HomeTab> {
       child: Column(
         children: [
           TextFormField(
-            initialValue: user.name,
+            initialValue: user.firstName,
+            enabled: false,
+            decoration: InputDecoration(
+              hintText: "Name",
+              icon: Icon(Icons.account_circle),
+            ),
+            style: Theme.of(context).textTheme.bodyText1,
+            validator: (val) {
+              if (val == "") {
+                return "Enter a valid name.";
+              }
+            },
+            onSaved: (val) {},
+          ),
+          SizedBox(height: 10),
+          TextFormField(
+            initialValue: user.lastName,
             enabled: false,
             decoration: InputDecoration(
               hintText: "Name",
@@ -195,7 +212,7 @@ class _HomeTabState extends State<HomeTab> {
             enabled: false,
             decoration: InputDecoration(
               hintText: "Name",
-              icon: Icon(Icons.account_circle),
+              icon: Icon(Icons.email),
             ),
             style: Theme.of(context).textTheme.bodyText1,
             validator: (val) {
@@ -204,24 +221,6 @@ class _HomeTabState extends State<HomeTab> {
               }
             },
             onSaved: (val) {},
-          ),
-          SizedBox(height: 10),
-          TextFormField(
-            initialValue: user.dob.toDateString(),
-            enabled: false,
-            decoration: InputDecoration(
-                hintText: "Date of Birthday", icon: Icon(Icons.cake)),
-            style: Theme.of(context).textTheme.bodyText1,
-            validator: (val) {
-              if (val == "") {
-                return "Enter a valid name.";
-              }
-            },
-            onSaved: (val) {
-              // setState(() {
-              //   _values["name"] = val;
-              // });
-            },
           ),
           SizedBox(
             height: 30.0,

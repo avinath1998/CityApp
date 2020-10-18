@@ -1,11 +1,11 @@
 abstract class User {
-  final String name;
-  final int points;
+  final String firstName;
+  final String lastName;
   final String id;
 
   User({
-    this.name,
-    this.points,
+    this.firstName,
+    this.lastName,
     this.id,
   });
 }

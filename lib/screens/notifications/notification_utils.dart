@@ -115,7 +115,7 @@ void showPrizeNotification(
       ],
     ),
     isDismissible: true,
-    duration: Duration(seconds: 30),
+    duration: Duration(seconds: 5),
   )..show(context);
 }
 
@@ -196,7 +196,7 @@ void showBinNotification(
       ],
     ),
     isDismissible: true,
-    duration: Duration(seconds: 30),
+    duration: Duration(seconds: 5),
   )..show(context);
 }
 
@@ -275,6 +275,6 @@ void showDisposalNotification(
       ],
     ),
     isDismissible: true,
-    duration: Duration(seconds: 30),
+    duration: Duration(seconds: 5),
   )..show(context);
 }

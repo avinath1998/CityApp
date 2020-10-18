@@ -25,8 +25,9 @@ class DataRepository {
   final Logger logger = Logger("DataRepository");
   double redeemPageScrollPosition = 0;
 
-  Future<void> createUser(String email, String name, String uid, DateTime dob) {
-    return db.createUser(email, name, uid, dob);
+  Future<void> createUser(
+      String email, String fName, String lName, String uid, DateTime dob) {
+    return db.createUser(email, fName, lName, uid, dob);
   }
 
   Future<CurrentUser> fetchCurrentUser(String id) {

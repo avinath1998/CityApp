@@ -16,7 +16,7 @@ abstract class AuthService {
   Future<void> resetPassword(String email);
   Future<void> sendConfirmationEmail(UserCredential user);
   Future<CurrentUser> register(
-      String email, String password, String name, DateTime dob);
+      String email, String password, String fName, String lName, DateTime dob);
 }
 
 class FirebaseAuthService implements AuthService {
@@ -107,8 +107,8 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<CurrentUser> register(
-      String email, String password, String name, DateTime dob) async {
+  Future<CurrentUser> register(String email, String password, String fName,
+      String lName, DateTime dob) async {
     logger.info("Registering");
     UserCredential result = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password);
@@ -117,7 +117,7 @@ class FirebaseAuthService implements AuthService {
     if (result != null) {
       user = CurrentUser(email: result.user.email, id: result.user.uid);
       await GetIt.instance<DataRepository>()
-          .createUser(email, name, result.user.uid, dob);
+          .createUser(email, fName, lName, result.user.uid, dob);
     }
     return user;
   }

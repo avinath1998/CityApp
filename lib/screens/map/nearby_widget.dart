@@ -90,7 +90,7 @@ class _NearbyTabState extends State<NearbyTab> {
                     position:
                         LatLng(taggedBin.locationLan, taggedBin.locationLon),
                     infoWindow: InfoWindow(
-                      title: taggedBin.binName,
+                      title: "Selected Bin",
                     ),
                     onTap: () {
                       BlocProvider.of<NearbyBinsBloc>(context)
@@ -106,127 +106,6 @@ class _NearbyTabState extends State<NearbyTab> {
         child: Container(
           child: Stack(
             children: [
-              BlocListener<LocationBloc, LocationState>(
-                cubit: _locationBloc,
-                listener: (conext, state) {
-                  state.when(
-                      initial: () {},
-                      loadingLocationState: () {
-                        if (!_showLoading) {
-                          setState(() {
-                            _showLoading = true;
-                          });
-                          showDialog(
-                              context: context,
-                              child: AlertDialog(
-                                  content: Container(
-                                height: 60,
-                                child: Row(
-                                  children: [
-                                    CircularProgressIndicator(),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text("Finding bins near you.")
-                                  ],
-                                ),
-                              )));
-                        }
-                      },
-                      loadedLocationState: (position, addresses) {
-                        if (_showLoading) {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _showLoading = false;
-                          });
-                        }
-                        final p = CameraPosition(
-                            target:
-                                LatLng(position.latitude, position.longitude),
-                            zoom: 14.4746);
-                        _mapController
-                            .animateCamera(CameraUpdate.newCameraPosition(p));
-                      },
-                      failedLoadingLocationState: () {
-                        if (_showLoading) {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _showLoading = false;
-                          });
-                        }
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            child: EkvaAlertDialog(
-                              message:
-                                  "Could not get your lcoation, try again.",
-                              title: "Something went wrong...",
-                            ));
-                      },
-                      locationDisabledState: () {
-                        if (_showLoading) {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _showLoading = false;
-                          });
-                        }
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            child: EkvaAlertDialog(
-                              message:
-                                  "Your location permission is disabled, enable it and try again.",
-                              title: "Something went wrong...",
-                            ));
-                      },
-                      locationDeniedState: () {
-                        if (_showLoading) {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _showLoading = false;
-                          });
-                        }
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            child: EkvaAlertDialog(
-                              message:
-                                  "Your location permission is disabled, enable it and try again.",
-                              title: "Something went wrong...",
-                            ));
-                      },
-                      locationServicesOffState: () {
-                        logger
-                            .info("Location Services are off, showing dialog");
-                        if (_showLoading) {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _showLoading = false;
-                          });
-                        }
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            child: EkvaAlertDialog(
-                              message:
-                                  "Your location services, enable it and try again.",
-                              title: "Something went wrong...",
-                            ));
-                      });
-                },
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: RaisedButton(
-                      onPressed: () {
-                        _locationBloc.add(LocationEvent.loadLocationEvent());
-                      },
-                      child: Icon(Icons.location_searching),
-                    ),
-                  ),
-                ),
-              ),
               GoogleMap(
                 zoomControlsEnabled: false,
                 mapType: MapType.normal,
@@ -303,52 +182,52 @@ class _NearbyButtonState extends State<NearbyButton> {
               setState(() {
                 _showLoading = false;
               });
-              // showDialog(
-              //     barrierDismissible: false,
-              //     context: context,
-              //     child: EkvaAlertDialog(
-              //       message: "Could not get your lcoation, try again.",
-              //       title: "Something went wrong...",
-              //     ));
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message: "Could not get your lcoation, try again.",
+                    title: "Something went wrong...",
+                  ));
             },
             locationDisabledState: () {
               setState(() {
                 _showLoading = false;
               });
-              // showDialog(
-              //     barrierDismissible: false,
-              //     context: context,
-              //     child: EkvaAlertDialog(
-              //       message:
-              //           "Your location permission is disabled, enable it and try again.",
-              //       title: "Something went wrong...",
-              //     ));
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message:
+                        "Your location permission is disabled, enable it and try again.",
+                    title: "Something went wrong...",
+                  ));
             },
             locationDeniedState: () {
               setState(() {
                 _showLoading = false;
               });
-              // showDialog(
-              //     barrierDismissible: false,
-              //     context: context,
-              //     child: EkvaAlertDialog(
-              //       message:
-              //           "Your location permission is disabled, enable it and try again.",
-              //       title: "Something went wrong...",
-              //     ));
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message:
+                        "Your location permission is disabled, enable it and try again.",
+                    title: "Something went wrong...",
+                  ));
             },
             locationServicesOffState: () {
               setState(() {
                 _showLoading = false;
               });
-              // showDialog(
-              //     barrierDismissible: false,
-              //     context: context,
-              //     child: EkvaAlertDialog(
-              //       message:
-              //           "Your location services is disabled, enable it and try again.",
-              //       title: "Couldn't find bins...",
-              //     ));
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  child: EkvaAlertDialog(
+                    message:
+                        "Your location services is disabled, enable it and try again.",
+                    title: "Couldn't find bins...",
+                  ));
             });
       },
       child: Align(
@@ -362,7 +241,16 @@ class _NearbyButtonState extends State<NearbyButton> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Icon(Icons.location_searching),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.near_me),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text("Find Bins")
+                      ],
+                    ),
                   ),
                 )
               : CircularProgressIndicator(),

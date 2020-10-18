@@ -310,20 +310,23 @@ class _TakePictureTabState extends State<TakePictureTab>
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Precise location of the bin.",
+                                  Text("How to find your bin?",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline5),
                                   Text(
-                                      "Enter instructions on how to to find the bin.\n(e.g. in the car park, behind the building)",
+                                      "Add some instructions on how to find your bin.\n(e.g. in the car park, behind the building)",
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyText1),
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 15),
                                   TextFormField(
                                     style:
                                         Theme.of(context).textTheme.bodyText1,
                                     decoration: InputDecoration(
+                                        icon: Icon(
+                                          Icons.pin_drop,
+                                        ),
                                         hintText: "Instructions"),
                                     validator: (val) {
                                       if (val == "") {
@@ -390,7 +393,7 @@ class _TakePictureTabState extends State<TakePictureTab>
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Text(
-                                                "Your location is disabled, turn it on to add a bin.s",
+                                                "Your location is disabled, turn it on to add a bin.",
                                                 textAlign: TextAlign.center,
                                               ),
                                               RaisedButton(
@@ -494,7 +497,7 @@ class _TakePictureTabState extends State<TakePictureTab>
                       reportStrikes: 0,
                       userName: BlocProvider.of<AuthBloc>(context)
                           .currentUser
-                          .name
+                          .firstName
                           .split(" ")[0],
                       taggedTime: DateTime.now(),
                       pointsEarned: 0);

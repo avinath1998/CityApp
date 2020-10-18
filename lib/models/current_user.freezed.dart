@@ -23,7 +23,8 @@ class _$CurrentUserTearOff {
       List<Pickup> pickups,
       List<Redemption> redemptions,
       String id,
-      String name,
+      String firstName,
+      String lastName,
       String email,
       String fcmToken,
       String phoneNumber,
@@ -35,7 +36,8 @@ class _$CurrentUserTearOff {
       pickups: pickups,
       redemptions: redemptions,
       id: id,
-      name: name,
+      firstName: firstName,
+      lastName: lastName,
       email: email,
       fcmToken: fcmToken,
       phoneNumber: phoneNumber,
@@ -54,7 +56,8 @@ mixin _$CurrentUser {
   List<Pickup> get pickups;
   List<Redemption> get redemptions;
   String get id;
-  String get name;
+  String get firstName;
+  String get lastName;
   String get email;
   String get fcmToken;
   String get phoneNumber;
@@ -75,7 +78,8 @@ abstract class $CurrentUserCopyWith<$Res> {
       List<Pickup> pickups,
       List<Redemption> redemptions,
       String id,
-      String name,
+      String firstName,
+      String lastName,
       String email,
       String fcmToken,
       String phoneNumber,
@@ -97,7 +101,8 @@ class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
     Object pickups = freezed,
     Object redemptions = freezed,
     Object id = freezed,
-    Object name = freezed,
+    Object firstName = freezed,
+    Object lastName = freezed,
     Object email = freezed,
     Object fcmToken = freezed,
     Object phoneNumber = freezed,
@@ -112,7 +117,8 @@ class _$CurrentUserCopyWithImpl<$Res> implements $CurrentUserCopyWith<$Res> {
           ? _value.redemptions
           : redemptions as List<Redemption>,
       id: id == freezed ? _value.id : id as String,
-      name: name == freezed ? _value.name : name as String,
+      firstName: firstName == freezed ? _value.firstName : firstName as String,
+      lastName: lastName == freezed ? _value.lastName : lastName as String,
       email: email == freezed ? _value.email : email as String,
       fcmToken: fcmToken == freezed ? _value.fcmToken : fcmToken as String,
       phoneNumber:
@@ -135,7 +141,8 @@ abstract class _$CurrentUserCopyWith<$Res>
       List<Pickup> pickups,
       List<Redemption> redemptions,
       String id,
-      String name,
+      String firstName,
+      String lastName,
       String email,
       String fcmToken,
       String phoneNumber,
@@ -159,7 +166,8 @@ class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
     Object pickups = freezed,
     Object redemptions = freezed,
     Object id = freezed,
-    Object name = freezed,
+    Object firstName = freezed,
+    Object lastName = freezed,
     Object email = freezed,
     Object fcmToken = freezed,
     Object phoneNumber = freezed,
@@ -174,7 +182,8 @@ class __$CurrentUserCopyWithImpl<$Res> extends _$CurrentUserCopyWithImpl<$Res>
           ? _value.redemptions
           : redemptions as List<Redemption>,
       id: id == freezed ? _value.id : id as String,
-      name: name == freezed ? _value.name : name as String,
+      firstName: firstName == freezed ? _value.firstName : firstName as String,
+      lastName: lastName == freezed ? _value.lastName : lastName as String,
       email: email == freezed ? _value.email : email as String,
       fcmToken: fcmToken == freezed ? _value.fcmToken : fcmToken as String,
       phoneNumber:
@@ -193,7 +202,8 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       this.pickups,
       this.redemptions,
       this.id,
-      this.name,
+      this.firstName,
+      this.lastName,
       this.email,
       this.fcmToken,
       this.phoneNumber,
@@ -215,7 +225,9 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
   @override
   final String id;
   @override
-  final String name;
+  final String firstName;
+  @override
+  final String lastName;
   @override
   final String email;
   @override
@@ -227,7 +239,7 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CurrentUser(address: $address, dob: $dob, points: $points, pickups: $pickups, redemptions: $redemptions, id: $id, name: $name, email: $email, fcmToken: $fcmToken, phoneNumber: $phoneNumber, password: $password)';
+    return 'CurrentUser(address: $address, dob: $dob, points: $points, pickups: $pickups, redemptions: $redemptions, id: $id, firstName: $firstName, lastName: $lastName, email: $email, fcmToken: $fcmToken, phoneNumber: $phoneNumber, password: $password)';
   }
 
   @override
@@ -241,7 +253,8 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       ..add(DiagnosticsProperty('pickups', pickups))
       ..add(DiagnosticsProperty('redemptions', redemptions))
       ..add(DiagnosticsProperty('id', id))
-      ..add(DiagnosticsProperty('name', name))
+      ..add(DiagnosticsProperty('firstName', firstName))
+      ..add(DiagnosticsProperty('lastName', lastName))
       ..add(DiagnosticsProperty('email', email))
       ..add(DiagnosticsProperty('fcmToken', fcmToken))
       ..add(DiagnosticsProperty('phoneNumber', phoneNumber))
@@ -267,8 +280,12 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
                     .equals(other.redemptions, redemptions)) &&
             (identical(other.id, id) ||
                 const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
+            (identical(other.firstName, firstName) ||
+                const DeepCollectionEquality()
+                    .equals(other.firstName, firstName)) &&
+            (identical(other.lastName, lastName) ||
+                const DeepCollectionEquality()
+                    .equals(other.lastName, lastName)) &&
             (identical(other.email, email) ||
                 const DeepCollectionEquality().equals(other.email, email)) &&
             (identical(other.fcmToken, fcmToken) ||
@@ -291,7 +308,8 @@ class _$_CurrentUser with DiagnosticableTreeMixin implements _CurrentUser {
       const DeepCollectionEquality().hash(pickups) ^
       const DeepCollectionEquality().hash(redemptions) ^
       const DeepCollectionEquality().hash(id) ^
-      const DeepCollectionEquality().hash(name) ^
+      const DeepCollectionEquality().hash(firstName) ^
+      const DeepCollectionEquality().hash(lastName) ^
       const DeepCollectionEquality().hash(email) ^
       const DeepCollectionEquality().hash(fcmToken) ^
       const DeepCollectionEquality().hash(phoneNumber) ^
@@ -315,7 +333,8 @@ abstract class _CurrentUser implements CurrentUser {
       List<Pickup> pickups,
       List<Redemption> redemptions,
       String id,
-      String name,
+      String firstName,
+      String lastName,
       String email,
       String fcmToken,
       String phoneNumber,
@@ -337,7 +356,9 @@ abstract class _CurrentUser implements CurrentUser {
   @override
   String get id;
   @override
-  String get name;
+  String get firstName;
+  @override
+  String get lastName;
   @override
   String get email;
   @override

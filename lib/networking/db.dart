@@ -29,7 +29,8 @@ abstract class DB {
   Future<ScanWinnings> fetchScanWinnings(CurrentUser user);
   Future<String> uploadBinImageData(CurrentUser user, File image);
   Future<void> saveTaggedBin(CurrentUser user, TaggedBin bin);
-  Future<void> createUser(String email, String name, String uid, DateTime dob);
+  Future<void> createUser(
+      String email, String fName, String lName, String uid, DateTime dob);
   Future<BinDisposal> saveBinDisposal(
       TaggedBin bin, File wasteImage, File binImage, CurrentUser user);
   Future<void> updateTaggedBin(TaggedBin bin, CurrentUser user);
@@ -285,11 +286,12 @@ class FirebaseDB extends DB {
   }
 
   @override
-  Future<void> createUser(
-      String email, String name, String uid, DateTime dob) async {
+  Future<void> createUser(String email, String fName, String lName, String uid,
+      DateTime dob) async {
     return await FirebaseFirestore.instance.collection("users").doc(uid).set({
       "email": email,
-      "name": name,
+      "firstName": fName,
+      "lastName": lName,
       "points": 0,
       "phoneNumber": null,
       "address": null,

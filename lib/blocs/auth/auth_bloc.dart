@@ -41,8 +41,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } else if (event is CheckIfSignedInEvent) {
       yield* _checkIfSignedIn();
     } else if (event is RegisterUserEvent) {
-      yield* _registerEmail(
-          event.user.email, event.password, event.user.name, event.dob);
+      yield* _registerEmail(event.user.email, event.password,
+          event.user.firstName, event.user.lastName, event.dob);
     } else if (event is LoadUserEvent) {
       yield* _loadCurrentUser(event.user.id, event.forceNetwork);
     } else if (event is ForgetPasswordEvent) {
@@ -145,12 +145,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Stream<AuthState> _registerEmail(
-      String email, String password, String name, DateTime dob) async* {
+  Stream<AuthState> _registerEmail(String email, String password, String fName,
+      String lName, DateTime dob) async* {
     try {
       print(TAG + "Registering");
       yield (RegistrationWaitingState());
-      currentUser = await _authService.register(email, password, name, dob);
+      currentUser =
+          await _authService.register(email, password, fName, lName, dob);
 
       if (currentUser == null) {
         yield (RegistrationFailedState(
